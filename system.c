@@ -3,39 +3,7 @@
 
 extern db_server DBServer;
 
-int random_update_db(int *random_buf, int buf_size, char *log_name, int uf)
-{
-	long long tick = 0;
-	FILE *logFile = fopen(log_name, "w+");
-
-	//long long timeStartNs;
-	//long long timeEndNs;
-	//long long timeBeginNs;
-	//long long timeDiff;
-
-	int isEnd;
-	//timeBeginNs = get_ntime();
-	while (1) {
-		//timeStartNs = get_ntime();
-		isEnd = tick_update(random_buf, buf_size, uf , logFile, tick);
-		//timeEndNs = get_ntime();
-		if (-1 == isEnd)
-			break;
-		//next 10ms tick
-		tick++;
-	}
-	fclose(logFile);
-	pthread_mutex_lock(&(DBServer.accessMutex));
-	pthread_mutex_unlock(&(DBServer.accessMutex));
-	//tick = tick * uf + i * (uf / 100);
-	//time_now_us = time_now.tv_sec * 1000000 + time_now.tv_nsec / 1000;
-	printf("tick = %lld\n" , DBServer.globaltick);
-	//timeDiff = (timeEndNs - timeBeginNs) / 1000000;
-	//real uf is the throughput
-	//printf("set uf:%d,real uf:%ld\n", uf, timeDiff == 0 ? 0 : tick / timeDiff);
-	return 0;
-}
-
+// tick更新，频率为uf，一个tick时长目前为100ms
 int tick_update(int *random_buf, int buf_size, int times, FILE *logFile, int tick)
 {
     int index;
@@ -97,6 +65,97 @@ int tick_update(int *random_buf, int buf_size, int times, FILE *logFile, int tic
     return 0;
 }
 
+// update执行的更新函数
+int random_update_db(int *random_buf, int buf_size, char *log_name, int uf)
+{
+	long long tick = 0;
+	FILE *logFile = fopen(log_name, "w+");
+
+	//long long timeStartNs;
+	//long long timeEndNs;
+	//long long timeBeginNs;
+	//long long timeDiff;
+
+	int isEnd;
+	//timeBeginNs = get_ntime();
+	while (1) {
+		//timeStartNs = get_ntime();
+		isEnd = tick_update(random_buf, buf_size, uf , logFile, tick);
+		//timeEndNs = get_ntime();
+		if (-1 == isEnd)
+			break;
+		//next 10ms tick
+		tick++;
+	}
+	fclose(logFile);
+	pthread_mutex_lock(&(DBServer.accessMutex));
+	pthread_mutex_unlock(&(DBServer.accessMutex));
+	//tick = tick * uf + i * (uf / 100);
+	//time_now_us = time_now.tv_sec * 1000000 + time_now.tv_nsec / 1000;
+	printf("tick = %lld\n" , DBServer.globaltick);
+	//timeDiff = (timeEndNs - timeBeginNs) / 1000000;
+	//real uf is the throughput
+	//printf("set uf:%d,real uf:%ld\n", uf, timeDiff == 0 ? 0 : tick / timeDiff);
+	return 0;
+}
+
+void *update_thread(void *arg)
+{
+	pin_To_vCPU(0);
+	int alg_type = ((update_thread_info *) arg) ->alg_type;
+	int *random_buffer = ((update_thread_info *) arg) ->random_buffer;
+	int random_buffer_size = ((update_thread_info *) arg) ->random_buffer_size;
+	pthread_barrier_t *update_brr_init = ((update_thread_info *) arg)->update_brr_init;
+	pthread_barrier_t *brr_exit = ((update_thread_info *) arg)->brr_exit;
+	int pthread_id = ((update_thread_info *) arg)->pthread_id;
+	int update_frequency = ((update_thread_info *) arg)->update_frequency;
+	char log_name[128];
+
+	switch (alg_type) {
+	case NAIVE_ALG:
+		db_write = naive_write;
+		db_read = naive_read;
+		//    snprintf(log_name,sizeof(log_name),"./log/naive_update_log_%d",pthread_id);
+		break;
+	case COPY_ON_UPDATE_ALG:
+		db_write = cou_write;
+		db_read = cou_read;
+		//    snprintf(log_name,sizeof(log_name),"./log/cou_update_log_%d",pthread_id);
+		break;
+	case ZIGZAG_ALG:
+		db_write = zigzag_write;
+		db_read = zigzag_read;
+		//    snprintf(log_name,sizeof(log_name),"./log/zigzag_update_log_%d",pthread_id);
+		break;
+	case PINGPONG_ALG:
+		db_write = pingpong_write;
+		db_read = pingpong_read;
+		//    snprintf(log_name,sizeof(log_name),"./log/pingpong_update_log_%d",pthread_id);
+		break;
+	case MK_ALG:
+		db_write = mk_write;
+		db_read = mk_read;
+		//    snprintf(log_name,sizeof(log_name),"./log/mk_update_log_%d",pthread_id);
+		break;
+	case LL_ALG:
+		db_write = ll_write;
+		db_read = ll_read;
+		break;
+	default:
+		perror("alg_type error");
+		break;
+	}
+	sprintf(log_name, "./log/latency/%d_latency_%dk_%d_%d_%d.log", DBServer.algType,
+		DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
+		pthread_id);
+	pthread_barrier_wait(update_brr_init);
+
+	random_update_db(random_buffer, random_buffer_size, log_name, update_frequency);
+
+	pthread_barrier_wait(brr_exit);
+
+	pthread_exit(NULL);
+}
 
 void *database_thread(void *arg)
 {
@@ -263,66 +322,6 @@ int update_thread_start(pthread_t *update_thread_id_array[],
     pthread_barrier_destroy(&update_brr_init);
     return 0;
 }
-
-
-void *update_thread(void *arg)
-{
-	pin_To_vCPU(0);
-	int alg_type = ((update_thread_info *) arg) ->alg_type;
-	int *random_buffer = ((update_thread_info *) arg) ->random_buffer;
-	int random_buffer_size = ((update_thread_info *) arg) ->random_buffer_size;
-	pthread_barrier_t *update_brr_init = ((update_thread_info *) arg)->update_brr_init;
-	pthread_barrier_t *brr_exit = ((update_thread_info *) arg)->brr_exit;
-	int pthread_id = ((update_thread_info *) arg)->pthread_id;
-	int update_frequency = ((update_thread_info *) arg)->update_frequency;
-	char log_name[128];
-
-	switch (alg_type) {
-	case NAIVE_ALG:
-		db_write = naive_write;
-		db_read = naive_read;
-		//    snprintf(log_name,sizeof(log_name),"./log/naive_update_log_%d",pthread_id);
-		break;
-	case COPY_ON_UPDATE_ALG:
-		db_write = cou_write;
-		db_read = cou_read;
-		//    snprintf(log_name,sizeof(log_name),"./log/cou_update_log_%d",pthread_id);
-		break;
-	case ZIGZAG_ALG:
-		db_write = zigzag_write;
-		db_read = zigzag_read;
-		//    snprintf(log_name,sizeof(log_name),"./log/zigzag_update_log_%d",pthread_id);
-		break;
-	case PINGPONG_ALG:
-		db_write = pingpong_write;
-		db_read = pingpong_read;
-		//    snprintf(log_name,sizeof(log_name),"./log/pingpong_update_log_%d",pthread_id);
-		break;
-	case MK_ALG:
-		db_write = mk_write;
-		db_read = mk_read;
-		//    snprintf(log_name,sizeof(log_name),"./log/mk_update_log_%d",pthread_id);
-		break;
-	case LL_ALG:
-		db_write = ll_write;
-		db_read = ll_read;
-		break;
-	default:
-		perror("alg_type error");
-		break;
-	}
-	sprintf(log_name, "./log/latency/%d_latency_%dk_%d_%d_%d.log", DBServer.algType,
-		DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
-		pthread_id);
-	pthread_barrier_wait(update_brr_init);
-
-	random_update_db(random_buffer, random_buffer_size, log_name, update_frequency);
-
-	pthread_barrier_wait(brr_exit);
-
-	pthread_exit(NULL);
-}
-
 
 
 void log_time_write(db_server *s)
