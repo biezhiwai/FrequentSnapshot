@@ -244,7 +244,7 @@ void *database_thread(void *arg)
         checkpoint(DBServer.ckpID % 2, info);
 		timeEnd = get_utime();
         add_total_log( &DBServer, timeEnd - timeStart);
-		timeCheckpointPeriod = timeStart + 10000000;
+		timeCheckpointPeriod = timeStart + 10000000;  // 10s
 		if(timeCheckpointPeriod >=timeEnd)
 			while(abs(timeCheckpointPeriod - get_utime()) >= 80) {;}
         DBServer.ckpID++;
@@ -323,7 +323,7 @@ int update_thread_start(pthread_t *update_thread_id_array[],
     return 0;
 }
 
-
+/*
 void log_time_write(db_server *s)
 {
 	FILE *log_time;
@@ -351,7 +351,8 @@ void log_time_write(db_server *s)
 	fprintf(log_time,"%lld\n",timeSum/ (s->ckpMaxNum - 1));
 	fflush(log_time);
 	fclose(log_time);
-}
+}*/
+
 void add_overhead_log(db_server *s,long long ns)
 {
     s->ckpOverheadLog[s->ckpID] = ns;

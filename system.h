@@ -40,7 +40,7 @@ typedef struct {
     long long dbEndTime;
 } db_server;
 
-void log_time_write(db_server *s);
+//void log_time_write(db_server *s);
 void add_overhead_log(db_server *s,long long ns);
 void write_overhead_log(db_server *s,const char *filePath);
 void add_prepare_log(db_server *s,long long ns);
