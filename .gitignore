@@ -105,5 +105,5 @@ Thumbs.db
 *.dll
 *.exe
 
-
+*.VC.db*
 >>>>>>> 3dc6631... the alpha version codes

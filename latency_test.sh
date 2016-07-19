@@ -1,6 +1,6 @@
 #可更改
 DB_SIZE='25000'
-UF='12800'
+UF='1280'
 THREAD_NUM='1'
 UNIT_SIZE=4096
 #不可更改
@@ -26,4 +26,4 @@ done
 
 PLOT_ARG=$UNIT_SIZE" "$DB_SIZE" "$UF" 0 "$DATA_DIR" "$RESULT_DIR
 
-python -i ./latency_plot.py $PLOT_ARG
+#python -i ./latency_plot.py $PLOT_ARG
