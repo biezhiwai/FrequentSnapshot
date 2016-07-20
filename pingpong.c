@@ -2,7 +2,7 @@
 #include"pingpong.h"
 extern db_server DBServer;
 
-int db_pingpong_init(void *pp_info, int db_size)
+int db_pingpong_init(void *pp_info, size_t db_size)
 {
 	db_pingpong_infomation *info;
 
@@ -49,14 +49,14 @@ int db_pingpong_init(void *pp_info, int db_size)
 	return 0;
 }
 
-void* pingpong_read(int index)
+void* pingpong_read(size_t index)
 {
 	if (index > (DBServer.pingpongInfo).db_size)
 		index = index % (DBServer.pingpongInfo).db_size;
 	return(DBServer.pingpongInfo).db_pp_as + index * DBServer.unitSize;
 }
 
-int pingpong_write(int index, void* value)
+int pingpong_write(size_t index, void* value)
 {
 	index = index % (DBServer.pingpongInfo).db_size;
 		memcpy((DBServer.pingpongInfo).db_pp_as + index * DBServer.unitSize, value, 4);

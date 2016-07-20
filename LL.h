@@ -9,7 +9,7 @@
 #include<pthread.h>
 
 typedef struct {
-    int db_size;
+    size_t db_size;
     char *db_ll_as0;
     char *db_ll_as1;
     char *db_ll_prev;
@@ -21,9 +21,9 @@ typedef struct {
 
 } db_ll_infomation;
 
-int db_ll_init(void *ll_info, int db_size);
-void *ll_read(int index);
-int ll_write(int index, void *value);
+int db_ll_init(void *ll_info, size_t db_size);
+void *ll_read(size_t index);
+int ll_write(size_t index, void *value);
 void db_ll_ckp(int ckp_id, void *ll_info);
 void db_ll_destroy(void *ll_info);
 

@@ -2,7 +2,7 @@
 #include"zigzag.h"
 extern db_server DBServer;
 
-int db_zigzag_init(void *zigzag_info, int db_size)
+int db_zigzag_init(void *zigzag_info, size_t db_size)
 {
 	db_zigzag_infomation *info;
 
@@ -37,7 +37,7 @@ int db_zigzag_init(void *zigzag_info, int db_size)
 	return 0;
 }
 
-void* zigzag_read(int index)
+void* zigzag_read(size_t index)
 {
 	if (index > (DBServer.zigzagInfo).db_size)
 		index = index % (DBServer.zigzagInfo).db_size;
@@ -48,7 +48,7 @@ void* zigzag_read(int index)
 	}
 }
 
-int zigzag_write(int index, void *value)
+int zigzag_write(size_t index, void *value)
 {
 	index = index % (DBServer.zigzagInfo).db_size;
 		if (0 == (DBServer.zigzagInfo).db_zigzag_mw[index]) {

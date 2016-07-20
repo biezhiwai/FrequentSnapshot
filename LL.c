@@ -2,7 +2,7 @@
 #include"LL.h"
 extern db_server DBServer;
 
-int db_ll_init(void *ll_info, int db_size)
+int db_ll_init(void *ll_info, size_t db_size)
 {
 	db_ll_infomation *info = ll_info;
 
@@ -45,7 +45,7 @@ int db_ll_init(void *ll_info, int db_size)
 
 }
 
-void* ll_read(int index)
+void* ll_read(size_t index)
 {
 	if (index > (DBServer.llInfo).db_size)
 		index = index % (DBServer.llInfo).db_size;
@@ -57,7 +57,7 @@ void* ll_read(int index)
 	return NULL;
 }
 
-int ll_write(int index, void* value)
+int ll_write(size_t index, void* value)
 {
 	index = index % (DBServer.llInfo).db_size;
 		if (1 == (DBServer.llInfo).current) {

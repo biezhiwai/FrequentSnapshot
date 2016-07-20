@@ -11,7 +11,7 @@
 
 typedef struct {
     int algType;
-    int dbSize;
+    size_t dbSize;
     int unitSize;
     struct timespec ckpTimeLog[2000];
     long long *ckpOverheadLog;
@@ -49,7 +49,7 @@ void add_total_log(db_server *s,long long ns);
 ///////////////////////////////////////////////////////////////
 
 typedef struct {
-    int db_size;
+    size_t db_size;
     int alg_type;
     int *random_buffer;
     int random_buffer_size;
@@ -69,7 +69,7 @@ int (*db_write)(int index, void* value);
 ///////////////////////////////////////////////////////////////
 
 typedef struct {
-    int dbSize;
+    size_t dbSize;
     int algType;
     pthread_barrier_t *ckpInitBrr;
     pthread_barrier_t *ckpExitBrr;

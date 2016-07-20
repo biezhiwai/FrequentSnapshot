@@ -15,7 +15,7 @@ void db_mk_unlock(int index)
 {
     __atomic_store_n(DBServer.mkInfo.db_mk_access+index,0,__ATOMIC_SEQ_CST);
 }
-int db_mk_init(void *mk_info, int db_size)
+int db_mk_init(void *mk_info, size_t db_size)
 {
 	db_mk_infomation *info = mk_info;
 
@@ -47,7 +47,7 @@ int db_mk_init(void *mk_info, int db_size)
 
 }
 
-void* mk_read(int index)
+void* mk_read(size_t index)
 {
 	if (index > (DBServer.mkInfo).db_size)
 		index = index % (DBServer.mkInfo).db_size;
@@ -59,7 +59,7 @@ void* mk_read(int index)
 	return NULL;
 }
 
-int mk_write(int index, void* value)
+int mk_write(size_t index, void* value)
 {
 	index = index % (DBServer.mkInfo).db_size;
 		if (1 == (DBServer.mkInfo).current) {

@@ -3,7 +3,7 @@
 
 extern db_server DBServer;
 
-int db_naive_init(void *naive_info, int db_size)
+int db_naive_init(void *naive_info, size_t db_size)
 {
 	db_naive_infomation *info;
 
@@ -36,7 +36,7 @@ void db_naive_destroy(void *naive_info)
 	numa_free(info->db_naive_AS_shandow,DBServer.unitSize * info->db_size);
 }
 
-void* naive_read(int index)
+void* naive_read(size_t index)
 {
 	void *result;
 	if (index >= DBServer.dbSize) {
@@ -46,7 +46,7 @@ void* naive_read(int index)
 	return result;
 }
 
-int naive_write(int index, void *value)
+int naive_write(size_t index, void *value)
 {
 	index = index % DBServer.dbSize;
 		memcpy((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize, value, 4);

@@ -15,7 +15,7 @@ void db_cou_unlock(int index)
 {
     __atomic_store_n(DBServer.couInfo.db_cou_access+index,0,__ATOMIC_SEQ_CST);
 }
-int db_cou_init(void *cou_info, int db_size)
+int db_cou_init(void *cou_info, size_t db_size)
 {
 	db_cou_infomation *info;
 
@@ -62,7 +62,7 @@ int db_cou_init(void *cou_info, int db_size)
 	return 0;
 }
 
-void* cou_read(int index)
+void* cou_read(size_t index)
 {
 	void *result;
 	if (index > DBServer.dbSize)
@@ -71,7 +71,7 @@ void* cou_read(int index)
 	return result;
 }
 
-int cou_write(int index, void *value)
+int cou_write(size_t index, void *value)
 {
 	index = index % DBServer.dbSize;
     	db_lock( &(DBServer.couInfo.db_cou_lock));
