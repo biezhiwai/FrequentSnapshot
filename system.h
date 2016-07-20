@@ -24,7 +24,7 @@ typedef struct {
     int updateFrequency;
 	int isConsistent;
     long long  globaltick;
-    int *rfBuf;
+    long *rfBuf;
     int rfBufSize;
     pthread_mutex_t dbStateRWLock;
     pthread_mutex_t accessMutex;
@@ -51,7 +51,7 @@ void add_total_log(db_server *s,long long ns);
 typedef struct {
     size_t db_size;
     int alg_type;
-    int *random_buffer;
+    long *random_buffer;
     int random_buffer_size;
     pthread_barrier_t *update_brr_init;
     pthread_barrier_t *brr_exit;
@@ -61,10 +61,10 @@ typedef struct {
 
 void *update_thread(void *arg);
 int update_thread_start(pthread_t *update_thread_id_array[],pthread_barrier_t *brr_exit,db_server *dbs);
-int random_update_db( int *random_buf,int buf_size,char *log_name,int uf);
-int tick_update(int *random_buf, int buf_size, int times, FILE *logFile, int tick);
-void* (*db_read)(int index);
-int (*db_write)(int index, void* value);
+int random_update_db( long *random_buf,int buf_size,char *log_name,int uf);
+int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick);
+void* (*db_read)(size_t index);
+int (*db_write)(size_t index, void* value);
 
 ///////////////////////////////////////////////////////////////
 

@@ -17,12 +17,12 @@ long long get_mtime(void)
 	return get_ntime() / 1000000;
 }
 
-int randomfile_init(FILE *rf,int *rbuf,long long rbufSize)
+int randomfile_init(FILE *rf,long *rbuf,long long rbufSize)
 {
     long long i;
 
     for (i = 0; i < rbufSize; i ++){
-        fscanf(rf,"%d\n",rbuf + i);
+        fscanf(rf,"%ld\n",rbuf + i);
     }
     return i;
 }

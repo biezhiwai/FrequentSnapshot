@@ -4,7 +4,7 @@
 extern db_server DBServer;
 
 // tick更新，频率为uf，一个tick时长目前为100ms
-int tick_update(int *random_buf, int buf_size, int times, FILE *logFile, int tick)
+int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick)
 {
     int index;
     long long timeStart;
@@ -66,7 +66,7 @@ int tick_update(int *random_buf, int buf_size, int times, FILE *logFile, int tic
 }
 
 // update执行的更新函数
-int random_update_db(int *random_buf, int buf_size, char *log_name, int uf)
+int random_update_db(long *random_buf, int buf_size, char *log_name, int uf)
 {
 	long long tick = 0;
 	FILE *logFile = fopen(log_name, "w+");
@@ -103,7 +103,7 @@ void *update_thread(void *arg)
 {
 	pin_To_vCPU(0);
 	int alg_type = ((update_thread_info *) arg) ->alg_type;
-	int *random_buffer = ((update_thread_info *) arg) ->random_buffer;
+	long *random_buffer = ((update_thread_info *) arg) ->random_buffer;
 	int random_buffer_size = ((update_thread_info *) arg) ->random_buffer_size;
 	pthread_barrier_t *update_brr_init = ((update_thread_info *) arg)->update_brr_init;
 	pthread_barrier_t *brr_exit = ((update_thread_info *) arg)->brr_exit;
@@ -145,7 +145,7 @@ void *update_thread(void *arg)
 		perror("alg_type error");
 		break;
 	}
-	sprintf(log_name, "./log/latency/%d_latency_%dk_%d_%d_%d.log", DBServer.algType,
+	sprintf(log_name, "./log/latency/%d_latency_%dk_%ld_%d_%d.log", DBServer.algType,
 		DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
 		pthread_id);
 	pthread_barrier_wait(update_brr_init);
@@ -166,7 +166,7 @@ void *database_thread(void *arg)
 	pthread_barrier_t *initBrr = ((db_thread_info *) arg)->ckpInitBrr;
 
 	char dbLogPath[128];
-	int (*db_init)(void *, int);
+	int (*db_init)(void *, size_t);
 	void (*checkpoint)(int, void *);
 	void (*db_destroy)(void *);
 	void *info;

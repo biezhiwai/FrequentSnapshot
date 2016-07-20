@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     DBServer.globaltick = 0;
     DBServer.rfBufSize = DBServer.updateFrequency * 10;
-    DBServer.rfBuf = (int *) malloc(DBServer.rfBufSize * sizeof(int));
+    DBServer.rfBuf = (long *) malloc(DBServer.rfBufSize * sizeof(long));
     if (DBServer.rfBufSize != randomfile_init(rf,DBServer.rfBuf,DBServer.rfBufSize))
     {
         perror("random file init error\n");
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     }
     free(update_thread_array);
     pthread_barrier_destroy(&brr_exit);
-    sprintf(logName,"./log/overhead/%d_overhead_%dk_%d_%d.log",
+    sprintf(logName,"./log/overhead/%d_overhead_%dk_%ld_%d.log",
             DBServer.algType,DBServer.updateFrequency/1000,
             DBServer.dbSize,DBServer.unitSize);
     write_overhead_log(&DBServer,logName);

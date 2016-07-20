@@ -28,7 +28,7 @@ long long get_ntime(void);
 long long get_utime(void);
 long long get_mtime(void);
 
-int randomfile_init(FILE *rf,int *rbuf,long long rbufSize);
+int randomfile_init(FILE *rf,long *rbuf,long long rbufSize);
 
 void db_lock(unsigned char *lock);
 void db_unlock(unsigned char *lock);
