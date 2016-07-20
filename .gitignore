@@ -4,7 +4,7 @@
 *.ko
 *.obj
 *.elf
-
+ckp_backup/*
 # Precompiled Headers
 *.gch
 *.pch
