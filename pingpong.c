@@ -74,7 +74,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 {
 	int ckp_fd;
 	char ckp_name[32];
-	int i;
+	size_t i;
 	int db_size;
 	db_pingpong_infomation *info;
 	char *currentBackup;

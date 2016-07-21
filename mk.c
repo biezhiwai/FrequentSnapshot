@@ -93,7 +93,7 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 {
 	int ckp_fd;
 	char ckp_name[32];
-	int i;
+	size_t i;
 	int db_size;
 	db_mk_infomation *info;
 	mk_disk_info mkDiskInfo;
