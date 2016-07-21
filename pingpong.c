@@ -92,9 +92,9 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 
 	timeStart = get_utime();
 	//prepare for checkpoint
-  pthread_spin_lock(&(DBServer.presync));
+    pthread_spin_lock(&(DBServer.presync));
 	info->current = !(info->current);
-  pthread_spin_unlock(&(DBServer.presync));
+
 	if (0 == info->current) {
 		currentBackup = info->db_pp_as_odd;
 		currentBA = info->db_pp_odd_ba;
@@ -106,11 +106,12 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 		if (1 == currentBA[i]) {
 			//info->db_pp_as_previous[i] = info->db_pp_as_even[i];
 			memcpy(info->db_pp_as_previous + i * DBServer.unitSize,
-				currentBackup + i * DBServer.unitSize, DBServer.unitSize);
-			memset(currentBackup + i * DBServer.unitSize, 0, DBServer.unitSize);
+				currentBackup + i * DBServer.unitSize, (size_t)DBServer.unitSize);
+			memset(currentBackup + i * DBServer.unitSize, 0, (size_t)DBServer.unitSize);
 			currentBA[i] = 0;
 		}
 	}
+	pthread_spin_unlock(&(DBServer.presync));
 	timeEnd = get_utime();
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
