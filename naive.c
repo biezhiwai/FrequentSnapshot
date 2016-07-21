@@ -23,7 +23,7 @@ int db_naive_init(void *naive_info, size_t db_size)
 		return -1;
 	}
 
-    info->db_naive_lock = UNLOCK;
+    //info->db_naive_lock = UNLOCK;
 	return 0;
 }
 
