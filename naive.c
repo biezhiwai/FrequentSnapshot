@@ -22,7 +22,7 @@ int db_naive_init(void *naive_info, size_t db_size)
 		perror("db_navie_AS_shandow malloc error");
 		return -1;
 	}
-
+	printf("dataset init success\n");
     //info->db_naive_lock = UNLOCK;
 	return 0;
 }
@@ -34,6 +34,7 @@ void db_naive_destroy(void *naive_info)
 
 	numa_free(info->db_naive_AS , DBServer.unitSize * info->db_size);
 	numa_free(info->db_naive_AS_shandow,DBServer.unitSize * info->db_size);
+	printf("dataset destroy success\n");
 }
 
 void* naive_read(size_t index)
@@ -43,6 +44,7 @@ void* naive_read(size_t index)
 		index = index % DBServer.dbSize;
 	}
 	result = (void *) ((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize);
+	printf("read\n");
 	return result;
 }
 
@@ -50,6 +52,7 @@ int naive_write(size_t index, void *value)
 {
 	index = index % DBServer.dbSize;
 		memcpy((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize, value, 4);
+	printf("write\n");
 	return 0;
 }
 
@@ -76,6 +79,7 @@ void ckp_naive(int ckp_order, void *naive_info)
 	pthread_spin_unlock(&(DBServer.presync));
 
 	timeEnd = get_utime();
+	printf("prepare sync\n");
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 
 	timeStart = get_utime();
@@ -84,5 +88,6 @@ void ckp_naive(int ckp_order, void *naive_info)
 	close(ckp_fd);
 	timeEnd = get_utime();
 	add_overhead_log(&DBServer,timeEnd - timeStart);
+	printf("dump success\n");
 
 }
