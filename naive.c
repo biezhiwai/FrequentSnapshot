@@ -75,9 +75,8 @@ void ckp_naive(int ckp_order, void *naive_info)
 
 	timeEnd = get_utime();
 	add_prepare_log(&DBServer,timeEnd - timeStart);
-
 	timeStart = get_utime();
-	write(ckp_fd, info->db_naive_AS_shandow, DBServer.unitSize * db_size);
+	write(ckp_fd, info->db_naive_AS_shandow,(size_t)DBServer.unitSize * db_size);
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();

@@ -135,7 +135,7 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 		online = info->db_mk_as2;
 		backup = info->db_mk_as1;
 	}
-    write(ckp_fd,backup,DBServer.dbSize * DBServer.unitSize);
+    write(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize);
     fsync(ckp_fd);
     close(ckp_fd);
 /*	mkDiskInfo.fd = ckp_fd;
@@ -147,7 +147,7 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 
 		if (mkCur != info->db_mk_ba[i] && 0 != mkCur) {
 			memcpy(online + i * DBServer.unitSize,
-				backup + i * DBServer.unitSize, DBServer.unitSize);
+				backup + i * DBServer.unitSize, (size_t)DBServer.unitSize);
 			info->db_mk_ba[i] = 0;
 		}
 

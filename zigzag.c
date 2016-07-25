@@ -92,10 +92,10 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info)
 	for (i = 0; i < db_size; i++) {
 		if (0 == info->db_zigzag_mw[i]) {
 			write(ckpfd,info->db_zigzag_as1 + i * DBServer.unitSize,
-				DBServer.unitSize);
+				(size_t)DBServer.unitSize);
 		} else {
 			write(ckpfd,info->db_zigzag_as0 + i * DBServer.unitSize,
-				DBServer.unitSize);
+				(size_t)DBServer.unitSize);
 		}
 	}
 	fsync(ckpfd);

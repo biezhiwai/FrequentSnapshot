@@ -115,8 +115,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 	timeEnd = get_utime();
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
-	//write to disk
-	write(ckp_fd, info->db_pp_as_previous, DBServer.unitSize * db_size);
+	write(ckp_fd, info->db_pp_as_previous, (size_t)DBServer.unitSize * db_size);
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();

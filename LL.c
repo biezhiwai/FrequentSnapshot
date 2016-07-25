@@ -114,7 +114,7 @@ void db_ll_ckp(int ckp_order, void *ll_info)
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
 	//write to disk
-	write(ckp_fd, info->db_ll_prev, DBServer.unitSize * db_size);
+	write(ckp_fd, info->db_ll_prev, (size_t)DBServer.unitSize * db_size);
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();

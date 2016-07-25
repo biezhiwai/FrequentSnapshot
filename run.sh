@@ -1,8 +1,8 @@
 #可更改
-DB_SIZE='2000000'
-UF='128'
+DB_SIZE=$1
+UF=$2
 THREAD_NUM='1'
-UNIT_SIZE=4096
+UNIT_SIZE=$3
 #不可更改
 ALG_NAME=("NAIVE" "COU" "ZIGZAG" "PINGPONG" "MK" "LL")
 LOG_NAME=("naive" "cou" "zigzag" "pingpong" "mk" "ll")
@@ -16,8 +16,8 @@ mkdir log/latency
 
 python ./Zipf.py $RF_FILE $UF $DB_SIZE
 
-for i in 0 1 2 3 4 5 
-#for i in 5
+#for i in 0 1 2 3 4 5 
+for i in $4
 do 
 	echo ${ALG_NAME[i]}
 	echo "-------------------------------------"

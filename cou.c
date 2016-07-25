@@ -119,7 +119,7 @@ void ckp_cou(int ckp_order, void *cou_info)
 
 	timeStart = get_utime();
     if ( !times){
-        write(ckp_fd, info->db_cou_shandow, DBServer.unitSize * db_size);
+        write(ckp_fd, info->db_cou_shandow, (size_t)DBServer.unitSize * db_size);
         times++;
     }else{
         for (i = 0;i < db_size; i ++){
@@ -127,9 +127,9 @@ void ckp_cou(int ckp_order, void *cou_info)
                 db_cou_lock(i);
                 if (info->db_cou_curBA[i]){
                     db_cou_unlock(i);
-                    write(ckp_fd, info->db_cou_shandow + i * DBServer.unitSize,DBServer.unitSize);
+                    write(ckp_fd, info->db_cou_shandow + i * DBServer.unitSize,(size_t)DBServer.unitSize);
                 }else{
-                    write(ckp_fd, info->db_cou_primary + i * DBServer.unitSize,DBServer.unitSize);
+                    write(ckp_fd, info->db_cou_primary + i * DBServer.unitSize,(size_t)DBServer.unitSize);
                     db_cou_unlock(i);
                 }
             }
