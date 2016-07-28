@@ -96,8 +96,8 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 	size_t i;
 	int db_size;
 	db_mk_infomation *info;
-	mk_disk_info mkDiskInfo;
-	pthread_t mkDiskThrId;
+	//mk_disk_info mkDiskInfo;
+	//pthread_t mkDiskThrId;
 	int mkCur;
 	char *backup;
 	char *online;
@@ -135,9 +135,17 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 		online = info->db_mk_as2;
 		backup = info->db_mk_as1;
 	}
-    write(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize);
-    fsync(ckp_fd);
-    close(ckp_fd);
+    //write(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize);
+int G = (size_t)DBServer.unitSize * db_size / 1024000000;
+    int mod = (size_t)DBServer.unitSize * db_size % 1024000000;
+	    for(int i=0;i<G;i++)
+		    {
+			        write(ckp_fd, backup + i*1024000000, 1024000000);
+					    }
+						    write(ckp_fd, backup + G*1024000000, mod);
+							    fsync(ckp_fd);
+								    close(ckp_fd);
+
 /*	mkDiskInfo.fd = ckp_fd;
 	mkDiskInfo.len = DBServer.dbSize * DBServer.unitSize;
 	mkDiskInfo.addr = backup;

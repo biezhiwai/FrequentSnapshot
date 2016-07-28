@@ -76,7 +76,15 @@ void ckp_naive(int ckp_order, void *naive_info)
 	timeEnd = get_utime();
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
-	write(ckp_fd, info->db_naive_AS_shandow,(size_t)DBServer.unitSize * db_size);
+	//write(ckp_fd, info->db_naive_AS_shandow,(size_t)DBServer.unitSize * db_size);
+	//write for large file
+	int G = (size_t)DBServer.unitSize * db_size / 1024000000;
+	int mod = (size_t)DBServer.unitSize * db_size % 1024000000;
+	for(int i=0;i<G;i++)
+	{
+		write(ckp_fd, info->db_naive_AS_shandow + i*1024000000, 1024000000);
+	}
+	write(ckp_fd, info->db_naive_AS_shandow + G*1024000000, mod);
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();
