@@ -22,7 +22,6 @@ typedef struct {
     int dbState;
     int updateThrNum;
     int updateFrequency;
-	int isConsistent;
     long long  globaltick;
     long *rfBuf;
     int rfBufSize;

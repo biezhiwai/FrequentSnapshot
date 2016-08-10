@@ -84,7 +84,7 @@ void db_ll_ckp(int ckp_order, void *ll_info)
 
 	info = ll_info;
 	sprintf(ckp_name, "./ckp_backup/pp_%d", ckp_order);
-	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_CREAT, 666))) {
+	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY |O_TRUNC | O_SYNC | O_CREAT, 666))) {
 		perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
 		return;
 	}
@@ -114,7 +114,7 @@ void db_ll_ckp(int ckp_order, void *ll_info)
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
 	//write to disk
-	write(ckp_fd, info->db_ll_prev, (size_t)DBServer.unitSize * db_size);
+	writeLarge(ckp_fd, info->db_ll_prev, (size_t)DBServer.unitSize * db_size, (size_t)DBServer.unitSize);
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();

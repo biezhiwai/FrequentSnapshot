@@ -16,17 +16,13 @@ mkdir log/latency
 
 python ./Zipf.py $RF_FILE $UF $DB_SIZE
 
-#for i in 0 1 2 3 4 5 
-for i in $4
-do 
-	echo ${ALG_NAME[i]}
-	echo "-------------------------------------"
-	ARG_CKP_LATENCY=${THREAD_NUM}" "${DB_SIZE}" "$i" "$RF_FILE" "${UF}" "$UNIT_SIZE
-	./bin/ckp_simulator $ARG_CKP_LATENCY 
-	echo "-------------------------------------"
-done
+echo ${ALG_NAME[$4]}
+echo "-------------------------------------"
+ARG_CKP_LATENCY=${THREAD_NUM}" "${DB_SIZE}" "$4" "$RF_FILE" "${UF}" "$UNIT_SIZE
+./bin/ckp_simulator $ARG_CKP_LATENCY 
+echo "-------------------------------------"
 
 
-PLOT_ARG=$UNIT_SIZE" "$DB_SIZE" "$UF" 0 "$DATA_DIR" "$RESULT_DIR
+#PLOT_ARG=$UNIT_SIZE" "$DB_SIZE" "$UF" 0 "$DATA_DIR" "$RESULT_DIR
 
 #python -i ./latency_plot.py $PLOT_ARG

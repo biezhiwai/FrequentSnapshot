@@ -34,4 +34,4 @@ void db_lock(unsigned char *lock);
 void db_unlock(unsigned char *lock);
 int pin_To_vCPU(int cpu);
 
-void writeLarge(int fd, const void *mem, size_t count);
+void writeLarge(int fd, const void *mem, size_t count,size_t block);

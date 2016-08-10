@@ -64,15 +64,15 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info)
 {
 	int ckpfd;
 	char ckp_name[128];
-	int i;
-	int db_size;
+	size_t i;
+	size_t db_size;
 	db_zigzag_infomation *info;
 	long long timeStart;
 	long long timeEnd;
 
 	info = zigzag_info;
 	sprintf(ckp_name, "./ckp_backup/zz_%d", ckp_order);
-	if (-1 == (ckpfd = open(ckp_name,O_WRONLY | O_CREAT,666))) {
+	if (-1 == (ckpfd = open(ckp_name,O_WRONLY |O_TRUNC | O_SYNC | O_CREAT,666))) {
 		perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
 		return;
 	}
@@ -91,11 +91,13 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info)
 	timeStart = get_utime();
 	for (i = 0; i < db_size; i++) {
 		if (0 == info->db_zigzag_mw[i]) {
-			write(ckpfd,info->db_zigzag_as1 + i * DBServer.unitSize,
+			write(ckpfd,info->db_zigzag_as1 + (size_t)i * DBServer.unitSize,
 				(size_t)DBServer.unitSize);
+				lseek(ckpfd,0,SEEK_END);
 		} else {
-			write(ckpfd,info->db_zigzag_as0 + i * DBServer.unitSize,
+			write(ckpfd,info->db_zigzag_as0 + (size_t)i * DBServer.unitSize,
 				(size_t)DBServer.unitSize);
+				lseek(ckpfd,0,SEEK_END);
 		}
 	}
 	fsync(ckpfd);

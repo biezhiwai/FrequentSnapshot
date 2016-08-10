@@ -75,7 +75,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 	int ckp_fd;
 	char ckp_name[32];
 	size_t i;
-	int db_size;
+	size_t db_size;
 	db_pingpong_infomation *info;
 	char *currentBackup;
 	unsigned char *currentBA;
@@ -84,7 +84,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 
 	info = pp_info;
 	sprintf(ckp_name, "./ckp_backup/pp_%d", ckp_order);
-	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_CREAT, 666))) {
+	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 666))) {
 		perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
 		return;
 	}
@@ -105,9 +105,9 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 	for (i = 0; i < db_size; i++) {
 		if (1 == currentBA[i]) {
 			//info->db_pp_as_previous[i] = info->db_pp_as_even[i];
-			memcpy(info->db_pp_as_previous + i * DBServer.unitSize,
-				currentBackup + i * DBServer.unitSize, (size_t)DBServer.unitSize);
-			memset(currentBackup + i * DBServer.unitSize, 0, (size_t)DBServer.unitSize);
+			memcpy(info->db_pp_as_previous + (size_t)i * DBServer.unitSize,
+				currentBackup + (size_t)i * DBServer.unitSize, (size_t)DBServer.unitSize);
+			memset(currentBackup + (size_t)i * DBServer.unitSize, 0, (size_t)DBServer.unitSize);
 			currentBA[i] = 0;
 		}
 	}
@@ -115,7 +115,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 	timeEnd = get_utime();
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
-	write(ckp_fd, info->db_pp_as_previous, (size_t)DBServer.unitSize * db_size);
+	writeLarge(ckp_fd, info->db_pp_as_previous, (size_t)DBServer.unitSize * db_size, (size_t)DBServer.unitSize);
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();

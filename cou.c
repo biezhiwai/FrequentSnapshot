@@ -119,7 +119,7 @@ void ckp_cou(int ckp_order, void *cou_info)
 
 	timeStart = get_utime();
     if ( !times){
-        writeLarge(ckp_fd, info->db_cou_shandow, (size_t)DBServer.unitSize * db_size);
+        writeLarge(ckp_fd, info->db_cou_shandow, (size_t)DBServer.unitSize * db_size , (size_t)DBServer.unitSize);
         times++;
     }else{
         for (i = 0;i < db_size; i ++){

@@ -12,12 +12,11 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     long long timeEnd;
     long long timeTick;
     int i;
-	DBServer.isConsistent = 0;
 	
     timeBegin = get_utime();
     pthread_spin_lock(&(DBServer.presync));
 	timeStart = get_utime();
-    timeTick = timeStart + 1000 * 100;  // 100ms
+    timeTick = timeStart + 100000;  // 0.1s
     i = 0;
 	#ifdef TICK_UPDATE
 	while(i < times){
@@ -33,8 +32,8 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
 		DBServer.update_count++;
 	}
 	timeEnd = get_utime();
-	if(timeTick>timeEnd)   // wait loop , error of 0.5ms
-		while(abs(timeTick- get_utime()) >= 50) {;}
+	if(timeTick>timeEnd)   // wait loop , error of 0.1ms
+		while((timeTick- get_utime()) >= 100) {;}
 	else{
 		printf("update rate is so high\n");
 		return -1;
@@ -53,13 +52,12 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
 		db_write(index , random_buf + tick);
 		i++;
 		DBServer.update_count++;
-		if(abs(timeTick - get_utime()) <= 50) 
+		if(abs(timeTick - get_utime()) <= 100) 
 			break;
 	}
 	timeEnd = get_utime();
 	#endif
     pthread_spin_unlock(&(DBServer.presync));
-	DBServer.isConsistent = 1;
     DBServer.globaltick++;
     fprintf(logFile, "%lld,%lld\n",timeStart,(timeEnd - timeBegin));
     return 0;
@@ -233,12 +231,12 @@ void *database_thread(void *arg)
 
 	printf("db thread init success!\n");
 	pthread_barrier_wait(initBrr);
-	DBServer.isConsistent = 1;
+	//DBServer.isConsistent = 1;
 	long long timeStart;
 	long long timeEnd;
 	long long timeCheckpointPeriod;
 	while (1) {
-		while(0 == DBServer.isConsistent){;}
+		//while(0 == DBServer.isConsistent){;}
         timeStart = get_utime();
         printf("checkpoint timestamp:%ds\n", (int) (timeStart / 1000000));
         checkpoint(DBServer.ckpID % 2, info);
@@ -246,7 +244,7 @@ void *database_thread(void *arg)
         add_total_log( &DBServer, timeEnd - timeStart);
 		timeCheckpointPeriod = timeStart + 10000000;  // 10s
 		if(timeCheckpointPeriod >=timeEnd)
-			while(abs(timeCheckpointPeriod - get_utime()) >= 80) {;}
+			while(abs(timeCheckpointPeriod - get_utime()) >= 100) {;}
         DBServer.ckpID++;
 		
         if (DBServer.ckpID  >= DBServer.ckpMaxNum) {

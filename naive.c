@@ -78,7 +78,7 @@ void ckp_naive(int ckp_order, void *naive_info)
 	timeStart = get_utime();
 	//write(ckp_fd, info->db_naive_AS_shandow,(size_t)DBServer.unitSize * db_size);
 	//write for large file
-	writeLarge(ckp_fd, info->db_naive_AS_shandow, (size_t)DBServer.unitSize * db_size);
+	writeLarge(ckp_fd, info->db_naive_AS_shandow, (size_t)DBServer.unitSize * db_size, (size_t)DBServer.unitSize);
 	close(ckp_fd);
 	timeEnd = get_utime();
 	add_overhead_log(&DBServer,timeEnd - timeStart);
