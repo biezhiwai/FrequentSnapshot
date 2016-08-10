@@ -104,7 +104,7 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 	long long timeStart;
 	long long timeEnd;
 	info = mk_info;
-	sprintf(ckp_name, "./ckp_backup/mk_%d", ckp_order);
+	sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY |O_TRUNC | O_SYNC | O_CREAT, 666))) {
 		perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
 		return;

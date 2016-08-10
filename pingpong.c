@@ -83,7 +83,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 	long long timeEnd;
 
 	info = pp_info;
-	sprintf(ckp_name, "./ckp_backup/pp_%d", ckp_order);
+	sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 666))) {
 		perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
 		return;
