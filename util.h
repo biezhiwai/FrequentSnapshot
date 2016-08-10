@@ -33,3 +33,5 @@ int randomfile_init(FILE *rf,long *rbuf,long long rbufSize);
 void db_lock(unsigned char *lock);
 void db_unlock(unsigned char *lock);
 int pin_To_vCPU(int cpu);
+
+void writeLarge(int fd, const void *mem, size_t count);

@@ -250,9 +250,9 @@ void *database_thread(void *arg)
         DBServer.ckpID++;
 		
         if (DBServer.ckpID  >= DBServer.ckpMaxNum) {
-   	    	pthread_mutex_lock(&(DBServer.dbStateRWLock));
+   	    	//pthread_mutex_lock(&(DBServer.dbStateRWLock));
       		DBServer.dbState = 0;
-        	pthread_mutex_unlock(&(DBServer.dbStateRWLock));
+        	//pthread_mutex_unlock(&(DBServer.dbStateRWLock));
         	break;
         }
 	}

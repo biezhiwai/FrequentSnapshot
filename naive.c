@@ -62,7 +62,7 @@ void ckp_naive(int ckp_order, void *naive_info)
 
 	info = naive_info;
 	sprintf(ckp_name, "./ckp_backup/naive_%d", ckp_order);
-	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_CREAT, 666))) {
+	if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 666))) {
 		perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
 		return;
 	}
@@ -78,14 +78,7 @@ void ckp_naive(int ckp_order, void *naive_info)
 	timeStart = get_utime();
 	//write(ckp_fd, info->db_naive_AS_shandow,(size_t)DBServer.unitSize * db_size);
 	//write for large file
-	int G = (size_t)DBServer.unitSize * db_size / 1024000000;
-	int mod = (size_t)DBServer.unitSize * db_size % 1024000000;
-	for(int i=0;i<G;i++)
-	{
-		write(ckp_fd, info->db_naive_AS_shandow + i*1024000000, 1024000000);
-	}
-	write(ckp_fd, info->db_naive_AS_shandow + G*1024000000, mod);
-	fsync(ckp_fd);
+	writeLarge(ckp_fd, info->db_naive_AS_shandow, (size_t)DBServer.unitSize * db_size);
 	close(ckp_fd);
 	timeEnd = get_utime();
 	add_overhead_log(&DBServer,timeEnd - timeStart);

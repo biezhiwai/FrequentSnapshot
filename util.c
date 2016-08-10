@@ -37,7 +37,18 @@ int pin_To_vCPU(int cpu)
     return 1;
 }
 
-
+void writeLarge(int fd, const void *mem, size_t count)
+{
+	size_t block = (size_t)1024*1024*1024;
+    int G = (size_t)count / block;
+    int mod = count % block;
+    for(int i=0; i< G; i++)
+    {
+        write(fd, mem+(size_t)i*block,block);
+		lseek(fd, 0, SEEK_END);
+	}
+	write(fd,mem+(size_t)G*block,(size_t)mod);	
+}
 void db_lock(unsigned char *lock)
 {
     char expected = UNLOCK;

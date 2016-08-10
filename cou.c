@@ -91,15 +91,15 @@ void ckp_cou(int ckp_order, void *cou_info)
 {
 	int ckp_fd;
 	char ckp_name[32];
-	int i;
-	int db_size;
+	size_t i;
+	size_t db_size;
 	db_cou_infomation *info;
 	long long timeStart;
 	long long timeEnd;
     static int times = 0;
 	info = cou_info;
 	sprintf(ckp_name, "./ckp_backup/cou_%d", ckp_order);
-    if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_CREAT, 666))) {
+    if (-1 == (ckp_fd = open(ckp_name, O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 666))) {
 		perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
 		return;
 	}
@@ -119,17 +119,19 @@ void ckp_cou(int ckp_order, void *cou_info)
 
 	timeStart = get_utime();
     if ( !times){
-        write(ckp_fd, info->db_cou_shandow, (size_t)DBServer.unitSize * db_size);
+        writeLarge(ckp_fd, info->db_cou_shandow, (size_t)DBServer.unitSize * db_size);
         times++;
     }else{
         for (i = 0;i < db_size; i ++){
             if (info->db_cou_chgBA[i]){
                 db_cou_lock(i);
                 if (info->db_cou_curBA[i]){
+                    write(ckp_fd, info->db_cou_shandow + (size_t)i * DBServer.unitSize,(size_t)DBServer.unitSize);
+					lseek(ckp_fd, 0, SEEK_END);
                     db_cou_unlock(i);
-                    write(ckp_fd, info->db_cou_shandow + i * DBServer.unitSize,(size_t)DBServer.unitSize);
                 }else{
-                    write(ckp_fd, info->db_cou_primary + i * DBServer.unitSize,(size_t)DBServer.unitSize);
+                    write(ckp_fd, info->db_cou_primary + (size_t)i * DBServer.unitSize,(size_t)DBServer.unitSize);
+					lseek(ckp_fd, 0, SEEK_END);
                     db_cou_unlock(i);
                 }
             }
