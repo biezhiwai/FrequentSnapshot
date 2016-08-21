@@ -1,6 +1,6 @@
 #可更改
 DB_SIZE='250000'
-UF='32'
+UF=$1
 THREAD_NUM='1'
 UNIT_SIZE=4096
 #不可更改
