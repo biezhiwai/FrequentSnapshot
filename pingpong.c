@@ -102,6 +102,10 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 		currentBackup = info->db_pp_as_even;
 		currentBA = info->db_pp_even_ba;
 	}
+	pthread_spin_unlock(&(DBServer.presync));
+	timeEnd = get_utime();
+	add_prepare_log(&DBServer,timeEnd - timeStart);
+	timeStart = get_utime();
 	for (i = 0; i < db_size; i++) {
 		if (1 == currentBA[i]) {
 			//info->db_pp_as_previous[i] = info->db_pp_as_even[i];
@@ -111,10 +115,6 @@ void db_pingpong_ckp(int ckp_order, void *pp_info)
 			currentBA[i] = 0;
 		}
 	}
-	pthread_spin_unlock(&(DBServer.presync));
-	timeEnd = get_utime();
-	add_prepare_log(&DBServer,timeEnd - timeStart);
-	timeStart = get_utime();
 	writeLarge(ckp_fd, info->db_pp_as_previous, (size_t)DBServer.unitSize * db_size, (size_t)DBServer.unitSize);
 	fsync(ckp_fd);
 	close(ckp_fd);

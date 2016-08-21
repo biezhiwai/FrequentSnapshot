@@ -369,9 +369,8 @@ void write_overhead_log(db_server *s,const char *filePath)
     int i;
     logFile = fopen(filePath,"w");
 
-    fprintf(logFile,"Prepare\t\t\tOverhead\t\ttotal\n");
     for (i = 0; i < s->ckpID; i ++){
-        fprintf(logFile,"%lld\t\t%lld\t\t%lld\n",s->ckpPrepareLog[i],
+        fprintf(logFile,"%lld,%lld,%lld\n",s->ckpPrepareLog[i],
             s->ckpOverheadLog[i],s->ckpTotalOverheadLog[i]);
     }
     fflush(logFile);

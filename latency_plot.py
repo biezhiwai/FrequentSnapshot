@@ -11,7 +11,7 @@ algLabel = ['naive', 'cou', 'zigzag', 'pingpong', 'MK', 'LL']
 fig = plt.figure(figsize=(8, 4))
 
 def init():
-    plt.xlabel("Time [sec]")
+    plt.xlabel("Tick Count")
     plt.ylabel("Latency Distribution[sec]")
     plt.title("Latency Evoluation")
 
@@ -21,7 +21,6 @@ def gen(xmin, xmax, ymin, ymax):
 	#fig.yscale('log')
     fig.canvas.draw()
 
-# plt.savefig(resultDir + "Latency" + str(uf) + "k.pdf")
 
 def loadlog():
     for i in range(0 , 6, 1):
@@ -34,7 +33,7 @@ def loadlog():
             timeMsStr, latencyMsStr = eachLine.split(",")
             latencyMs = float(latencyMsStr)
             count = count + 1
-            tick.append(count/10.0)
+            tick.append(count)
 			#us normalization
             latency.append(latencyMs/1000000.0)
 
@@ -44,7 +43,8 @@ def loadlog():
 
 init()
 loadlog()
-plt.xlim( 12 , 22)
+#plt.xlim( 1000 , 2500)
 #plt.ylim(0 , 0.1)
 plt.yscale('log')
-fig.show()
+plt.savefig(resultDir + "Latency" + str(uf) + "k.pdf")
+#fig.show()
