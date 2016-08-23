@@ -90,11 +90,11 @@ void db_ll_ckp(int ckp_order, void *ll_info)
 	}
 	db_size = info->db_size;
 
-	timeStart = get_utime();
-  pthread_spin_lock( &(DBServer.presync) );
+    //pthread_spin_lock( &(DBServer.presync) );
+	db_lock(&(DBServer.pre_lock));
+	timeStart = get_ntime();
 	//prepare for checkpoint
 	info->current = !(info->current);
-  pthread_spin_unlock( &(DBServer.presync) );
 	if (0 == info->current) {
 		currentBackup = info->db_ll_as1;
 		currentBA = info->db_ll_as1_ba;
@@ -102,6 +102,10 @@ void db_ll_ckp(int ckp_order, void *ll_info)
 		currentBackup = info->db_ll_as0;
 		currentBA = info->db_ll_as0_ba;
 	}
+	timeEnd = get_ntime();
+    //pthread_spin_unlock( &(DBServer.presync) );
+	db_unlock(&(DBServer.pre_lock));
+	add_prepare_log(&DBServer,timeEnd - timeStart);
 	for (i = 0; i < db_size; i++) {
 		if (1 == currentBA[i]) {
 			//info->db_pp_as_previous[i] = info->db_pp_as_even[i];
@@ -110,11 +114,11 @@ void db_ll_ckp(int ckp_order, void *ll_info)
 			currentBA[i] = 0;
 		}
 	}
-	timeEnd = get_utime();
-	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
 	//write to disk
+	#ifndef OFF_DUMP
 	writeLarge(ckp_fd, info->db_ll_prev, (size_t)DBServer.unitSize * db_size, (size_t)DBServer.unitSize);
+	#endif
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();

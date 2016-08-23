@@ -67,18 +67,22 @@ void ckp_naive(int ckp_order, void *naive_info)
 		return;
 	}
 	db_size = info->db_size;
-	timeStart = get_utime();
 
-    pthread_spin_lock(&(DBServer.presync));
+    //pthread_spin_lock(&(DBServer.presync));
+	db_lock(&(DBServer.pre_lock));
+	timeStart = get_ntime();
 	memcpy(info->db_naive_AS_shandow,info->db_naive_AS , (size_t)DBServer.unitSize * db_size);
-	pthread_spin_unlock(&(DBServer.presync));
+	timeEnd = get_ntime();
+	db_unlock(&(DBServer.pre_lock));
+	//pthread_spin_unlock(&(DBServer.presync));
 
-	timeEnd = get_utime();
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	timeStart = get_utime();
 	//write(ckp_fd, info->db_naive_AS_shandow,(size_t)DBServer.unitSize * db_size);
 	//write for large file
+	#ifndef OFF_DUMP
 	writeLarge(ckp_fd, info->db_naive_AS_shandow, (size_t)DBServer.unitSize * db_size, (size_t)DBServer.unitSize);
+	#endif
 	close(ckp_fd);
 	timeEnd = get_utime();
 	add_overhead_log(&DBServer,timeEnd - timeStart);

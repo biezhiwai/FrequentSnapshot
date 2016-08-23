@@ -30,8 +30,9 @@ int main(int argc, char *argv[])
     DBServer.unitSize = atoi(argv[6]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
-    DBServer.ckpMaxNum = 10;
+    DBServer.ckpMaxNum = 50;
 	DBServer.update_count = 0;
+	DBServer.pre_lock=UNLOCK;
     DBServer.ckpOverheadLog = malloc( sizeof(long long) * DBServer.ckpMaxNum);
     DBServer.ckpPrepareLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
     DBServer.ckpTotalOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);

@@ -14,7 +14,8 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     int i;
 	
     timeBegin = get_utime();
-    pthread_spin_lock(&(DBServer.presync));
+    //pthread_spin_lock(&(DBServer.presync));
+	db_lock(&(DBServer.pre_lock));
 	timeStart = get_utime();
     timeTick = timeStart + 100000;  // 0.1s
     i = 0;
@@ -57,7 +58,8 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
 	}
 	timeEnd = get_utime();
 	#endif
-    pthread_spin_unlock(&(DBServer.presync));
+    //pthread_spin_unlock(&(DBServer.presync));
+	db_unlock(&(DBServer.pre_lock));
     DBServer.globaltick++;
     fprintf(logFile, "%lld,%lld\n",timeStart,(timeEnd - timeBegin));
     return 0;

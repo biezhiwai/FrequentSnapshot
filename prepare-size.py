@@ -12,7 +12,8 @@ for i in range(0,6,1):
             prepare,overhead,total = el.split(",")
             prepares.append(float(prepare))
         var=np.mean(prepares)
-        print( var)
+        #var=np.median(prepares)
+        print(var)
 
 
 

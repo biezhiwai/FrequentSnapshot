@@ -77,17 +77,20 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info)
 		return;
 	}
 	db_size = info->db_size;
-	timeStart = get_utime();
 
-	pthread_spin_lock(&(DBServer.presync));
+	//pthread_spin_lock(&(DBServer.presync));
+	db_lock(&(DBServer.pre_lock));
+	timeStart = get_ntime();
 	for (i = 0; i < db_size; i++) {
 		info->db_zigzag_mw[i] = !(info->db_zigzag_mr[i]);
 	}
-	pthread_spin_unlock(&(DBServer.presync));
+	timeEnd = get_ntime();
+	//pthread_spin_unlock(&(DBServer.presync));
+	db_unlock(&(DBServer.pre_lock));
 
-	timeEnd = get_utime();
 	add_prepare_log(&DBServer,timeEnd - timeStart);
 	//write to disk
+	#ifndef OFF_DUMP
 	timeStart = get_utime();
 	for (i = 0; i < db_size; i++) {
 		if (0 == info->db_zigzag_mw[i]) {
@@ -100,6 +103,7 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info)
 				lseek(ckpfd,0,SEEK_END);
 		}
 	}
+	#endif
 	fsync(ckpfd);
 	close(ckpfd);
 	timeEnd = get_utime();

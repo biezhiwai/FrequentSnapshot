@@ -104,8 +104,9 @@ void ckp_cou(int ckp_order, void *cou_info)
 		return;
 	}
 	db_size = info->db_size;
-	timeStart = get_utime();
-	pthread_spin_lock( &(DBServer.presync) );
+	//pthread_spin_lock( &(DBServer.presync) );
+	db_lock(&(DBServer.pre_lock));
+	timeStart = get_ntime();
     db_lock( &(DBServer.couInfo.db_cou_lock));
     for (i = 0; i < db_size; i++) {
         info->db_cou_chgBA[i] = info->db_cou_curBA[i] | info->db_cou_preBA[i];
@@ -113,10 +114,11 @@ void ckp_cou(int ckp_order, void *cou_info)
         info->db_cou_curBA[i] = 1;
 	}
     db_unlock( &(DBServer.couInfo.db_cou_lock));
-    pthread_spin_unlock( &(DBServer.presync) );
-	timeEnd = get_utime();
+	timeEnd = get_ntime();
+    //pthread_spin_unlock( &(DBServer.presync) );
+	db_unlock(&(DBServer.pre_lock));
 	add_prepare_log(&DBServer,timeEnd - timeStart);
-
+	#ifndef OFF_DUMP
 	timeStart = get_utime();
     if ( !times){
         writeLarge(ckp_fd, info->db_cou_shandow, (size_t)DBServer.unitSize * db_size , (size_t)DBServer.unitSize);
@@ -137,7 +139,7 @@ void ckp_cou(int ckp_order, void *cou_info)
             }
         }
     }
-
+	#endif
 	fsync(ckp_fd);
 	close(ckp_fd);
 	timeEnd = get_utime();

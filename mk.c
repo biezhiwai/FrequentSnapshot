@@ -111,17 +111,18 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 	}
 	db_size = info->db_size;
 
-	timeStart = get_utime();
 
-  pthread_spin_lock(&(DBServer.presync));
+    //pthread_spin_lock(&(DBServer.presync));
+	db_lock(&(DBServer.pre_lock));
+	timeStart = get_ntime();
 	if ( info->current == 1)
 		info->current = 2;
 	else
 		info->current = 1;
 	//info->current = (1 == (info->current)) ? 2 : 1;
-  pthread_spin_unlock(&(DBServer.presync));
-
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
+    //pthread_spin_unlock(&(DBServer.presync));
+	db_unlock(&(DBServer.pre_lock));
     add_prepare_log( &DBServer, timeEnd - timeStart);
 
     timeStart = get_utime();
@@ -135,8 +136,9 @@ void db_mk_ckp(int ckp_order, void *mk_info)
 		online = info->db_mk_as2;
 		backup = info->db_mk_as1;
 	}
+ #ifndef OFF_DUMP
     writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize, (size_t)DBServer.unitSize);
-	
+	#endif
 	fsync(ckp_fd);
 	close(ckp_fd);
 

@@ -28,6 +28,7 @@ typedef struct {
     pthread_mutex_t dbStateRWLock;
     pthread_mutex_t accessMutex;
     pthread_spinlock_t presync;
+	unsigned char  pre_lock;
     db_naive_infomation naiveInfo;
     db_cou_infomation couInfo;
     db_zigzag_infomation zigzagInfo;
