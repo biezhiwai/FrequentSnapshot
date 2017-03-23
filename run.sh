@@ -4,8 +4,8 @@ UF=$2
 THREAD_NUM='1'
 UNIT_SIZE=$3
 #不可更改
-ALG_NAME=("NAIVE" "COU" "ZIGZAG" "PINGPONG" "MK" "LL")
-LOG_NAME=("naive" "cou" "zigzag" "pingpong" "mk" "ll")
+ALG_NAME=("NAIVE" "COU" "ZIGZAG" "PINGPONG" "MK" "LL" "MYFORK")
+LOG_NAME=("naive" "cou" "zigzag" "pingpong" "mk" "ll" "myfork")
 RF_FILE="./rfg.txt"
 DATA_DIR="./log/latency/"
 RESULT_DIR="./diagrams/experimental_result/"
