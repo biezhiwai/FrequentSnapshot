@@ -61,7 +61,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     //pthread_spin_unlock(&(DBServer.presync));
 	db_unlock(&(DBServer.pre_lock));
     DBServer.globaltick++;
-    fprintf(logFile, "%lld,%lld\n",timeStart,(timeEnd - timeBegin));
+    fprintf(logFile, "%lld\t%lld\n",timeStart,(timeEnd - timeBegin));
     return 0;
 }
 
@@ -384,7 +384,7 @@ void write_overhead_log(db_server *s,const char *filePath)
     logFile = fopen(filePath,"w");
 
     for (i = 0; i < s->ckpID; i ++){
-        fprintf(logFile,"%lld,%lld,%lld\n",s->ckpPrepareLog[i],
+        fprintf(logFile,"%lld\t%lld\t%lld\n",s->ckpPrepareLog[i],
             s->ckpOverheadLog[i],s->ckpTotalOverheadLog[i]);
     }
     fflush(logFile);
