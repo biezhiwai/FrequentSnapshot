@@ -141,6 +141,11 @@ void *update_thread(void *arg)
 		db_write = ll_write;
 		db_read = ll_read;
 		break;
+	case MYFORK_ALG:
+		db_write = myfork_write;
+		db_read = myfork_read;
+		//    snprintf(log_name,sizeof(log_name),"./log/myfork_update_log_%d",pthread_id);
+		break;
 	default:
 		perror("alg_type error");
 		break;
@@ -216,6 +221,13 @@ void *database_thread(void *arg)
 		info = &(DBServer.llInfo);
 		snprintf(dbLogPath, sizeof(dbLogPath), "./log/ll_%d_ckp_log", dbSize);
 		break;
+	case MYFORK_ALG:
+		db_init = db_myfork_init;
+		checkpoint = ckp_myfork;
+		db_destroy = db_myfork_destroy;
+		info = &(DBServer.myforkInfo);
+		snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_%d_ckp_log", dbSize);
+		break;		
 	default:
 		printf("alg_type error!");
 		goto DB_EXIT;

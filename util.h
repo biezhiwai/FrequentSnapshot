@@ -8,9 +8,11 @@
 #define PINGPONG_ALG        3
 #define MK_ALG              4
 #define LL_ALG              5
+#define MYFORK_ALG           6
 
 #include <stdio.h>
 #include<sys/mman.h>
+#include <sys/wait.h>
 #include<fcntl.h>
 #include <time.h>
 #include <numa.h>

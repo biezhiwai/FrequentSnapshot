@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     if (argc != 7)
     {
         perror("usage:./ckp_cimulator [update thread number] [unit num] "
-               "[algorithm type:0-navie 1-copy on update 2-zigzag 3-pingpong] "
+               "[algorithm type:0-navie 1-copy on update 2-zigzag 3-pingpong 4-HG 5-PB 6-fork] "
                "[random file name] [update frequency (k/sec)]"
                "[unit size]");
     }
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     DBServer.unitSize = atoi(argv[6]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
-    DBServer.ckpMaxNum = 50;
+    DBServer.ckpMaxNum = 10;
 	DBServer.update_count = 0;
 	DBServer.pre_lock=UNLOCK;
     DBServer.ckpOverheadLog = malloc( sizeof(long long) * DBServer.ckpMaxNum);

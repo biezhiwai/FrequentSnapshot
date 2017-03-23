@@ -6,9 +6,7 @@
 #include "pingpong.h"
 #include "mk.h"
 #include "LL.h"
-
-
-
+#include "myfork.h"
 typedef struct {
     int algType;
     size_t dbSize;
@@ -35,6 +33,7 @@ typedef struct {
     db_pingpong_infomation pingpongInfo;
     db_mk_infomation mkInfo;
     db_ll_infomation llInfo;
+	db_myfork_infomation myforkInfo;
     long long update_count;
     long long dbStartTime;
     long long dbEndTime;
