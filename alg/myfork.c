@@ -1,5 +1,5 @@
 #include"myfork.h"
-#include"system.h"
+#include"sys/system.h"
 
 extern db_server DBServer;
 

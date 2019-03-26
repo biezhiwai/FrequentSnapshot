@@ -1,4 +1,4 @@
-#include"system.h"
+#include"sys/system.h"
 #include"zigzag.h"
 extern db_server DBServer;
 

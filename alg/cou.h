@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#include "util.h"
+#include "sys/util.h"
 
 typedef struct {
     size_t db_size;

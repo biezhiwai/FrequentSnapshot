@@ -1,12 +1,14 @@
 #pragma once
+
 #include "util.h"
-#include "naive.h"
-#include "cou.h"
-#include "zigzag.h"
-#include "pingpong.h"
-#include "mk.h"
-#include "LL.h"
-#include "myfork.h"
+#include "alg/naive.h"
+#include "alg/cou.h"
+#include "alg/zigzag.h"
+#include "alg/pingpong.h"
+#include "alg/mk.h"
+#include "alg/LL.h"
+#include "alg/myfork.h"
+
 typedef struct {
     int algType;
     size_t dbSize;
