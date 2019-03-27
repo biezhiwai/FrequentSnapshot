@@ -11,10 +11,6 @@ LOG_NAME=("naive" "cou" "zigzag" "pingpong" "mk" "ll" "myfork")
 RF_FILE="./rfg.txt"
 DATA_DIR="./log/latency/"
 RESULT_DIR="./diagrams/experimental_result/"
-mkdir log
-mkdir ckp_backup
-mkdir log/overhead
-mkdir log/latency
 
 # python ./Zipf.py $RF_FILE $UF $DB_SIZE
 

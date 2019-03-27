@@ -15,13 +15,15 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     timeBegin = get_utime();
     //pthread_spin_lock(&(DBServer.presync));
     db_lock(&(DBServer.pre_lock));
-    timeStart = get_utime();
+    timeStart = get_ntime();
     timeTick = timeStart + 100000;  // 0.1s
     i = 0;
 #ifdef TICK_UPDATE
     while (i < times) {
         if (1 != DBServer.dbState) {
+#ifdef VERBOSE
             printf("update thread prepare to exit\n");
+#endif
             pthread_mutex_unlock(&(DBServer.dbStateRWLock));
             return -1;
         }
@@ -31,7 +33,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
         i++;
         DBServer.update_count++;
     }
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
     if (timeTick > timeEnd)   // wait loop , error of 0.1ms
         while ((timeTick - get_utime()) >= 100) { ; }
     else {
@@ -55,7 +57,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
         if(abs(timeTick - get_utime()) <= 100) 
             break;
     }
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
 #endif
     //pthread_spin_unlock(&(DBServer.presync));
     db_unlock(&(DBServer.pre_lock));
@@ -90,7 +92,9 @@ int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
     pthread_mutex_unlock(&(DBServer.accessMutex));
     //tick = tick * uf + i * (uf / 100);
     //time_now_us = time_now.tv_sec * 1000000 + time_now.tv_nsec / 1000;
+#ifdef VERBOSE
     printf("tick = %lld\n", DBServer.globaltick);
+#endif
     //timeDiff = (timeEndNs - timeBeginNs) / 1000000;
     //real uf is the throughput
     //printf("set uf:%d,real uf:%ld\n", uf, timeDiff == 0 ? 0 : tick / timeDiff);
@@ -171,9 +175,10 @@ void *database_thread(void *arg) {
     void (*checkpoint)(int, void *);
     void (*db_destroy)(void *);
     void *info;
-
+#ifdef VERBOSE
     printf("database thread start dbSize:%d alg_type:%d,unit_size:%d,set uf:%d\n",
            dbSize, algType, DBServer.unitSize, DBServer.updateFrequency);
+#endif
     switch (algType) {
         case NAIVE_ALG:
             db_init = db_naive_init;
@@ -238,8 +243,9 @@ void *database_thread(void *arg) {
     pthread_mutex_lock(&(DBServer.dbStateRWLock));
     DBServer.dbState = 1;
     pthread_mutex_unlock(&(DBServer.dbStateRWLock));
-
+#ifdef VERBOSE
     printf("db thread init success!\n");
+#endif
     pthread_barrier_wait(initBrr);
     //DBServer.isConsistent = 1;
     long long timeStart;
@@ -247,10 +253,12 @@ void *database_thread(void *arg) {
     long long timeCheckpointPeriod;
     while (1) {
         //while(0 == DBServer.isConsistent){;}
-        timeStart = get_utime();
-        printf("checkpoint timestamp:%ds\n", (int) (timeStart / 10 ^ 6));
+#ifdef VERBOSE
+        printf("checkpoint triggered\n");
+#endif
+        timeStart = get_ntime();
         checkpoint(DBServer.ckpID % 2, info);
-        timeEnd = get_utime();
+        timeEnd = get_ntime();
         add_total_log(&DBServer, timeEnd - timeStart);
         timeCheckpointPeriod = timeStart + 10 ^ 7;  // 10s
         if (timeCheckpointPeriod >= timeEnd)
@@ -264,11 +272,15 @@ void *database_thread(void *arg) {
             break;
         }
     }
+#ifdef VERBOSE
     printf("\ncheckpoint finish:%d\n", DBServer.ckpID);
+#endif
     pthread_barrier_wait(exitBrr);
 
     DB_EXIT:
+#ifdef VERBOSE
     printf("database thread exit\n");
+#endif
     db_destroy(info);
 
     pthread_exit(NULL);
@@ -319,9 +331,13 @@ int update_thread_start(pthread_t *update_thread_id_array[],
         update_info.pthread_id = i;
         if (0 != pthread_create(&((*update_thread_id_array)[i]),
                                 NULL, update_thread, &update_info)) {
+#ifdef VERBOSE
             printf("update thread %d create error", i);
+#endif
         } else {
+#ifdef VERBOSE
             printf("update thread %d create success\n", i);
+#endif
         }
     }
     pthread_barrier_wait(&update_brr_init);

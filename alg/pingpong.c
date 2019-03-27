@@ -105,7 +105,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
 #ifndef OFF_DUMP
-    timeStart = get_utime();
+    timeStart = get_ntime();
     for (i = 0; i < db_size; i++) {
         if (1 == currentBA[i]) {
             //info->db_pp_as_previous[i] = info->db_pp_as_even[i];
@@ -119,7 +119,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
 #endif
     fflush(ckp_fd);
     fclose(ckp_fd);
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }
 

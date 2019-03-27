@@ -111,11 +111,11 @@ void db_ll_ckp(int ckp_order, void *ll_info) {
             currentBA[i] = 0;
         }
     }
-    timeStart = get_utime();
+    timeStart = get_ntime();
     fwrite(info->db_ll_prev, DBServer.unitSize, db_size, ckp_fd);
     fflush(ckp_fd);
     fclose(ckp_fd);
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }
 

@@ -6,8 +6,11 @@ project(FrequentSnapshot)
 set(ADDRESS_MODEL 64)
 set(NODE_TARGET x64)
 
+#add_definitions(-D VERBOSE)
 
 add_definitions(-D_GNU_SOURCE)
+add_definitions(-D TICK_UPDATE)
+
 add_definitions(-D TICK_UPDATE)
 
 link_libraries(m)

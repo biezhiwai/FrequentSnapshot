@@ -72,7 +72,7 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
     if (0 == fpid) {
-        timeStart = get_utime();
+        timeStart = get_ntime();
         //write(ckp_fd, info->db_myfork_AS_shandow,(size_t)DBServer.unitSize * db_size);
         //write for large file
 #ifndef OFF_DUMP
@@ -81,7 +81,7 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
 #endif
         fflush(ckp_fd);
         fclose(ckp_fd);
-        timeEnd = get_utime();
+        timeEnd = get_ntime();
         add_overhead_log(&DBServer, timeEnd - timeStart);
         _exit(-1);
     } else {

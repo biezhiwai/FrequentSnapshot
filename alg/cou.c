@@ -116,7 +116,7 @@ void ckp_cou(int ckp_order, void *cou_info) {
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
-    timeStart = get_utime();
+    timeStart = get_ntime();
     if (!times) {
         fwrite(info->db_cou_shandow, (size_t) DBServer.unitSize * db_size, 1, ckp_fd);
         times++;
@@ -138,7 +138,7 @@ void ckp_cou(int ckp_order, void *cou_info) {
     }
     fflush(ckp_fd);
     fclose(ckp_fd);
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }
 

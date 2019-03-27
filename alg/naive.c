@@ -72,10 +72,10 @@ void ckp_naive(int ckp_order, void *naive_info) {
     db_unlock(&(DBServer.pre_lock));
     //pthread_spin_unlock(&(DBServer.presync));
     add_prepare_log(&DBServer, timeEnd - timeStart);
-    timeStart = get_utime();
+    timeStart = get_ntime();
     fwrite(info->db_naive_AS_shandow, DBServer.unitSize, db_size, ckp_fd);
     fflush(ckp_fd);
     fclose(ckp_fd);
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }

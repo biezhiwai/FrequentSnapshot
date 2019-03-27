@@ -87,7 +87,7 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
 
     add_prepare_log(&DBServer, timeEnd - timeStart);
     //write to disk
-    timeStart = get_utime();
+    timeStart = get_ntime();
     for (i = 0; i < db_size; i++) {
         if (0 == info->db_zigzag_mw[i]) {
             fwrite(info->db_zigzag_as1 + (size_t) i * DBServer.unitSize, (size_t) DBServer.unitSize, 1, ckp_fd);
@@ -97,7 +97,7 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     }
     fflush(ckp_fd);
     fclose(ckp_fd);
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }
 

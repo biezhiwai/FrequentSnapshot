@@ -124,7 +124,7 @@ void db_mk_ckp(int ckp_order, void *mk_info) {
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
-    timeStart = get_utime();
+    timeStart = get_ntime();
     if (1 == info->current) {
         mkCur = 1;
         online = info->db_mk_as1;
@@ -155,7 +155,7 @@ void db_mk_ckp(int ckp_order, void *mk_info) {
         }
 
     }
-    timeEnd = get_utime();
+    timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }
 

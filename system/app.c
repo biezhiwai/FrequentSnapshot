@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     pthread_barrier_t brr_exit;
     char logName[128];
     if (argc != 7) {
-        perror("usage:./ckp_cimulator [update thread number] [unit num] "
+        perror("usage:./app [update thread number] [unit num] "
                "[algorithm type:0-navie 1-copy on update 2-zigzag 3-pingpong 4-HG 5-PB 6-fork] "
                "[random file name] [update frequency (k/sec)]"
                "[unit size]");
@@ -62,7 +62,9 @@ int main(int argc, char *argv[]) {
     DBServer.dbEndTime = get_mtime();
     for (i = 0; i < DBServer.updateThrNum; i++) {
         pthread_join(update_thread_array[i], NULL);
+#ifdef VERBOSE
         printf("update thread %d exit!\n", i);
+#endif
     }
     free(update_thread_array);
     pthread_barrier_destroy(&brr_exit);
