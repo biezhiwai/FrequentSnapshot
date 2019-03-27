@@ -6,6 +6,7 @@
  */
 
 #pragma once
+
 #include<pthread.h>
 
 typedef struct {
@@ -19,9 +20,14 @@ typedef struct {
     unsigned char db_pp_lock;
     int current;
 } db_pingpong_infomation;
+
 int db_pingpong_init(void *pp_info, size_t db_size);
-void* pingpong_read(size_t index);
+
+void *pingpong_read(size_t index);
+
 int pingpong_write(size_t index, void *value);
+
 void db_pingpong_ckp(int ckp_order, void *pp_info);
+
 void db_pingpong_destroy(void *pp_info);
 

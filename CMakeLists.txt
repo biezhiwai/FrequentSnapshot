@@ -7,10 +7,7 @@ set(ADDRESS_MODEL 64)
 set(NODE_TARGET x64)
 
 
-
-add_definitions(-D_GNU_SOURCE )
-add_definitions(-D_FILE_OFFSET_BITS=64 )
-add_definitions(-D_LARGEFILE64_SOURCE)
+add_definitions(-D_GNU_SOURCE)
 add_definitions(-D TICK_UPDATE)
 
 link_libraries(m)
@@ -20,4 +17,4 @@ link_libraries(pthread)
 
 include_directories(.)
 
-add_executable(app sys/app.c sys/system.c sys/util.c alg/cou.c alg/LL.c alg/myfork.c alg/mk.c alg/naive.c alg/pingpong.c alg/zigzag.c)
+add_executable(app system/app.c system/system.c system/util.c alg/cou.c alg/LL.c alg/myfork.c alg/mk.c alg/naive.c alg/pingpong.c alg/zigzag.c)

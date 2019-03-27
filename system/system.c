@@ -19,22 +19,22 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     timeTick = timeStart + 100000;  // 0.1s
     i = 0;
 #ifdef TICK_UPDATE
-    while(i < times){
+    while (i < times) {
         if (1 != DBServer.dbState) {
-                printf("update thread prepare to exit\n");
-                pthread_mutex_unlock(&(DBServer.dbStateRWLock));
-                return -1;
+            printf("update thread prepare to exit\n");
+            pthread_mutex_unlock(&(DBServer.dbStateRWLock));
+            return -1;
         }
 
         index = random_buf[tick + i];
-        db_write(index , random_buf + tick);
+        db_write(index, random_buf + tick);
         i++;
         DBServer.update_count++;
     }
     timeEnd = get_utime();
-    if(timeTick>timeEnd)   // wait loop , error of 0.1ms
-        while((timeTick- get_utime()) >= 100) {;}
-    else{
+    if (timeTick > timeEnd)   // wait loop , error of 0.1ms
+        while ((timeTick - get_utime()) >= 100) { ; }
+    else {
         printf("update rate is so high\n");
         return -1;
     }
@@ -248,11 +248,11 @@ void *database_thread(void *arg) {
     while (1) {
         //while(0 == DBServer.isConsistent){;}
         timeStart = get_utime();
-        printf("checkpoint timestamp:%ds\n", (int) (timeStart / 1000000));
+        printf("checkpoint timestamp:%ds\n", (int) (timeStart / 10 ^ 6));
         checkpoint(DBServer.ckpID % 2, info);
         timeEnd = get_utime();
         add_total_log(&DBServer, timeEnd - timeStart);
-        timeCheckpointPeriod = timeStart + 10000000;  // 10s
+        timeCheckpointPeriod = timeStart + 10 ^ 7;  // 10s
         if (timeCheckpointPeriod >= timeEnd)
             while (abs(timeCheckpointPeriod - get_utime()) >= 100) { ; }
         DBServer.ckpID++;

@@ -6,7 +6,8 @@
  */
 
 #pragma once
-#include "sys/util.h"
+
+#include "system/util.h"
 
 typedef struct {
     size_t db_size;
@@ -21,8 +22,12 @@ typedef struct {
 } db_cou_infomation;
 
 int db_cou_init(void *cou_info, size_t db_size);
+
 void *cou_read(size_t index);
+
 int cou_write(size_t index, void *value);
+
 void ckp_cou(int ckp_id, void *cou_info);
+
 void db_cou_destroy(void *cou_info);
 

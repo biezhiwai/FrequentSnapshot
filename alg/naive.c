@@ -1,5 +1,5 @@
 #include"naive.h"
-#include"sys/system.h"
+#include"system/system.h"
 
 
 extern db_server DBServer;
@@ -49,7 +49,7 @@ int naive_write(size_t index, void *value) {
 }
 
 void ckp_naive(int ckp_order, void *naive_info) {
-    int ckp_fd;
+    FILE *ckp_fd;
     char ckp_name[32];
     db_naive_infomation *info;
     long long timeStart;
@@ -58,7 +58,7 @@ void ckp_naive(int ckp_order, void *naive_info) {
 
     info = naive_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (-1 == (ckp_fd = open(ckp_name, O_LARGEFILE | O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 666))) {
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
@@ -71,16 +71,11 @@ void ckp_naive(int ckp_order, void *naive_info) {
     timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     //pthread_spin_unlock(&(DBServer.presync));
-
     add_prepare_log(&DBServer, timeEnd - timeStart);
     timeStart = get_utime();
-    write(ckp_fd, info->db_naive_AS_shandow, (off64_t) DBServer.unitSize * db_size);
-    //safe_write(ckp_fd, info->db_naive_AS_shandow, (size_t) DBServer.unitSize * db_size);
-    //write for large file
-#ifndef OFF_DUMP
-    //writeLarge(ckp_fd, info->db_naive_AS_shandow, (size_t)DBServer.unitSize * db_size, 2^30);
-#endif
-    close(ckp_fd);
+    fwrite(info->db_naive_AS_shandow, DBServer.unitSize, db_size, ckp_fd);
+    fflush(ckp_fd);
+    fclose(ckp_fd);
     timeEnd = get_utime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }

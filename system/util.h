@@ -29,13 +29,17 @@
 #include <pthread.h>
 
 long long get_ntime(void);
+
 long long get_utime(void);
+
 long long get_mtime(void);
 
-int randomfile_init(FILE *rf,long *rbuf,long long rbufSize);
+int randomfile_init(FILE *rf, long *rbuf, long long rbufSize);
 
 void db_lock(unsigned char *lock);
+
 void db_unlock(unsigned char *lock);
+
 int pin_To_vCPU(int cpu);
 
-void writeLarge(int fd, const void *mem, size_t count,size_t block);
+void writeLarge(int fd, const void *mem, size_t count, size_t block);

@@ -5,6 +5,7 @@
  * Created on September 20, 2015, 8:02 PM
  */
 #pragma once
+
 #include<pthread.h>
 
 typedef struct {
@@ -16,9 +17,14 @@ typedef struct {
     unsigned char db_zigzag_lock;
 
 } db_zigzag_infomation;
+
 int db_zigzag_init(void *cou_info, size_t db_size);
-void* zigzag_read(size_t index);
+
+void *zigzag_read(size_t index);
+
 int zigzag_write(size_t index, void *value);
+
 void db_zigzag_ckp(int ckp_order, void *cou_info);
+
 void db_zigzag_destroy(void *cou_info);
 
