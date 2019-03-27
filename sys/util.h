@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include<sys/mman.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include<fcntl.h>
 #include <time.h>
 #include <numa.h>
@@ -22,7 +24,7 @@
 #include <limits.h>
 #include <string.h>
 
-#define __USE_GNU
+
 #include <sched.h>
 #include <pthread.h>
 

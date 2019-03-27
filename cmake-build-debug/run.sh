@@ -1,8 +1,10 @@
+#!/usr/bin/env bash
 #可更改
 DB_SIZE=$1
 UF=$2
+PAGE_SIZE=$3
 THREAD_NUM='1'
-UNIT_SIZE=$3
+
 #不可更改
 ALG_NAME=("NAIVE" "COU" "ZIGZAG" "PINGPONG" "MK" "LL" "MYFORK")
 LOG_NAME=("naive" "cou" "zigzag" "pingpong" "mk" "ll" "myfork")
@@ -14,12 +16,11 @@ mkdir ckp_backup
 mkdir log/overhead
 mkdir log/latency
 
-python ./Zipf.py $RF_FILE $UF $DB_SIZE
+# python ./Zipf.py $RF_FILE $UF $DB_SIZE
 
 echo ${ALG_NAME[$4]}
 echo "-------------------------------------"
-ARG_CKP_LATENCY=${THREAD_NUM}" "${DB_SIZE}" "$4" "$RF_FILE" "${UF}" "$UNIT_SIZE
-./bin/ckp_simulator $ARG_CKP_LATENCY 
+../app ${THREAD_NUM} ${DB_SIZE} $4 $RF_FILE ${UF} $PAGE_SIZE
 echo "-------------------------------------"
 
 
