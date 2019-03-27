@@ -20,7 +20,7 @@ mkdir log/latency
 
 echo ${ALG_NAME[$4]}
 echo "-------------------------------------"
-../app ${THREAD_NUM} ${DB_SIZE} $4 $RF_FILE ${UF} $PAGE_SIZE
+./app ${THREAD_NUM} ${DB_SIZE} $4 $RF_FILE ${UF} $PAGE_SIZE
 echo "-------------------------------------"
 
 
