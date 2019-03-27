@@ -12,11 +12,11 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     long long timeTick;
     int i;
 
-    timeBegin = get_utime();
+    timeBegin = get_ntime();
     //pthread_spin_lock(&(DBServer.presync));
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
-    timeTick = timeStart + 100000;  // 0.1s
+    timeTick = timeStart + 100000000;  // 0.1s
     i = 0;
 #ifdef TICK_UPDATE
     while (i < times) {
@@ -34,8 +34,8 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
         DBServer.update_count++;
     }
     timeEnd = get_ntime();
-    if (timeTick > timeEnd)   // wait loop , error of 0.1ms
-        while ((timeTick - get_utime()) >= 100) { ; }
+    if (timeTick > timeEnd)   // wait loop , with litter error
+        while ((timeTick - get_ntime()) >= 100000) { ; }
     else {
         printf("update rate is so high\n");
         return -1;
@@ -54,7 +54,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
         db_write(index , random_buf + tick);
         i++;
         DBServer.update_count++;
-        if(abs(timeTick - get_utime()) <= 100) 
+        if(abs(timeTick - get_ntime()) <= 100000)
             break;
     }
     timeEnd = get_ntime();
@@ -262,7 +262,7 @@ void *database_thread(void *arg) {
         add_total_log(&DBServer, timeEnd - timeStart);
         timeCheckpointPeriod = timeStart + 10 ^ 7;  // 10s
         if (timeCheckpointPeriod >= timeEnd)
-            while (abs(timeCheckpointPeriod - get_utime()) >= 100) { ; }
+            while (abs(timeCheckpointPeriod - get_ntime()) >= 100) { ; }
         DBServer.ckpID++;
 
         if (DBServer.ckpID >= DBServer.ckpMaxNum) {
