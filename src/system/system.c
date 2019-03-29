@@ -3,7 +3,7 @@
 
 extern db_server DBServer;
 
-// tick更新，频率为uf，一个tick时长目前为100ms
+
 int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick) {
     int index;
     long long timeStart;
@@ -62,7 +62,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     //pthread_spin_unlock(&(DBServer.presync));
     db_unlock(&(DBServer.pre_lock));
     DBServer.globaltick++;
-    fprintf(logFile, "%lld\t%lld\n", timeStart, (timeEnd - timeBegin));
+    fprintf(logFile, "%lld\t%lld\n", timeBegin, (timeEnd - timeBegin));
     return 0;
 }
 
@@ -71,33 +71,17 @@ int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
     long long tick = 0;
     FILE *logFile = fopen(log_name, "w+");
 
-    //long long timeStartNs;
-    //long long timeEndNs;
-    //long long timeBeginNs;
-    //long long timeDiff;
-
     int isEnd;
-    //timeBeginNs = get_ntime();
     while (1) {
-        //timeStartNs = get_ntime();
         isEnd = tick_update(random_buf, buf_size, uf, logFile, tick);
-        //timeEndNs = get_ntime();
         if (-1 == isEnd)
             break;
-        //next 10ms tick
         tick++;
     }
     fclose(logFile);
-    pthread_mutex_lock(&(DBServer.accessMutex));
-    pthread_mutex_unlock(&(DBServer.accessMutex));
-    //tick = tick * uf + i * (uf / 100);
-    //time_now_us = time_now.tv_sec * 1000000 + time_now.tv_nsec / 1000;
 #ifdef VERBOSE
     printf("tick = %lld\n", DBServer.globaltick);
 #endif
-    //timeDiff = (timeEndNs - timeBeginNs) / 1000000;
-    //real uf is the throughput
-    //printf("set uf:%d,real uf:%ld\n", uf, timeDiff == 0 ? 0 : tick / timeDiff);
     return 0;
 }
 

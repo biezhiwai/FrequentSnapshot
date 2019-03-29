@@ -1,5 +1,5 @@
-#include "system/util.h"
-#include "system/system.h"
+#include "util.h"
+#include "system.h"
 
 db_server DBServer;
 

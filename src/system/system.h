@@ -1,13 +1,13 @@
 #pragma once
 
 #include "util.h"
-#include "alg/naive.h"
-#include "alg/cou.h"
-#include "alg/zigzag.h"
-#include "alg/pingpong.h"
-#include "alg/mk.h"
-#include "alg/LL.h"
-#include "alg/myfork.h"
+#include "src/alg/naive.h"
+#include "src/alg/cou.h"
+#include "src/alg/zigzag.h"
+#include "src/alg/pingpong.h"
+#include "src/alg/mk.h"
+#include "src/alg/LL.h"
+#include "src/alg/myfork.h"
 
 typedef struct {
     int algType;
