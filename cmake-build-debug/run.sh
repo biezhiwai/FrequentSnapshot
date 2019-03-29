@@ -14,10 +14,10 @@ RESULT_DIR="./diagrams/experimental_result/"
 
 # python ./Zipf.py $RF_FILE $UF $DB_SIZE
 
-echo ${ALG_NAME[$4]}
-echo "-------------------------------------"
+#echo ${ALG_NAME[$4]}
+#echo "-------------------------------------"
 ./app ${THREAD_NUM} ${DB_SIZE} $4 $RF_FILE ${UF} $PAGE_SIZE
-echo "-------------------------------------"
+#echo "-------------------------------------"
 
 
 #PLOT_ARG=$UNIT_SIZE" "$DB_SIZE" "$UF" 0 "$DATA_DIR" "$RESULT_DIR
