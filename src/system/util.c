@@ -6,10 +6,6 @@ long long get_ntime(void) {
     return timeNow.tv_sec * 1000000000 + timeNow.tv_nsec;
 }
 
-long long get_utime(void) {
-    return get_ntime() / 1000;
-}
-
 long long get_mtime(void) {
     return get_ntime() / 1000000;
 }

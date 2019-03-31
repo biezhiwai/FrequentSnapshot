@@ -24,10 +24,10 @@ typedef struct {
     int updateFrequency;
     long long globaltick;
     long *rfBuf;
-    int rfBufSize;
+    long long rfBufSize;
     pthread_mutex_t dbStateRWLock;
     pthread_mutex_t accessMutex;
-    pthread_spinlock_t presync;
+    //pthread_spinlock_t presync;
     unsigned char pre_lock;
     db_naive_infomation naiveInfo;
     db_cou_infomation couInfo;

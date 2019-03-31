@@ -30,8 +30,6 @@
 
 long long get_ntime(void);
 
-long long get_utime(void);
-
 long long get_mtime(void);
 
 int randomfile_init(FILE *rf, long *rbuf, long long rbufSize);

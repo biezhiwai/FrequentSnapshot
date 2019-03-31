@@ -64,14 +64,14 @@ int db_cou_init(void *cou_info, size_t db_size) {
 
 void *cou_read(size_t index) {
     void *result;
-    if (index > DBServer.dbSize)
-        index = index % DBServer.dbSize;
+    //if (index > DBServer.dbSize)
+    //    index = index % DBServer.dbSize;
     result = (DBServer.couInfo).db_cou_primary + index * DBServer.unitSize;
     return result;
 }
 
 int cou_write(size_t index, void *value) {
-    index = index % DBServer.dbSize;
+    //index = index % DBServer.dbSize;
     db_lock(&(DBServer.couInfo.db_cou_lock));
     if (!DBServer.couInfo.db_cou_curBA[index]) {
         db_cou_lock(index);

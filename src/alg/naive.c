@@ -35,15 +35,15 @@ void db_naive_destroy(void *naive_info) {
 
 void *naive_read(size_t index) {
     void *result;
-    if (index >= DBServer.dbSize) {
-        index = index % DBServer.dbSize;
-    }
+//    if (index >= DBServer.dbSize) {
+//        index = index % DBServer.dbSize;
+//    }
     result = (void *) ((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize);
     return result;
 }
 
 int naive_write(size_t index, void *value) {
-    index = index % DBServer.dbSize;
+    //index = index % DBServer.dbSize;
     memcpy((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize, value, 4);
     return 0;
 }

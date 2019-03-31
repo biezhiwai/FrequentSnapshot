@@ -46,8 +46,8 @@ int db_ll_init(void *ll_info, size_t db_size) {
 }
 
 void *ll_read(size_t index) {
-    if (index > (DBServer.llInfo).db_size)
-        index = index % (DBServer.llInfo).db_size;
+//    if (index > (DBServer.llInfo).db_size)
+//        index = index % (DBServer.llInfo).db_size;
     if (1 == (DBServer.llInfo).current) {
         return (DBServer.llInfo).db_ll_as1 + index * DBServer.unitSize;
     } else {
@@ -57,7 +57,7 @@ void *ll_read(size_t index) {
 }
 
 int ll_write(size_t index, void *value) {
-    index = index % (DBServer.llInfo).db_size;
+    //index = index % (DBServer.llInfo).db_size;
     if (1 == (DBServer.llInfo).current) {
         memcpy((DBServer.llInfo).db_ll_as1 + index * DBServer.unitSize, value, 4);
         (DBServer.llInfo).db_ll_as1_ba[index] = 1;

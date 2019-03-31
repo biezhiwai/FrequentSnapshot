@@ -34,15 +34,15 @@ void db_myfork_destroy(void *myfork_info) {
 
 void *myfork_read(size_t index) {
     void *result;
-    if (index >= DBServer.dbSize) {
-        index = index % DBServer.dbSize;
-    }
+//    if (index >= DBServer.dbSize) {
+//        index = index % DBServer.dbSize;
+//    }
     result = (void *) ((DBServer.myforkInfo).db_myfork_AS + index * DBServer.unitSize);
     return result;
 }
 
 int myfork_write(size_t index, void *value) {
-    index = index % DBServer.dbSize;
+    //index = index % DBServer.dbSize;
     memcpy((DBServer.myforkInfo).db_myfork_AS + index * DBServer.unitSize, value, 4);
     return 0;
 }

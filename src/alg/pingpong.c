@@ -50,13 +50,13 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
 }
 
 void *pingpong_read(size_t index) {
-    if (index > (DBServer.pingpongInfo).db_size)
-        index = index % (DBServer.pingpongInfo).db_size;
+//    if (index > (DBServer.pingpongInfo).db_size)
+//        index = index % (DBServer.pingpongInfo).db_size;
     return (DBServer.pingpongInfo).db_pp_as + index * DBServer.unitSize;
 }
 
 int pingpong_write(size_t index, void *value) {
-    index = index % (DBServer.pingpongInfo).db_size;
+    //index = index % (DBServer.pingpongInfo).db_size;
     memcpy((DBServer.pingpongInfo).db_pp_as + index * DBServer.unitSize, value, 4);
     if (0 == (DBServer.pingpongInfo).current) {
         memcpy((DBServer.pingpongInfo).db_pp_as_odd + index * DBServer.unitSize + index % DBServer.unitSize, value, 4);

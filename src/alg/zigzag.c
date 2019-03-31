@@ -38,8 +38,8 @@ int db_zigzag_init(void *zigzag_info, size_t db_size) {
 }
 
 void *zigzag_read(size_t index) {
-    if (index > (DBServer.zigzagInfo).db_size)
-        index = index % (DBServer.zigzagInfo).db_size;
+//    if (index > (DBServer.zigzagInfo).db_size)
+//        index = index % (DBServer.zigzagInfo).db_size;
     if (0 == (DBServer.zigzagInfo).db_zigzag_mr[index]) {
         return (void *) ((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize);
     } else {
@@ -48,7 +48,7 @@ void *zigzag_read(size_t index) {
 }
 
 int zigzag_write(size_t index, void *value) {
-    index = index % (DBServer.zigzagInfo).db_size;
+    //index = index % (DBServer.zigzagInfo).db_size;
     if (0 == (DBServer.zigzagInfo).db_zigzag_mw[index]) {
         memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize, value, 4);
     } else {

@@ -4,148 +4,26 @@
 extern db_server DBServer;
 
 
-int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick) {
-    int index;
-    long long timeStart;
-    long long timeBegin;
-    long long timeEnd;
-    long long timeTick;
-    int i;
+int db_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs) {
+    db_thread_info dbInfo;
+    pthread_barrier_t brrDBInit;
+    pthread_barrier_init(&brrDBInit, NULL, 2);
+    dbInfo.algType = dbs->algType;
+    dbInfo.dbSize = dbs->dbSize;
+    dbInfo.ckpInitBrr = &brrDBInit;
+    dbInfo.ckpExitBrr = brr_exit;
 
-    timeBegin = get_ntime();
-    //pthread_spin_lock(&(DBServer.presync));
-    db_lock(&(DBServer.pre_lock));
-    timeStart = get_ntime();
-    timeTick = timeStart + 100000000;  // 0.1s
-    i = 0;
-#ifdef TICK_UPDATE
-    while (i < times) {
-        if (1 != DBServer.dbState) {
-#ifdef VERBOSE
-            printf("update thread prepare to exit\n");
-#endif
-            pthread_mutex_unlock(&(DBServer.dbStateRWLock));
-            return -1;
-        }
-
-        index = random_buf[tick + i];
-        db_write(index, random_buf + tick);
-        i++;
-        DBServer.update_count++;
-    }
-    timeEnd = get_ntime();
-    if (timeTick > timeEnd)   // wait loop , with litter error
-        while ((timeTick - get_ntime()) >= 100000) { ; }
-    else {
-        printf("update rate is so high\n");
+    if (0 != pthread_create(db_thread_id, NULL, database_thread, &dbInfo)) {
+        perror("database thread create error!");
         return -1;
     }
 
-#elif FULL_UPDATE
-    while(1)
-    {
-        if (1 != DBServer.dbState) {
-                printf("update thread prepare to exit\n");
-                pthread_mutex_unlock(&(DBServer.dbStateRWLock));
-                return -1;
-        }
-    
-        index = random_buf[tick + i];
-        db_write(index , random_buf + tick);
-        i++;
-        DBServer.update_count++;
-        if(abs(timeTick - get_ntime()) <= 100000)
-            break;
-    }
-    timeEnd = get_ntime();
-#endif
-    //pthread_spin_unlock(&(DBServer.presync));
-    db_unlock(&(DBServer.pre_lock));
-    DBServer.globaltick++;
-    fprintf(logFile, "%lld\t%lld\n", timeBegin, (timeEnd - timeBegin));
+    pthread_barrier_wait(&brrDBInit);
+    pthread_barrier_destroy(&brrDBInit);
+
     return 0;
 }
 
-// update执行的更新函数
-int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
-    long long tick = 0;
-    FILE *logFile = fopen(log_name, "w+");
-
-    int isEnd;
-    while (1) {
-        isEnd = tick_update(random_buf, buf_size, uf, logFile, tick);
-        if (-1 == isEnd)
-            break;
-        tick++;
-    }
-    fclose(logFile);
-#ifdef VERBOSE
-    printf("tick = %lld\n", DBServer.globaltick);
-#endif
-    return 0;
-}
-
-void *update_thread(void *arg) {
-    pin_To_vCPU(0);
-    int alg_type = ((update_thread_info *) arg)->alg_type;
-    long *random_buffer = ((update_thread_info *) arg)->random_buffer;
-    int random_buffer_size = ((update_thread_info *) arg)->random_buffer_size;
-    pthread_barrier_t *update_brr_init = ((update_thread_info *) arg)->update_brr_init;
-    pthread_barrier_t *brr_exit = ((update_thread_info *) arg)->brr_exit;
-    int pthread_id = ((update_thread_info *) arg)->pthread_id;
-    int update_frequency = ((update_thread_info *) arg)->update_frequency;
-    char log_name[128];
-
-    switch (alg_type) {
-        case NAIVE_ALG:
-            db_write = naive_write;
-            db_read = naive_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/naive_update_log_%d",pthread_id);
-            break;
-        case COPY_ON_UPDATE_ALG:
-            db_write = cou_write;
-            db_read = cou_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/cou_update_log_%d",pthread_id);
-            break;
-        case ZIGZAG_ALG:
-            db_write = zigzag_write;
-            db_read = zigzag_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/zigzag_update_log_%d",pthread_id);
-            break;
-        case PINGPONG_ALG:
-            db_write = pingpong_write;
-            db_read = pingpong_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/pingpong_update_log_%d",pthread_id);
-            break;
-        case MK_ALG:
-            db_write = mk_write;
-            db_read = mk_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/mk_update_log_%d",pthread_id);
-            break;
-        case LL_ALG:
-            db_write = ll_write;
-            db_read = ll_read;
-            break;
-        case MYFORK_ALG:
-            db_write = myfork_write;
-            db_read = myfork_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/myfork_update_log_%d",pthread_id);
-            break;
-        default:
-            perror("alg_type error");
-            break;
-    }
-    sprintf(log_name, "./log/latency/%d_latency_%dk_%ld_%d_%d.log", DBServer.algType,
-            DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
-            pthread_id);
-    pthread_barrier_wait(update_brr_init);
-
-    random_update_db(random_buffer, random_buffer_size, log_name, update_frequency);
-
-    pthread_barrier_wait(brr_exit);
-
-    pthread_exit(NULL);
-}
 
 void *database_thread(void *arg) {
     pin_To_vCPU(6);
@@ -270,25 +148,8 @@ void *database_thread(void *arg) {
     pthread_exit(NULL);
 }
 
-int db_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs) {
-    db_thread_info dbInfo;
-    pthread_barrier_t brrDBInit;
-    pthread_barrier_init(&brrDBInit, NULL, 2);
-    dbInfo.algType = dbs->algType;
-    dbInfo.dbSize = dbs->dbSize;
-    dbInfo.ckpInitBrr = &brrDBInit;
-    dbInfo.ckpExitBrr = brr_exit;
+//////////////////////////////////////////////////////////////////////////
 
-    if (0 != pthread_create(db_thread_id, NULL, database_thread, &dbInfo)) {
-        perror("database thread create error!");
-        return -1;
-    }
-
-    pthread_barrier_wait(&brrDBInit);
-    pthread_barrier_destroy(&brrDBInit);
-
-    return 0;
-}
 
 int update_thread_start(pthread_t *update_thread_id_array[],
                         pthread_barrier_t *brr_exit,
@@ -324,40 +185,159 @@ int update_thread_start(pthread_t *update_thread_id_array[],
 #endif
         }
     }
+
     pthread_barrier_wait(&update_brr_init);
     pthread_barrier_destroy(&update_brr_init);
     return 0;
 }
 
-/*
-void log_time_write(db_server *s)
-{
-	FILE *log_time;
-	int i;
-	char logName[256];
-	long long timeStart;
-	long long timeEnd;
 
-	long long timeSum = 0;
-	sprintf(logName,"./log/overhead/%d_overhead_%dk_%d_%d.log",
-		DBServer.algType,DBServer.updateFrequency,
-		DBServer.dbSize,DBServer.unitSize);
-	if (NULL == (log_time = fopen(logName, "w"))) {
-		perror("log_time fopen error,checkout if the floder is exist");
-		return;
-	}
-	for (i = 1; i < s->ckpMaxNum; i++) {
 
-		timeStart = s->ckpTimeLog[i * 2].tv_sec * 1000000000 +
-			s->ckpTimeLog[i*2].tv_nsec;
-		timeEnd = s->ckpTimeLog[i * 2 + 1].tv_sec * 1000000000 +
-			s->ckpTimeLog[i*2 + 1].tv_nsec;
-		timeSum += timeEnd - timeStart;
-	}
-	fprintf(log_time,"%lld\n",timeSum/ (s->ckpMaxNum - 1));
-	fflush(log_time);
-	fclose(log_time);
-}*/
+void *update_thread(void *arg) {
+    pin_To_vCPU(0);
+    int alg_type = ((update_thread_info *) arg)->alg_type;
+    long *random_buffer = ((update_thread_info *) arg)->random_buffer;
+    int random_buffer_size = ((update_thread_info *) arg)->random_buffer_size;
+    pthread_barrier_t *update_brr_init = ((update_thread_info *) arg)->update_brr_init;
+    pthread_barrier_t *brr_exit = ((update_thread_info *) arg)->brr_exit;
+    int pthread_id = ((update_thread_info *) arg)->pthread_id;
+    int update_frequency = ((update_thread_info *) arg)->update_frequency;
+    char log_name[128];
+
+    switch (alg_type) {
+        case NAIVE_ALG:
+            db_write = naive_write;
+            db_read = naive_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/naive_update_log_%d",pthread_id);
+            break;
+        case COPY_ON_UPDATE_ALG:
+            db_write = cou_write;
+            db_read = cou_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/cou_update_log_%d",pthread_id);
+            break;
+        case ZIGZAG_ALG:
+            db_write = zigzag_write;
+            db_read = zigzag_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/zigzag_update_log_%d",pthread_id);
+            break;
+        case PINGPONG_ALG:
+            db_write = pingpong_write;
+            db_read = pingpong_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/pingpong_update_log_%d",pthread_id);
+            break;
+        case MK_ALG:
+            db_write = mk_write;
+            db_read = mk_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/mk_update_log_%d",pthread_id);
+            break;
+        case LL_ALG:
+            db_write = ll_write;
+            db_read = ll_read;
+            break;
+        case MYFORK_ALG:
+            db_write = myfork_write;
+            db_read = myfork_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/myfork_update_log_%d",pthread_id);
+            break;
+        default:
+            perror("alg_type error");
+            break;
+    }
+    sprintf(log_name, "./log/latency/%d_latency_%dk_%ld_%d_%d.log", DBServer.algType,
+            DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
+            pthread_id);
+    pthread_barrier_wait(update_brr_init);
+
+    random_update_db(random_buffer, random_buffer_size, log_name, update_frequency);
+
+    pthread_barrier_wait(brr_exit);
+
+    pthread_exit(NULL);
+}
+
+
+// update执行的更新函数
+int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
+    long long tick = 0;
+    FILE *logFile = fopen(log_name, "w+");
+
+    int isEnd;
+    while (1) {
+        isEnd = tick_update(random_buf, buf_size, uf, logFile, tick);
+        if (-1 == isEnd)
+            break;
+        tick++;
+    }
+    fclose(logFile);
+#ifdef VERBOSE
+    printf("tick = %lld\n", DBServer.globaltick);
+#endif
+    return 0;
+}
+
+
+int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick) {
+    int index;
+    long long timeStart;
+    long long timeBegin;
+    long long timeEnd;
+    long long timeTick;
+    int i;
+    long long tick_start_index = (tick%60)*times;
+    timeBegin = get_ntime();
+    //pthread_spin_lock(&(DBServer.presync));
+    db_lock(&(DBServer.pre_lock));
+    timeStart = get_ntime();
+    timeTick = timeStart + 100000000;  // 0.1s
+    i = 0;
+#ifdef TICK_UPDATE
+    while (i < times) {
+        if (1 != DBServer.dbState) {
+#ifdef VERBOSE
+            printf("update thread prepare to exit\n");
+#endif
+            pthread_mutex_unlock(&(DBServer.dbStateRWLock));
+            return -1;
+        }
+
+        index = random_buf[tick_start_index + i];
+        db_write(index, &index);
+        i++;
+        DBServer.update_count++;
+    }
+    timeEnd = get_ntime();
+    if (timeTick > timeEnd)   // wait loop , with litter error
+        while ((timeTick - get_ntime()) >= 100000) { ; }
+    else {
+        printf("update rate is so high\n");
+        return -1;
+    }
+
+#elif FULL_UPDATE
+    while(1)
+    {
+        if (1 != DBServer.dbState) {
+                printf("update thread prepare to exit\n");
+                pthread_mutex_unlock(&(DBServer.dbStateRWLock));
+                return -1;
+        }
+
+        index = random_buf[tick + i];
+        db_write(index , random_buf + tick);
+        i++;
+        DBServer.update_count++;
+        if(abs(timeTick - get_ntime()) <= 100000)
+            break;
+    }
+    timeEnd = get_ntime();
+#endif
+    //pthread_spin_unlock(&(DBServer.presync));
+    db_unlock(&(DBServer.pre_lock));
+    DBServer.globaltick++;
+    fprintf(logFile, "%lld\t%lld\n", timeBegin, (timeEnd - timeBegin));
+    return 0;
+}
+
 
 void add_overhead_log(db_server *s, long long ns) {
     s->ckpOverheadLog[s->ckpID] = ns;
