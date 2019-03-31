@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     DBServer.ckpTotalOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
 
     DBServer.globaltick = 0;
-    DBServer.rfBufSize = DBServer.updateFrequency * 1000 * 60;
+    DBServer.rfBufSize = (long long)DBServer.updateFrequency * 60;
     DBServer.rfBuf = (long *) malloc(DBServer.rfBufSize * sizeof(long));
     if (DBServer.rfBufSize != randomfile_init(rf, DBServer.rfBuf, DBServer.rfBufSize)) {
         perror("random file init error\n");
