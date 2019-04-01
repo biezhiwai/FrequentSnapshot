@@ -1,23 +1,23 @@
 #include"src/system/system.h"
-#include"mk.h"
+#include"PB.h"
 
 extern db_server DBServer;
 
 void db_mk_lock(int index) {
     unsigned char expected = 0;
 
-    while (!__atomic_compare_exchange_1(DBServer.mkInfo.db_mk_access + index, &expected,
+    while (!__atomic_compare_exchange_1(DBServer.pbInfo.db_mk_access + index, &expected,
                                         1, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
         expected = 0;
     }
 }
 
 void db_mk_unlock(int index) {
-    __atomic_store_n(DBServer.mkInfo.db_mk_access + index, 0, __ATOMIC_SEQ_CST);
+    __atomic_store_n(DBServer.pbInfo.db_mk_access + index, 0, __ATOMIC_SEQ_CST);
 }
 
-int db_mk_init(void *mk_info, size_t db_size) {
-    db_mk_infomation *info = mk_info;
+int db_pb_init(void *mk_info, size_t db_size) {
+    db_pb_infomation *info = mk_info;
 
     info->db_size = db_size;
 
@@ -33,7 +33,7 @@ int db_mk_init(void *mk_info, size_t db_size) {
     }
     memset(info->db_mk_as2, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_mk_ba = numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_mk_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
         perror("db_mk_ba malloc error");
         return -1;
     }
@@ -41,7 +41,6 @@ int db_mk_init(void *mk_info, size_t db_size) {
 
     info->db_mk_access = numa_alloc_onnode(db_size, 1);
     memset(info->db_mk_access, 0, db_size);
-    info->db_mk_lock = UNLOCK;
     info->current = 1;
     return 0;
 
@@ -50,22 +49,22 @@ int db_mk_init(void *mk_info, size_t db_size) {
 void *mk_read(size_t index) {
 //    if (index > (DBServer.mkInfo).db_size)
 //        index = index % (DBServer.mkInfo).db_size;
-    if (1 == (DBServer.mkInfo).current) {
-        return (DBServer.mkInfo).db_mk_as1 + index * DBServer.unitSize;
+    if (1 == (DBServer.pbInfo).current) {
+        return (DBServer.pbInfo).db_mk_as1 + index * DBServer.unitSize;
     } else {
-        return (DBServer.mkInfo).db_mk_as2 + index * DBServer.unitSize;
+        return (DBServer.pbInfo).db_mk_as2 + index * DBServer.unitSize;
     }
     return NULL;
 }
 
 int mk_write(size_t index, void *value) {
     //index = index % (DBServer.mkInfo).db_size;
-    if (1 == (DBServer.mkInfo).current) {
-        memcpy((DBServer.mkInfo).db_mk_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
-        (DBServer.mkInfo).db_mk_ba[index] = 1;
+    if (1 == (DBServer.pbInfo).current) {
+        memcpy((DBServer.pbInfo).db_mk_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.pbInfo).db_mk_ba[index] = 1;
     } else {
-        memcpy((DBServer.mkInfo).db_mk_as2 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
-        (DBServer.mkInfo).db_mk_ba[index] = 2;
+        memcpy((DBServer.pbInfo).db_mk_as2 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.pbInfo).db_mk_ba[index] = 2;
     }
     return 0;
 }
@@ -89,12 +88,12 @@ void *mk_write_to_disk_thr(void *arg) {
     return NULL;
 }
 
-void db_mk_ckp(int ckp_order, void *mk_info) {
+void db_pb_ckp(int ckp_order, void *mk_info) {
     FILE *ckp_fd;
     char ckp_name[32];
     size_t i;
     int db_size;
-    db_mk_infomation *info;
+    db_pb_infomation *info;
     //mk_disk_info mkDiskInfo;
     //pthread_t mkDiskThrId;
     int mkCur;
@@ -159,8 +158,8 @@ void db_mk_ckp(int ckp_order, void *mk_info) {
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }
 
-void db_mk_destroy(void *mk_info) {
-    db_mk_infomation *info = mk_info;
+void db_pb_destroy(void *mk_info) {
+    db_pb_infomation *info = mk_info;
     numa_free(info->db_mk_as1, DBServer.unitSize * info->db_size);
     numa_free(info->db_mk_as2, DBServer.unitSize * info->db_size);
     numa_free(info->db_mk_ba, info->db_size);

@@ -1,10 +1,10 @@
 #include "src/system/system.h"
-#include "LL.h"
+#include "HG.h"
 
 extern db_server DBServer;
 
-int db_ll_init(void *ll_info, size_t db_size) {
-    db_ll_infomation *info = ll_info;
+int db_hg_init(void *ll_info, size_t db_size) {
+    db_hg_infomation *info = ll_info;
 
     info->db_size = db_size;
 
@@ -24,22 +24,21 @@ int db_ll_init(void *ll_info, size_t db_size) {
         return -1;
     }
     memset(info->db_ll_prev, 'S', DBServer.unitSize * db_size);
-    if (NULL == (info->db_ll_as0_ba = numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_ll_as0_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
         perror("db_ll_as0_ba malloc error");
         return -1;
     }
     memset(info->db_ll_as0_ba, 0, db_size);
-    if (NULL == (info->db_ll_as1_ba = numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_ll_as1_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
         perror("db_ll_as1_ba malloc error");
         return -1;
     }
     memset(info->db_ll_as1_ba, 0, db_size);
-    if (NULL == (info->db_ll_mr_ba = numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_ll_mr_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
         perror("db_ll_as1_ba malloc error");
         return -1;
     }
     memset(info->db_ll_mr_ba, 0, db_size);
-    info->db_ll_lock = UNLOCK;
     info->current = 0;
     return 0;
 
@@ -48,34 +47,34 @@ int db_ll_init(void *ll_info, size_t db_size) {
 void *ll_read(size_t index) {
 //    if (index > (DBServer.llInfo).db_size)
 //        index = index % (DBServer.llInfo).db_size;
-    if (1 == (DBServer.llInfo).current) {
-        return (DBServer.llInfo).db_ll_as1 + index * DBServer.unitSize;
+    if (1 == (DBServer.hgInfo).current) {
+        return (DBServer.hgInfo).db_ll_as1 + index * DBServer.unitSize;
     } else {
-        return (DBServer.llInfo).db_ll_as0 + index * DBServer.unitSize;
+        return (DBServer.hgInfo).db_ll_as0 + index * DBServer.unitSize;
     }
     return NULL;
 }
 
 int ll_write(size_t index, void *value) {
     //index = index % (DBServer.llInfo).db_size;
-    if (1 == (DBServer.llInfo).current) {
-        memcpy((DBServer.llInfo).db_ll_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
-        (DBServer.llInfo).db_ll_as1_ba[index] = 1;
+    if (1 == (DBServer.hgInfo).current) {
+        memcpy((DBServer.hgInfo).db_ll_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.hgInfo).db_ll_as1_ba[index] = 1;
     } else {
-        memcpy((DBServer.llInfo).db_ll_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
-        (DBServer.llInfo).db_ll_as0_ba[index] = 1;
+        memcpy((DBServer.hgInfo).db_ll_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.hgInfo).db_ll_as0_ba[index] = 1;
     }
     return 0;
 }
 
-void db_ll_ckp(int ckp_order, void *ll_info) {
+void db_hg_ckp(int ckp_order, void *ll_info) {
     FILE *ckp_fd;
     char ckp_name[32];
     int i;
     int db_size;
-    db_ll_infomation *info;
+    db_hg_infomation *info;
     char *currentBackup;
-    unsigned char *currentBA;
+    bool *currentBA;
     long long timeStart;
     long long timeEnd;
 
@@ -119,8 +118,8 @@ void db_ll_ckp(int ckp_order, void *ll_info) {
     add_overhead_log(&DBServer, timeEnd - timeStart);
 }
 
-void db_ll_destroy(void *ll_info) {
-    db_ll_infomation *info = ll_info;
+void db_hg_destroy(void *ll_info) {
+    db_hg_infomation *info = ll_info;
     numa_free(info->db_ll_as1, DBServer.unitSize * info->db_size);
     numa_free(info->db_ll_as0, DBServer.unitSize * info->db_size);
     numa_free(info->db_ll_prev, DBServer.unitSize * info->db_size);

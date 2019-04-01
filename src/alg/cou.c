@@ -22,43 +22,39 @@ int db_cou_init(void *cou_info, size_t db_size) {
     info = cou_info;
     info->db_size = db_size;
 
-    if (NULL == (info->db_cou_primary =
-                         (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_cou_primary = (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
         perror("db_cou_primary malloc error");
         return -1;
     }
     memset(info->db_cou_primary, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_cou_shandow =
-                         (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_cou_shandow = (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
         perror("db_cou_shandow malloc error");
         return -1;
     }
     memset(info->db_cou_shandow, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_cou_curBA =
-                         (unsigned char *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_cou_curBA = (bool *) numa_alloc_onnode(db_size, 1))) {
         perror("db_cou_bitarray malloc error");
         return -1;
     }
 
-    if (NULL == (info->db_cou_chgBA =
-                         (unsigned char *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_cou_chgBA = (bool *) numa_alloc_onnode(db_size, 1))) {
         perror("db_cou_bitarray malloc error");
         return -1;
     }
 
-    if (NULL == (info->db_cou_preBA =
-                         (unsigned char *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_cou_preBA = (bool *) numa_alloc_onnode(db_size, 1))) {
         perror("db_cou_bitarray malloc error");
         return -1;
+    }
+    if(NULL == (info->db_cou_access = (bool*) numa_alloc_onnode(db_size, 1))){
+        perror("db_cou_bitarray malloc error");
     }
     memset(info->db_cou_curBA, 0, db_size);
     memset(info->db_cou_preBA, 0, db_size);
     memset(info->db_cou_chgBA, 0, db_size);
-    info->db_cou_access = numa_alloc_onnode(db_size, 1);
     memset(info->db_cou_access, 0, db_size);
-    info->db_cou_lock = UNLOCK;
     return 0;
 }
 
@@ -72,16 +68,14 @@ void *cou_read(size_t index) {
 
 int cou_write(size_t index, void *value) {
     //index = index % DBServer.dbSize;
-    db_lock(&(DBServer.couInfo.db_cou_lock));
     if (!DBServer.couInfo.db_cou_curBA[index]) {
         db_cou_lock(index);
         if (DBServer.couInfo.db_cou_chgBA[index])
-            memcpy(DBServer.couInfo.db_cou_shandow + index * DBServer.unitSize, value, sizeof(size_t) * 4);
+            memcpy(DBServer.couInfo.db_cou_shandow + index * DBServer.unitSize, value, sizeof(size_t) * 1);
         DBServer.couInfo.db_cou_curBA[index] = 1;
         db_cou_unlock(index);
     }
-    memcpy(DBServer.couInfo.db_cou_primary + index * DBServer.unitSize, value, 4);
-    db_unlock(&(DBServer.couInfo.db_cou_lock));
+    memcpy(DBServer.couInfo.db_cou_primary + index * DBServer.unitSize, value, sizeof(size_t) * 1);
     return 0;
 }
 
@@ -104,13 +98,11 @@ void ckp_cou(int ckp_order, void *cou_info) {
     //pthread_spin_lock( &(DBServer.presync) );
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
-    db_lock(&(DBServer.couInfo.db_cou_lock));
     for (i = 0; i < db_size; i++) {
         info->db_cou_chgBA[i] = info->db_cou_curBA[i] | info->db_cou_preBA[i];
         info->db_cou_preBA[i] = info->db_cou_curBA[i];
         info->db_cou_curBA[i] = 1;
     }
-    db_unlock(&(DBServer.couInfo.db_cou_lock));
     timeEnd = get_ntime();
     //pthread_spin_unlock( &(DBServer.presync) );
     db_unlock(&(DBServer.pre_lock));

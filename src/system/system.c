@@ -70,18 +70,18 @@ void *database_thread(void *arg) {
             info = &(DBServer.pingpongInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/pingpong_%d_ckp_log", dbSize);
             break;
-        case MK_ALG:
-            db_init = db_mk_init;
-            checkpoint = db_mk_ckp;
-            db_destroy = db_mk_destroy;
-            info = &(DBServer.mkInfo);
+        case PB_ALG:
+            db_init = db_pb_init;
+            checkpoint = db_pb_ckp;
+            db_destroy = db_pb_destroy;
+            info = &(DBServer.pbInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/mk_%d_ckp_log", dbSize);
             break;
-        case LL_ALG:
-            db_init = db_ll_init;
-            checkpoint = db_ll_ckp;
-            db_destroy = db_ll_destroy;
-            info = &(DBServer.llInfo);
+        case HG_ALG:
+            db_init = db_hg_init;
+            checkpoint = db_hg_ckp;
+            db_destroy = db_hg_destroy;
+            info = &(DBServer.hgInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/ll_%d_ckp_log", dbSize);
             break;
         case MYFORK_ALG:
@@ -224,12 +224,12 @@ void *update_thread(void *arg) {
             db_read = pingpong_read;
             //    snprintf(log_name,sizeof(log_name),"./log/pingpong_update_log_%d",pthread_id);
             break;
-        case MK_ALG:
+        case PB_ALG:
             db_write = mk_write;
             db_read = mk_read;
             //    snprintf(log_name,sizeof(log_name),"./log/mk_update_log_%d",pthread_id);
             break;
-        case LL_ALG:
+        case HG_ALG:
             db_write = ll_write;
             db_read = ll_read;
             break;
@@ -277,7 +277,7 @@ int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
 
 int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick) {
     size_t index;
-    size_t *rows = (size_t *) malloc(sizeof(size_t) * 4);
+    size_t *rows = (size_t *) malloc(sizeof(size_t) * 1);
     long long timeStart;
     long long timeBegin;
     long long timeEnd;
@@ -301,7 +301,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
             return -1;
         }
         index = random_buf[tick_start_index + i];
-        for (int j = 0; j < 4; ++j) {
+        for (int j = 0; j < 1; ++j) {
             rows[j]=index;
         }
         db_write(index, rows);
@@ -310,12 +310,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     }
     timeEnd = get_ntime();
     if (timeTick > timeEnd)   // wait loop , with litter error
-        while ((timeTick - get_ntime()) >= 100000) { ; }
-    else {
-        printf("update rate is so high\n");
-        return -1;
-    }
-
+        while(get_ntime()<timeTick){;}
 #elif FULL_UPDATE
     while(1)
     {

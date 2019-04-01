@@ -14,21 +14,20 @@ typedef struct {
     char *db_ll_as0;
     char *db_ll_as1;
     char *db_ll_prev;
-    unsigned char *db_ll_as0_ba;
-    unsigned char *db_ll_as1_ba;
-    unsigned char *db_ll_mr_ba;
-    unsigned char db_ll_lock;
+    bool *db_ll_as0_ba;
+    bool *db_ll_as1_ba;
+    bool *db_ll_mr_ba;
     int current;
 
-} db_ll_infomation;
+} db_hg_infomation;
 
-int db_ll_init(void *ll_info, size_t db_size);
+int db_hg_init(void *ll_info, size_t db_size);
 
 void *ll_read(size_t index);
 
 int ll_write(size_t index, void *value);
 
-void db_ll_ckp(int ckp_id, void *ll_info);
+void db_hg_ckp(int ckp_id, void *ll_info);
 
-void db_ll_destroy(void *ll_info);
+void db_hg_destroy(void *ll_info);
 

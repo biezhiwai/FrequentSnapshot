@@ -5,8 +5,8 @@
 #include "src/alg/cou.h"
 #include "src/alg/zigzag.h"
 #include "src/alg/pingpong.h"
-#include "src/alg/mk.h"
-#include "src/alg/LL.h"
+#include "src/alg/PB.h"
+#include "src/alg/HG.h"
 #include "src/alg/myfork.h"
 
 typedef struct {
@@ -33,8 +33,8 @@ typedef struct {
     db_cou_infomation couInfo;
     db_zigzag_infomation zigzagInfo;
     db_pingpong_infomation pingpongInfo;
-    db_mk_infomation mkInfo;
-    db_ll_infomation llInfo;
+    db_pb_infomation pbInfo;
+    db_hg_infomation hgInfo;
     db_myfork_infomation myforkInfo;
     long long update_count;
     long long dbStartTime;

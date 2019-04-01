@@ -26,13 +26,13 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
     }
     memset(info->db_pp_as_even, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_pp_odd_ba = numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_pp_odd_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
         perror("db_pp_current_odd malloc error");
         return -1;
     }
     memset(info->db_pp_odd_ba, 0, db_size);
 
-    if (NULL == (info->db_pp_even_ba = numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_pp_even_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
         perror("db_pp_previous_ba malloc error");
         return -1;
     }
@@ -44,7 +44,6 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
     }
     memset(info->db_pp_as_even, 'S', DBServer.unitSize * db_size);
 
-    info->db_pp_lock = UNLOCK;
     info->current = 0;
     return 0;
 }
@@ -57,12 +56,12 @@ void *pingpong_read(size_t index) {
 
 int pingpong_write(size_t index, void *value) {
     //index = index % (DBServer.pingpongInfo).db_size;
-    memcpy((DBServer.pingpongInfo).db_pp_as + index * DBServer.unitSize, value, 4);
+    memcpy((DBServer.pingpongInfo).db_pp_as + index * DBServer.unitSize, value, sizeof(size_t) * 1);
     if (0 == (DBServer.pingpongInfo).current) {
-        memcpy((DBServer.pingpongInfo).db_pp_as_odd + index * DBServer.unitSize + index % DBServer.unitSize, value, sizeof(size_t) * 4);
+        memcpy((DBServer.pingpongInfo).db_pp_as_odd + index * DBServer.unitSize + index % DBServer.unitSize, value, sizeof(size_t) * 1);
         (DBServer.pingpongInfo).db_pp_odd_ba[index] = 1;
     } else {
-        memcpy((DBServer.pingpongInfo).db_pp_as_even + index * DBServer.unitSize + index % DBServer.unitSize, value, sizeof(size_t) * 4);
+        memcpy((DBServer.pingpongInfo).db_pp_as_even + index * DBServer.unitSize + index % DBServer.unitSize, value, sizeof(size_t) * 1);
         (DBServer.pingpongInfo).db_pp_even_ba[index] = 1;
     }
     return 0;
@@ -75,7 +74,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     size_t db_size;
     db_pingpong_infomation *info;
     char *currentBackup;
-    unsigned char *currentBA;
+    bool *currentBA;
     long long timeStart;
     long long timeEnd;
 

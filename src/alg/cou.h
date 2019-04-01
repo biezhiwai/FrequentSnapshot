@@ -13,11 +13,10 @@ typedef struct {
     size_t db_size;
     char *db_cou_primary;
     char *db_cou_shandow;
-    unsigned char *db_cou_curBA;
-    unsigned char *db_cou_preBA;
-    unsigned char *db_cou_chgBA;
-    unsigned char *db_cou_access;
-    unsigned char db_cou_lock;
+    bool*db_cou_curBA;
+    bool *db_cou_preBA;
+    bool *db_cou_chgBA;
+    bool *db_cou_access;
 
 } db_cou_infomation;
 

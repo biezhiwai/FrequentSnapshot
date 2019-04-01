@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     char logName[128];
     if (argc != 7) {
         perror("usage:./app [update thread number] [unit num] "
-               "[algorithm type:0-navie 1-copy on update 2-zigzag 3-pingpong 4-HG 5-PB 6-fork] "
+               "[algorithm type:0-navie 1-copy on update 2-zigzag 3-pingpong 4-hourglass 5-piggyback 6-fork] "
                "[random file name] [update frequency (k/sec)]"
                "[unit size]");
     }

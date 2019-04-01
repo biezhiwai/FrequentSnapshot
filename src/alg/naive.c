@@ -44,7 +44,7 @@ void *naive_read(size_t index) {
 
 int naive_write(size_t index, void *value) {
     //index = index % DBServer.dbSize;
-    memcpy((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize, value, sizeof(size_t) * 4);
+    memcpy((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize, value, sizeof(size_t) * 1);
     return 0;
 }
 

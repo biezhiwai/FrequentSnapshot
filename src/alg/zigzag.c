@@ -22,18 +22,17 @@ int db_zigzag_init(void *zigzag_info, size_t db_size) {
     }
     memset(info->db_zigzag_as0, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_zigzag_mr = (unsigned char *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_zigzag_mr = (bool *) numa_alloc_onnode(db_size, 1))) {
         perror("db_zigzag_mr malloc error");
         return -1;
     }
     memset(info->db_zigzag_mr, 0, db_size);
 
-    if (NULL == (info->db_zigzag_mw = (unsigned char *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_zigzag_mw = (bool *) numa_alloc_onnode(db_size, 1))) {
         perror("db_zigzag_mw malloc error");
         return -1;
     }
     memset(info->db_zigzag_mw, 1, db_size);
-    info->db_zigzag_lock = UNLOCK;
     return 0;
 }
 
@@ -49,13 +48,16 @@ void *zigzag_read(size_t index) {
 
 int zigzag_write(size_t index, void *value) {
     //index = index % (DBServer.zigzagInfo).db_size;
-    if (0 == (DBServer.zigzagInfo).db_zigzag_mw[index]) {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
+    bool flag = (DBServer.zigzagInfo).db_zigzag_mw[index];
+    if (0==flag) {
+        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.zigzagInfo).db_zigzag_mr[index] = 0;
+        return 0;
     } else {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
+        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.zigzagInfo).db_zigzag_mr[index] = 1;
+        return 0;
     }
-    (DBServer.zigzagInfo).db_zigzag_mr[index] = (DBServer.zigzagInfo).db_zigzag_mw[index];
-    return 0;
 }
 
 void db_zigzag_ckp(int ckp_order, void *zigzag_info) {

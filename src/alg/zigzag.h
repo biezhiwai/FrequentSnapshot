@@ -12,9 +12,8 @@ typedef struct {
     size_t db_size;
     char *db_zigzag_as0;
     char *db_zigzag_as1;
-    unsigned char *db_zigzag_mr;
-    unsigned char *db_zigzag_mw;
-    unsigned char db_zigzag_lock;
+    bool *db_zigzag_mr;
+    bool *db_zigzag_mw;
 
 } db_zigzag_infomation;
 

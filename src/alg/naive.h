@@ -14,8 +14,6 @@ typedef struct {
     size_t db_size;
     char *db_naive_AS;
     char *db_naive_AS_shandow;
-
-    //unsigned char db_naive_lock;
 } db_naive_infomation;
 
 int db_naive_init(void *db_naive_info, size_t db_size);
