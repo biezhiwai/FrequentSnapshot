@@ -61,10 +61,10 @@ void *mk_read(size_t index) {
 int mk_write(size_t index, void *value) {
     //index = index % (DBServer.mkInfo).db_size;
     if (1 == (DBServer.mkInfo).current) {
-        memcpy((DBServer.mkInfo).db_mk_as1 + index * DBServer.unitSize, value, 4);
+        memcpy((DBServer.mkInfo).db_mk_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
         (DBServer.mkInfo).db_mk_ba[index] = 1;
     } else {
-        memcpy((DBServer.mkInfo).db_mk_as2 + index * DBServer.unitSize, value, 4);
+        memcpy((DBServer.mkInfo).db_mk_as2 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
         (DBServer.mkInfo).db_mk_ba[index] = 2;
     }
     return 0;

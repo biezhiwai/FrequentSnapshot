@@ -50,9 +50,9 @@ void *zigzag_read(size_t index) {
 int zigzag_write(size_t index, void *value) {
     //index = index % (DBServer.zigzagInfo).db_size;
     if (0 == (DBServer.zigzagInfo).db_zigzag_mw[index]) {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize, value, 4);
+        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
     } else {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.unitSize, value, 4);
+        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 4);
     }
     (DBServer.zigzagInfo).db_zigzag_mr[index] = (DBServer.zigzagInfo).db_zigzag_mw[index];
     return 0;

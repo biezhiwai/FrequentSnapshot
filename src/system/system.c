@@ -192,7 +192,6 @@ int update_thread_start(pthread_t *update_thread_id_array[],
 }
 
 
-
 void *update_thread(void *arg) {
     pin_To_vCPU(0);
     int alg_type = ((update_thread_info *) arg)->alg_type;
@@ -277,19 +276,21 @@ int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
 
 
 int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick) {
-    int index;
+    size_t index;
+    size_t *rows = (size_t *) malloc(sizeof(size_t) * 4);
     long long timeStart;
     long long timeBegin;
     long long timeEnd;
     long long timeTick;
     int i;
-    long long tick_start_index = (tick%60)*times;
+    long long tick_start_index = (tick % 60) * times;
     timeBegin = get_ntime();
     //pthread_spin_lock(&(DBServer.presync));
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
     timeTick = timeStart + 100000000;  // 0.1s
     i = 0;
+
 #ifdef TICK_UPDATE
     while (i < times) {
         if (1 != DBServer.dbState) {
@@ -299,9 +300,11 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
             pthread_mutex_unlock(&(DBServer.dbStateRWLock));
             return -1;
         }
-
         index = random_buf[tick_start_index + i];
-        db_write(index, &index);
+        for (int j = 0; j < 4; ++j) {
+            rows[j]=index;
+        }
+        db_write(index, rows);
         i++;
         DBServer.update_count++;
     }
@@ -332,6 +335,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     timeEnd = get_ntime();
 #endif
     //pthread_spin_unlock(&(DBServer.presync));
+    free(rows);
     db_unlock(&(DBServer.pre_lock));
     DBServer.globaltick++;
     fprintf(logFile, "%lld\t%lld\n", timeBegin, (timeEnd - timeBegin));
