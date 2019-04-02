@@ -77,15 +77,17 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     }
     db_size = info->db_size;
 
-    //pthread_spin_lock(&(DBServer.presync));
-    db_lock(&(DBServer.pre_lock));
+    pthread_spin_lock(&(DBServer.presync));
+    //db_lock(&(DBServer.pre_lock));
+
     timeStart = get_ntime();
     for (i = 0; i < db_size; i++) {
         info->db_zigzag_mw[i] = !(info->db_zigzag_mr[i]);
     }
     timeEnd = get_ntime();
-    //pthread_spin_unlock(&(DBServer.presync));
-    db_unlock(&(DBServer.pre_lock));
+
+    pthread_spin_unlock(&(DBServer.presync));
+    //db_unlock(&(DBServer.pre_lock));
 
     add_prepare_log(&DBServer, timeEnd - timeStart);
     //write to disk

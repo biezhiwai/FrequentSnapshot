@@ -95,19 +95,19 @@ void ckp_cou(int ckp_order, void *cou_info) {
         return;
     }
     db_size = info->db_size;
-    //pthread_spin_lock( &(DBServer.presync) );
-    db_lock(&(DBServer.pre_lock));
-    timeStart = get_ntime();
+
+    pthread_spin_lock( &(DBServer.presync) );
+    //db_lock(&(DBServer.pre_lock));
+    timeStart = get_ntime();   // MUST after lock
     for (i = 0; i < db_size; i++) {
         info->db_cou_chgBA[i] = info->db_cou_curBA[i] | info->db_cou_preBA[i];
         info->db_cou_preBA[i] = info->db_cou_curBA[i];
         info->db_cou_curBA[i] = 1;
     }
     timeEnd = get_ntime();
-    //pthread_spin_unlock( &(DBServer.presync) );
-    db_unlock(&(DBServer.pre_lock));
+    pthread_spin_unlock( &(DBServer.presync) );
+    //db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
-
     timeStart = get_ntime();
     if (!times) {
         fwrite(info->db_cou_shandow, (size_t) DBServer.unitSize * db_size, 1, ckp_fd);

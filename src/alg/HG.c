@@ -8,60 +8,60 @@ int db_hg_init(void *ll_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_ll_as0 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
-        perror("db_ll_as0 malloc error");
+    if (NULL == (info->db_hg_as0 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+        perror("db_hg_as0 malloc error");
         return -1;
     }
-    memset(info->db_ll_as0, 'S', DBServer.unitSize * db_size);
+    memset(info->db_hg_as0, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_ll_as1 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
-        perror("db_ll_as1 malloc error");
+    if (NULL == (info->db_hg_as1 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+        perror("db_hg_as1 malloc error");
         return -1;
     }
-    memset(info->db_ll_as1, 'S', DBServer.unitSize * db_size);
-    if (NULL == (info->db_ll_prev = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
-        perror("db_ll_prev malloc error");
+    memset(info->db_hg_as1, 'S', DBServer.unitSize * db_size);
+    if (NULL == (info->db_hg_prev = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+        perror("db_hg_prev malloc error");
         return -1;
     }
-    memset(info->db_ll_prev, 'S', DBServer.unitSize * db_size);
-    if (NULL == (info->db_ll_as0_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
-        perror("db_ll_as0_ba malloc error");
+    memset(info->db_hg_prev, 'S', DBServer.unitSize * db_size);
+    if (NULL == (info->db_hg_as0_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+        perror("db_hg_as0_ba malloc error");
         return -1;
     }
-    memset(info->db_ll_as0_ba, 0, db_size);
-    if (NULL == (info->db_ll_as1_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
-        perror("db_ll_as1_ba malloc error");
+    memset(info->db_hg_as0_ba, 0, db_size);
+    if (NULL == (info->db_hg_as1_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+        perror("db_hg_as1_ba malloc error");
         return -1;
     }
-    memset(info->db_ll_as1_ba, 0, db_size);
-    if (NULL == (info->db_ll_mr_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
-        perror("db_ll_as1_ba malloc error");
+    memset(info->db_hg_as1_ba, 0, db_size);
+    if (NULL == (info->db_hg_mr_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+        perror("db_hg_as1_ba malloc error");
         return -1;
     }
-    memset(info->db_ll_mr_ba, 0, db_size);
+    memset(info->db_hg_mr_ba, 0, db_size);
     info->current = 0;
     return 0;
 
 }
 
-void *ll_read(size_t index) {
+void *hg_read(size_t index) {
 //    if (index > (DBServer.llInfo).db_size)
 //        index = index % (DBServer.llInfo).db_size;
     if (1 == (DBServer.hgInfo).current) {
-        return (DBServer.hgInfo).db_ll_as1 + index * DBServer.unitSize;
+        return (DBServer.hgInfo).db_hg_as1 + index * DBServer.unitSize;
     } else {
-        return (DBServer.hgInfo).db_ll_as0 + index * DBServer.unitSize;
+        return (DBServer.hgInfo).db_hg_as0 + index * DBServer.unitSize;
     }
 }
 
-int ll_write(size_t index, void *value) {
+int hg_write(size_t index, void *value) {
     //index = index % (DBServer.llInfo).db_size;
     if (1 == (DBServer.hgInfo).current) {
-        memcpy((DBServer.hgInfo).db_ll_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
-        (DBServer.hgInfo).db_ll_as1_ba[index] = 1;
+        memcpy((DBServer.hgInfo).db_hg_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.hgInfo).db_hg_as1_ba[index] = 1;
     } else {
-        memcpy((DBServer.hgInfo).db_ll_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
-        (DBServer.hgInfo).db_ll_as0_ba[index] = 1;
+        memcpy((DBServer.hgInfo).db_hg_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        (DBServer.hgInfo).db_hg_as0_ba[index] = 1;
     }
     return 0;
 }
@@ -85,32 +85,32 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
     }
     db_size = info->db_size;
 
-    //pthread_spin_lock( &(DBServer.presync) );
-    db_lock(&(DBServer.pre_lock));
+    pthread_spin_lock( &(DBServer.presync) );
+    //db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
     //prepare for checkpoint
     info->current = !(info->current);
     if (0 == info->current) {
-        currentBackup = info->db_ll_as1;
-        currentBA = info->db_ll_as1_ba;
+        currentBackup = info->db_hg_as1;
+        currentBA = info->db_hg_as1_ba;
     } else {
-        currentBackup = info->db_ll_as0;
-        currentBA = info->db_ll_as0_ba;
+        currentBackup = info->db_hg_as0;
+        currentBA = info->db_hg_as0_ba;
     }
     timeEnd = get_ntime();
-    //pthread_spin_unlock( &(DBServer.presync) );
-    db_unlock(&(DBServer.pre_lock));
+    pthread_spin_unlock( &(DBServer.presync) );
+    //db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
     for (i = 0; i < db_size; i++) {
         if (1 == currentBA[i]) {
             //info->db_pp_as_previous[i] = info->db_pp_as_even[i];
-            memcpy(info->db_ll_prev + i * DBServer.unitSize,
+            memcpy(info->db_hg_prev + i * DBServer.unitSize,
                    currentBackup + i * DBServer.unitSize, DBServer.unitSize);
             currentBA[i] = 0;
         }
     }
     timeStart = get_ntime();
-    fwrite(info->db_ll_prev, DBServer.unitSize, db_size, ckp_fd);
+    fwrite(info->db_hg_prev, DBServer.unitSize, db_size, ckp_fd);
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_ntime();
@@ -119,11 +119,11 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
 
 void db_hg_destroy(void *ll_info) {
     db_hg_infomation *info = ll_info;
-    numa_free(info->db_ll_as1, DBServer.unitSize * info->db_size);
-    numa_free(info->db_ll_as0, DBServer.unitSize * info->db_size);
-    numa_free(info->db_ll_prev, DBServer.unitSize * info->db_size);
-    numa_free(info->db_ll_as1_ba, info->db_size);
-    numa_free(info->db_ll_as0_ba, info->db_size);
-    numa_free(info->db_ll_mr_ba, info->db_size);
+    numa_free(info->db_hg_as1, DBServer.unitSize * info->db_size);
+    numa_free(info->db_hg_as0, DBServer.unitSize * info->db_size);
+    numa_free(info->db_hg_prev, DBServer.unitSize * info->db_size);
+    numa_free(info->db_hg_as1_ba, info->db_size);
+    numa_free(info->db_hg_as0_ba, info->db_size);
+    numa_free(info->db_hg_mr_ba, info->db_size);
 
 }

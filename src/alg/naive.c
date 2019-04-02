@@ -64,13 +64,15 @@ void ckp_naive(int ckp_order, void *naive_info) {
     }
     db_size = info->db_size;
 
-    //pthread_spin_lock(&(DBServer.presync));
-    db_lock(&(DBServer.pre_lock));
+    pthread_spin_lock(&(DBServer.presync));
+    //db_lock(&(DBServer.pre_lock));
+
     timeStart = get_ntime();
     memcpy(info->db_naive_AS_shandow, info->db_naive_AS, (size_t) DBServer.unitSize * db_size);
     timeEnd = get_ntime();
-    db_unlock(&(DBServer.pre_lock));
-    //pthread_spin_unlock(&(DBServer.presync));
+
+    //db_unlock(&(DBServer.pre_lock));
+    pthread_spin_unlock(&(DBServer.presync));
     add_prepare_log(&DBServer, timeEnd - timeStart);
     timeStart = get_ntime();
     fwrite(info->db_naive_AS_shandow, DBServer.unitSize, db_size, ckp_fd);

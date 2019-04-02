@@ -10,14 +10,7 @@ long long get_mtime(void) {
     return get_ntime() / 1000000;
 }
 
-int randomfile_init(FILE *rf, long *rbuf, long long rbufSize) {
-    long long i;
 
-    for (i = 0; i < rbufSize; i++) {
-        fscanf(rf, "%ld\n", rbuf + i);
-    }
-    return i;
-}
 
 int pin_To_vCPU(int cpu) {
     cpu_set_t mask;

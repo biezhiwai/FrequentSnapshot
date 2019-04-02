@@ -22,26 +22,35 @@ int main(int argc, char *argv[]) {
         perror("random file open error!\n");
         return -1;
     }
+    printf("workload file from: %s\n",argv[5]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
     DBServer.ckpMaxNum = 10;
     DBServer.update_count = 0;
-    DBServer.pre_lock = UNLOCK;
+
     DBServer.ckpOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
     DBServer.ckpPrepareLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
     DBServer.ckpTotalOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
 
     DBServer.globaltick = 0;
-    DBServer.rfBufSize = (long long)DBServer.updateFrequency * 10;
+    DBServer.rfBufSize = 256000*5000;   // at least 5000 ticks
     DBServer.rfBuf = (long *) malloc(DBServer.rfBufSize * sizeof(long));
-    if (DBServer.rfBufSize != randomfile_init(rf, DBServer.rfBuf, DBServer.rfBufSize)) {
-        perror("random file init error\n");
-        return -1;
+    // load workload data
+    for (long long _i = 0; _i < 256000; _i++) {
+        fscanf(rf, "%ld\n", DBServer.rfBuf + i);
+    }
+    for( int times = 1; times<5000; ++times){
+        for(long long t = 0; t < 256000; ++t){
+            (DBServer.rfBuf)[times*256000+t] =  (DBServer.rfBuf)[t];
+        }
     }
     fclose(rf);
 
     pthread_mutex_init(&(DBServer.accessMutex), NULL);
     pthread_mutex_init(&(DBServer.dbStateRWLock), NULL);
+    pthread_spin_init(&(DBServer.presync),PTHREAD_PROCESS_SHARED);
+    //DBServer.pre_lock = UNLOCK;
+
     pthread_barrier_init(&brr_exit, NULL, DBServer.updateThrNum + 1);
 
     if (0 != db_thread_start(&db_thread_id, &brr_exit, &DBServer)) {
@@ -58,9 +67,9 @@ int main(int argc, char *argv[]) {
     DBServer.dbEndTime = get_mtime();
     for (i = 0; i < DBServer.updateThrNum; i++) {
         pthread_join(update_thread_array[i], NULL);
-#ifdef VERBOSE
+
         printf("update thread %d exit!\n", i);
-#endif
+
     }
     free(update_thread_array);
     pthread_barrier_destroy(&brr_exit);

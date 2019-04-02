@@ -64,11 +64,11 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
     db_size = info->db_size;
 
     pid_t fpid;
-    db_lock(&(DBServer.pre_lock));
+    pthread_spin_lock(&(DBServer.presync));
     timeStart = get_ntime();
     fpid = fork();
     timeEnd = get_ntime();
-    db_unlock(&(DBServer.pre_lock));
+    pthread_spin_unlock(&(DBServer.presync));
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
     if (0 == fpid) {
@@ -84,7 +84,5 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
         timeEnd = get_ntime();
         add_overhead_log(&DBServer, timeEnd - timeStart);
         _exit(-1);
-    } else {
-        wait(NULL);
     }
 }

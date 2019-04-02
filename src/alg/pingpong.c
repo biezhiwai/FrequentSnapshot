@@ -87,8 +87,9 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     db_size = info->db_size;
 
     //prepare for checkpoint
-    //pthread_spin_lock(&(DBServer.presync));
-    db_lock(&(DBServer.pre_lock));
+    pthread_spin_lock(&(DBServer.presync));
+    //db_lock(&(DBServer.pre_lock));
+
     timeStart = get_ntime();
     info->current = !(info->current);
 
@@ -100,8 +101,9 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
         currentBA = info->db_pp_even_ba;
     }
     timeEnd = get_ntime();
-    //pthread_spin_unlock(&(DBServer.presync));
-    db_unlock(&(DBServer.pre_lock));
+
+    pthread_spin_unlock(&(DBServer.presync));
+    //db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
 #ifndef OFF_DUMP
     timeStart = get_ntime();

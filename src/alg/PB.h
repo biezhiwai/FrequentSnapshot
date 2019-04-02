@@ -10,19 +10,19 @@
 
 typedef struct {
     size_t db_size;
-    char *db_mk_as1;
-    char *db_mk_as2;
-    bool *db_mk_ba;
-    unsigned char *db_mk_access;
+    char *db_pb_as1;
+    char *db_pb_as2;
+    bool *db_pb_ba;
+    unsigned char *db_pb_access;
     unsigned char current;
 } db_pb_infomation;
 
 
 int db_pb_init(void *mk_info, size_t db_size);
 
-void *mk_read(size_t index);
+void *pb_read(size_t index);
 
-int mk_write(size_t index, void *value);
+int pb_write(size_t index, void *value);
 
 void db_pb_ckp(int ckp_order, void *mk_info);
 

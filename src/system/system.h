@@ -27,8 +27,8 @@ typedef struct {
     long long rfBufSize;
     pthread_mutex_t dbStateRWLock;
     pthread_mutex_t accessMutex;
-    //pthread_spinlock_t presync;
-    unsigned char pre_lock;
+    pthread_spinlock_t presync;
+    //unsigned char pre_lock;
     db_naive_infomation naiveInfo;
     db_cou_infomation couInfo;
     db_zigzag_infomation zigzagInfo;
@@ -69,9 +69,9 @@ int update_thread_start(pthread_t *update_thread_id_array[], pthread_barrier_t *
 
 int random_update_db(long *random_buf, int buf_size, char *log_name, int uf);
 
-int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int tick);
+int tick_update(long *random_buf, int buf_size, int times, FILE *logFile);
 
-void *(*db_read)(size_t index);
+void* (*db_read)(size_t index);
 
 int (*db_write)(size_t index, void *value);
 
@@ -84,7 +84,7 @@ typedef struct {
     pthread_barrier_t *ckpExitBrr;
 } db_thread_info;
 
-void *database_thread(void *arg);
+void *checkpoint_thread(void *arg);
 
 int db_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs);
 
