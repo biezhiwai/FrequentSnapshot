@@ -9,6 +9,8 @@
 #include "src/alg/HG.h"
 #include "src/alg/myfork.h"
 
+#define ITEM_SIZE sizeof(long)*1
+
 typedef struct {
     int algType;
     size_t dbSize;

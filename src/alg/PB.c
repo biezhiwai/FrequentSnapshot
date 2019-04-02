@@ -60,10 +60,10 @@ void *pb_read(size_t index) {
 int pb_write(size_t index, void *value) {
     //index = index % (DBServer.mkInfo).db_size;
     if (1 == (DBServer.pbInfo).current) {
-        memcpy((DBServer.pbInfo).db_pb_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        memcpy((DBServer.pbInfo).db_pb_as1 + index * DBServer.unitSize, value, ITEM_SIZE);
         (DBServer.pbInfo).db_pb_ba[index] = 1;
     } else {
-        memcpy((DBServer.pbInfo).db_pb_as2 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        memcpy((DBServer.pbInfo).db_pb_as2 + index * DBServer.unitSize, value, ITEM_SIZE);
         (DBServer.pbInfo).db_pb_ba[index] = 2;
     }
     return 0;

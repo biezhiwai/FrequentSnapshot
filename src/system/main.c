@@ -36,11 +36,13 @@ int main(int argc, char *argv[]) {
     DBServer.rfBufSize = 256000*5000;   // at least 5000 ticks
     DBServer.rfBuf = (long *) malloc(DBServer.rfBufSize * sizeof(long));
     // load workload data
-    for (long long _i = 0; _i < 256000; _i++) {
+    long long _i,t;
+	int times;
+    for ( _i = 0; _i < 256000; _i++) {
         fscanf(rf, "%ld\n", DBServer.rfBuf + i);
     }
-    for( int times = 1; times<5000; ++times){
-        for(long long t = 0; t < 256000; ++t){
+    for( times = 1; times<5000; ++times){
+        for( t = 0; t < 256000; ++t){
             (DBServer.rfBuf)[times*256000+t] =  (DBServer.rfBuf)[t];
         }
     }

@@ -71,11 +71,11 @@ int cou_write(size_t index, void *value) {
     if (!DBServer.couInfo.db_cou_curBA[index]) {
         db_cou_lock(index);
         if (DBServer.couInfo.db_cou_chgBA[index])
-            memcpy(DBServer.couInfo.db_cou_shandow + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+            memcpy(DBServer.couInfo.db_cou_shandow + index * DBServer.unitSize, value, ITEM_SIZE);
         DBServer.couInfo.db_cou_curBA[index] = 1;
         db_cou_unlock(index);
     }
-    memcpy(DBServer.couInfo.db_cou_primary + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+    memcpy(DBServer.couInfo.db_cou_primary + index * DBServer.unitSize, value, ITEM_SIZE);
     return 0;
 }
 

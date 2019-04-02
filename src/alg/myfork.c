@@ -43,7 +43,7 @@ void *myfork_read(size_t index) {
 
 int myfork_write(size_t index, void *value) {
     //index = index % DBServer.dbSize;
-    memcpy((DBServer.myforkInfo).db_myfork_AS + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+    memcpy((DBServer.myforkInfo).db_myfork_AS + index * DBServer.unitSize, value, ITEM_SIZE);
     return 0;
 }
 
@@ -84,5 +84,7 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
         timeEnd = get_ntime();
         add_overhead_log(&DBServer, timeEnd - timeStart);
         _exit(-1);
-    }
+    }else{
+wait(NULL);
+}
 }

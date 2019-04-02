@@ -57,10 +57,10 @@ void *hg_read(size_t index) {
 int hg_write(size_t index, void *value) {
     //index = index % (DBServer.llInfo).db_size;
     if (1 == (DBServer.hgInfo).current) {
-        memcpy((DBServer.hgInfo).db_hg_as1 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        memcpy((DBServer.hgInfo).db_hg_as1 + index * DBServer.unitSize, value, ITEM_SIZE);
         (DBServer.hgInfo).db_hg_as1_ba[index] = 1;
     } else {
-        memcpy((DBServer.hgInfo).db_hg_as0 + index * DBServer.unitSize, value, sizeof(size_t) * 1);
+        memcpy((DBServer.hgInfo).db_hg_as0 + index * DBServer.unitSize, value, ITEM_SIZE);
         (DBServer.hgInfo).db_hg_as0_ba[index] = 1;
     }
     return 0;
