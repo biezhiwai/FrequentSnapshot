@@ -38,8 +38,8 @@ void *database_thread(void *arg) {
     void (*db_destroy)(void *);
     void *info;
 #ifdef VERBOSE
-    printf("database thread start dbSize:%d alg_type:%d,unit_size:%d,set uf:%d\n",
-           dbSize, algType, DBServer.unitSize, DBServer.updateFrequency);
+    printf("database thread start alg_type:%d, dbSize:%d, unit_size:%d, set uf:%d\n",
+           algType, dbSize, DBServer.unitSize, DBServer.updateFrequency);
 #endif
     switch (algType) {
         case NAIVE_ALG:
@@ -283,7 +283,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile, int ti
     long long timeEnd;
     long long timeTick;
     int i;
-    long long tick_start_index = (tick % 60) * times;
+    long long tick_start_index = (tick % 10) * times;
     timeBegin = get_ntime();
     //pthread_spin_lock(&(DBServer.presync));
     db_lock(&(DBServer.pre_lock));

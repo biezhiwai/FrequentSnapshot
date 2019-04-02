@@ -10,21 +10,18 @@ int main(int argc, char *argv[]) {
     pthread_t db_thread_id;
     pthread_barrier_t brr_exit;
     char logName[128];
-    if (argc != 7) {
-        perror("usage:./app [update thread number] [unit num] "
-               "[algorithm type:0-navie 1-copy on update 2-zigzag 3-pingpong 4-hourglass 5-piggyback 6-fork] "
-               "[random file name] [update frequency (k/sec)]"
-               "[unit size]");
+    if (argc != 6) {
+        perror("usage:./app [algorithm type:0-6] [page num] [page size] [update frequency (k/tick)] [random file name]");
     }
-    DBServer.updateThrNum = atoi(argv[1]);
+    DBServer.updateThrNum = 1;
+    DBServer.algType = atoi(argv[1]);
     DBServer.dbSize = atoi(argv[2]);
-    DBServer.algType = atoi(argv[3]);
-    if (NULL == (rf = fopen(argv[4], "r"))) {
+    DBServer.unitSize = atoi(argv[3]);
+    DBServer.updateFrequency = atoi(argv[4])*1000;
+    if (NULL == (rf = fopen(argv[5], "r"))) {
         perror("random file open error!\n");
         return -1;
     }
-    DBServer.updateFrequency = atoi(argv[5]) * 1000;
-    DBServer.unitSize = atoi(argv[6]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
     DBServer.ckpMaxNum = 10;
@@ -35,7 +32,7 @@ int main(int argc, char *argv[]) {
     DBServer.ckpTotalOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
 
     DBServer.globaltick = 0;
-    DBServer.rfBufSize = (long long)DBServer.updateFrequency * 60;
+    DBServer.rfBufSize = (long long)DBServer.updateFrequency * 10;
     DBServer.rfBuf = (long *) malloc(DBServer.rfBufSize * sizeof(long));
     if (DBServer.rfBufSize != randomfile_init(rf, DBServer.rfBuf, DBServer.rfBufSize)) {
         perror("random file init error\n");

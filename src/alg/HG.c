@@ -52,7 +52,6 @@ void *ll_read(size_t index) {
     } else {
         return (DBServer.hgInfo).db_ll_as0 + index * DBServer.unitSize;
     }
-    return NULL;
 }
 
 int ll_write(size_t index, void *value) {
