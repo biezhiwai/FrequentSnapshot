@@ -278,7 +278,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile) {
     timeBegin = get_ntime();
     pthread_spin_lock(&(DBServer.presync));
     //db_lock(&(DBServer.pre_lock));
-    timeTick = get_ntime() + 100000000;  // 0.1s
+    timeTick = get_ntime() + 10000000;  // 10ms
     i = 0;
 
 #ifdef TICK_UPDATE
