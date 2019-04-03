@@ -26,7 +26,7 @@ int db_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_ser
 
 
 void *checkpoint_thread(void *arg) {
-    pin_To_vCPU(6);
+    //pin_To_vCPU(6);
     int dbSize = ((db_thread_info *) arg)->dbSize;
     int algType = ((db_thread_info *) arg)->algType;
     pthread_barrier_t *exitBrr = ((db_thread_info *) arg)->ckpExitBrr;
@@ -191,7 +191,7 @@ int update_thread_start(pthread_t *update_thread_id_array[],
 }
 
 void *update_thread(void *arg) {
-    pin_To_vCPU(0);
+    //pin_To_vCPU(0);
     int alg_type = ((update_thread_info *) arg)->alg_type;
     long *random_buffer = ((update_thread_info *) arg)->random_buffer;
     int random_buffer_size = ((update_thread_info *) arg)->random_buffer_size;
@@ -269,12 +269,10 @@ int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
 
 
 int tick_update(long *random_buf, int buf_size, int times, FILE *logFile) {
-    long long timeStart;
     long long timeBegin;
     long long timeEnd;
     long long timeTick;
     int i;
-    long long tick_start_index = DBServer.globaltick * times;
     timeBegin = get_ntime();
     pthread_spin_lock(&(DBServer.presync));
     //db_lock(&(DBServer.pre_lock));

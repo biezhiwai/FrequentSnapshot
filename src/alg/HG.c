@@ -8,33 +8,33 @@ int db_hg_init(void *ll_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_hg_as0 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_hg_as0 = malloc(DBServer.unitSize * db_size))) {
         perror("db_hg_as0 malloc error");
         return -1;
     }
     memset(info->db_hg_as0, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_hg_as1 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_hg_as1 = malloc(DBServer.unitSize * db_size))) {
         perror("db_hg_as1 malloc error");
         return -1;
     }
     memset(info->db_hg_as1, 'S', DBServer.unitSize * db_size);
-    if (NULL == (info->db_hg_prev = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_hg_prev = malloc(DBServer.unitSize * db_size))) {
         perror("db_hg_prev malloc error");
         return -1;
     }
     memset(info->db_hg_prev, 'S', DBServer.unitSize * db_size);
-    if (NULL == (info->db_hg_as0_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_hg_as0_ba = (bool*)malloc(db_size))) {
         perror("db_hg_as0_ba malloc error");
         return -1;
     }
     memset(info->db_hg_as0_ba, 0, db_size);
-    if (NULL == (info->db_hg_as1_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_hg_as1_ba = (bool*)malloc(db_size))) {
         perror("db_hg_as1_ba malloc error");
         return -1;
     }
     memset(info->db_hg_as1_ba, 0, db_size);
-    if (NULL == (info->db_hg_mr_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_hg_mr_ba = (bool*)malloc(db_size))) {
         perror("db_hg_as1_ba malloc error");
         return -1;
     }
@@ -42,6 +42,16 @@ int db_hg_init(void *ll_info, size_t db_size) {
     info->current = 0;
     return 0;
 
+}
+
+void db_hg_destroy(void *ll_info) {
+    db_hg_infomation *info = ll_info;
+    free(info->db_hg_as1);
+    free(info->db_hg_as0);
+    free(info->db_hg_prev);
+    free(info->db_hg_as1_ba);
+    free(info->db_hg_as0_ba);
+    free(info->db_hg_mr_ba);
 }
 
 void *hg_read(size_t index) {
@@ -79,10 +89,12 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
 
     info = ll_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+"))) {
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
+    char* buf = (char*)malloc(1024L*1024*1024);
+    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     db_size = info->db_size;
 
     pthread_spin_lock( &(DBServer.presync) );
@@ -110,20 +122,12 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
         }
     }
     timeStart = get_ntime();
-    fwrite(info->db_hg_prev, DBServer.unitSize, db_size, ckp_fd);
+    fwrite(info->db_hg_prev, (size_t)(DBServer.unitSize) * db_size,1, ckp_fd);
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
+    free(buf);
 }
 
-void db_hg_destroy(void *ll_info) {
-    db_hg_infomation *info = ll_info;
-    numa_free(info->db_hg_as1, DBServer.unitSize * info->db_size);
-    numa_free(info->db_hg_as0, DBServer.unitSize * info->db_size);
-    numa_free(info->db_hg_prev, DBServer.unitSize * info->db_size);
-    numa_free(info->db_hg_as1_ba, info->db_size);
-    numa_free(info->db_hg_as0_ba, info->db_size);
-    numa_free(info->db_hg_mr_ba, info->db_size);
 
-}

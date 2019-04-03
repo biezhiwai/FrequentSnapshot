@@ -10,7 +10,7 @@ int db_myfork_init(void *myfork_info, size_t db_size) {
     info->db_size = db_size;
 
     if (NULL == (info->db_myfork_AS =
-                         (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 0))) {
+                         (char *) malloc(DBServer.unitSize * db_size))) {
         perror("da_navie_AS malloc error");
         return -1;
     }
@@ -28,7 +28,7 @@ void db_myfork_destroy(void *myfork_info) {
     db_myfork_infomation *info;
     info = myfork_info;
 
-    numa_free(info->db_myfork_AS, DBServer.unitSize * info->db_size);
+    free(info->db_myfork_AS);
     //numa_free(info->db_myfork_AS_shandow,DBServer.unitSize * info->db_size);
 }
 
@@ -52,36 +52,31 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
     char ckp_name[32];
     db_myfork_infomation *info;
     long long timeStart;
-    long long timeEnd;
     int db_size;
 
     info = myfork_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+"))) {
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
+    char* buf = (char*)malloc(1024L*1024*1024);
+    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     db_size = info->db_size;
 
-    pid_t fpid;
     pthread_spin_lock(&(DBServer.presync));
     timeStart = get_ntime();
-    fpid = fork();
-    timeEnd = get_ntime();
-    pthread_spin_unlock(&(DBServer.presync));
-    add_prepare_log(&DBServer, timeEnd - timeStart);
-
-    if (0 == fpid) {
-#ifndef OFF_DUMP
-        fwrite(info->db_myfork_AS, DBServer.unitSize, db_size, ckp_fd);
-#endif
+    if (0 == fork()) {  // a child checkpoint process
+        fwrite(info->db_myfork_AS, (size_t)(DBServer.unitSize) * db_size, 1, ckp_fd);
         fflush(ckp_fd);
         fclose(ckp_fd);
-        _exit(-1);
-    }else{
-        timeStart = get_ntime();
+        _exit(0);
+    } else {
+        pthread_spin_unlock(&(DBServer.presync));
+        add_prepare_log(&DBServer, get_ntime() - timeStart);
+        long long time1 = get_ntime();
         wait(NULL);
-        timeEnd = get_ntime();
-        add_overhead_log(&DBServer, timeEnd - timeStart);
+        add_overhead_log(&DBServer, get_ntime() - time1);
+        free(buf);
     }
 }

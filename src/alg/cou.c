@@ -22,33 +22,33 @@ int db_cou_init(void *cou_info, size_t db_size) {
     info = cou_info;
     info->db_size = db_size;
 
-    if (NULL == (info->db_cou_primary = (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_cou_primary = (char *) malloc(DBServer.unitSize * db_size))) {
         perror("db_cou_primary malloc error");
         return -1;
     }
     memset(info->db_cou_primary, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_cou_shandow = (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_cou_shandow = (char *) malloc(DBServer.unitSize * db_size))) {
         perror("db_cou_shandow malloc error");
         return -1;
     }
     memset(info->db_cou_shandow, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_cou_curBA = (bool *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_cou_curBA = (bool *) malloc(db_size))) {
         perror("db_cou_bitarray malloc error");
         return -1;
     }
 
-    if (NULL == (info->db_cou_chgBA = (bool *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_cou_chgBA = (bool *) malloc(db_size))) {
         perror("db_cou_bitarray malloc error");
         return -1;
     }
 
-    if (NULL == (info->db_cou_preBA = (bool *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_cou_preBA = (bool *) malloc(db_size))) {
         perror("db_cou_bitarray malloc error");
         return -1;
     }
-    if(NULL == (info->db_cou_access = (bool*) numa_alloc_onnode(db_size, 1))){
+    if(NULL == (info->db_cou_access = (bool*) malloc(db_size))){
         perror("db_cou_bitarray malloc error");
     }
     memset(info->db_cou_curBA, 0, db_size);
@@ -56,6 +56,17 @@ int db_cou_init(void *cou_info, size_t db_size) {
     memset(info->db_cou_chgBA, 0, db_size);
     memset(info->db_cou_access, 0, db_size);
     return 0;
+}
+
+void db_cou_destroy(void *cou_info) {
+    db_cou_infomation *info;
+    info = cou_info;
+    free(info->db_cou_chgBA);
+    free(info->db_cou_curBA);
+    free(info->db_cou_preBA);
+    free(info->db_cou_shandow);
+    free(info->db_cou_primary);
+    free(info->db_cou_access);
 }
 
 void *cou_read(size_t index) {
@@ -90,10 +101,12 @@ void ckp_cou(int ckp_order, void *cou_info) {
     static int times = 0;
     info = cou_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+"))) {
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
+    char* buf = (char*)malloc(1024L*1024*1024);
+    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     db_size = info->db_size;
 
     pthread_spin_lock( &(DBServer.presync) );
@@ -132,15 +145,7 @@ void ckp_cou(int ckp_order, void *cou_info) {
     fclose(ckp_fd);
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
+    free(buf);
 }
 
-void db_cou_destroy(void *cou_info) {
-    db_cou_infomation *info;
-    info = cou_info;
-    numa_free(info->db_cou_chgBA, info->db_size);
-    numa_free(info->db_cou_curBA, info->db_size);
-    numa_free(info->db_cou_preBA, info->db_size);
-    numa_free(info->db_cou_shandow, DBServer.unitSize * info->db_size);
-    numa_free(info->db_cou_primary, DBServer.unitSize * info->db_size);
-    numa_free(info->db_cou_access, info->db_size);
-}
+

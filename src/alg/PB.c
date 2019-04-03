@@ -21,29 +21,37 @@ int db_pb_init(void *mk_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_pb_as1 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_pb_as1 = malloc(DBServer.unitSize * db_size))) {
         perror("db_pb_as1 malloc error");
         return -1;
     }
     memset(info->db_pb_as1, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_pb_as2 = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_pb_as2 = malloc(DBServer.unitSize * db_size))) {
         perror("db_pb_as2 malloc error");
         return -1;
     }
     memset(info->db_pb_as2, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_pb_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_pb_ba = (bool*)malloc(db_size))) {
         perror("db_pb_ba malloc error");
         return -1;
     }
     memset(info->db_pb_ba, 0, db_size);
 
-    info->db_pb_access = numa_alloc_onnode(db_size, 1);
+    info->db_pb_access = malloc(db_size);
     memset(info->db_pb_access, 0, db_size);
     info->current = 1;
     return 0;
 
+}
+
+void db_pb_destroy(void *mk_info) {
+    db_pb_infomation *info = mk_info;
+    free(info->db_pb_as1);
+    free(info->db_pb_as2);
+    free(info->db_pb_ba);
+    free(info->db_pb_access);
 }
 
 void *pb_read(size_t index) {
@@ -103,10 +111,12 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     long long timeEnd;
     info = mk_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+"))) {
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
+    char* buf = (char*)malloc(1024L*1024*1024);
+    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     db_size = info->db_size;
 
 
@@ -138,7 +148,7 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     }
 
     //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize, (size_t)DBServer.unitSize);
-    fwrite(backup, DBServer.unitSize, DBServer.dbSize, ckp_fd);
+    fwrite(backup, (size_t)(DBServer.unitSize) * db_size, 1,ckp_fd);
     fflush(ckp_fd);
     fclose(ckp_fd);
 
@@ -158,13 +168,7 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     }
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
+    free(buf);
 }
 
-void db_pb_destroy(void *mk_info) {
-    db_pb_infomation *info = mk_info;
-    numa_free(info->db_pb_as1, DBServer.unitSize * info->db_size);
-    numa_free(info->db_pb_as2, DBServer.unitSize * info->db_size);
-    numa_free(info->db_pb_ba, info->db_size);
-    numa_free(info->db_pb_access, info->db_size);
 
-}

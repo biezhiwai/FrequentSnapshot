@@ -33,13 +33,13 @@ int main(int argc, char *argv[]) {
     DBServer.ckpTotalOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
 
     DBServer.globaltick = 0;
-    DBServer.rfBufSize = 256000L*20000;   // 50000 ticks, 256k/tick
+    DBServer.rfBufSize = 256000L*20000;   // 20000 ticks, 256k/tick
     DBServer.rfBuf = (long *) malloc(DBServer.rfBufSize * sizeof(long));
     // load workload data
     long long _i,t;
 	int times;
     for ( _i = 0; _i < 2560000; _i++) {
-        fscanf(rf, "%ld\n", DBServer.rfBuf + i);
+        fscanf(rf, "%ld\n", DBServer.rfBuf + _i);
     }
     for( times = 1; times<2000; ++times){
         for( t = 0; t < 2560000; ++t){

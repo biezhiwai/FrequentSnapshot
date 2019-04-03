@@ -10,30 +10,40 @@ int db_zigzag_init(void *zigzag_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_zigzag_as0 = (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_zigzag_as0 = (char *) malloc(DBServer.unitSize * db_size))) {
         perror("db_zigzag_as0 malloc error");
         return -1;
     }
     memset(info->db_zigzag_as0, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_zigzag_as1 = (char *) numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_zigzag_as1 = (char *) malloc(DBServer.unitSize * db_size))) {
         perror("db_zigzag_sa1 malloc error");
         return -1;
     }
     memset(info->db_zigzag_as0, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_zigzag_mr = (bool *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_zigzag_mr = (bool *) malloc(db_size))) {
         perror("db_zigzag_mr malloc error");
         return -1;
     }
     memset(info->db_zigzag_mr, 0, db_size);
 
-    if (NULL == (info->db_zigzag_mw = (bool *) numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_zigzag_mw = (bool *) malloc(db_size))) {
         perror("db_zigzag_mw malloc error");
         return -1;
     }
     memset(info->db_zigzag_mw, 1, db_size);
     return 0;
+}
+
+void db_zigzag_destroy(void *zigzag_info) {
+    db_zigzag_infomation *info;
+
+    info = zigzag_info;
+    free(info->db_zigzag_as0);
+    free(info->db_zigzag_as1);
+    free(info->db_zigzag_mr);
+    free(info->db_zigzag_mw);
 }
 
 void *zigzag_read(size_t index) {
@@ -71,10 +81,12 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
 
     info = zigzag_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+"))) {
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
+    char* buf = (char*)malloc(1024L*1024*1024);
+    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     db_size = info->db_size;
 
     pthread_spin_lock(&(DBServer.presync));
@@ -103,15 +115,7 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     fclose(ckp_fd);
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
+    free(buf);
 }
 
-void db_zigzag_destroy(void *zigzag_info) {
-    db_zigzag_infomation *info;
 
-    info = zigzag_info;
-    numa_free(info->db_zigzag_as0, DBServer.unitSize * info->db_size);
-    numa_free(info->db_zigzag_as1, DBServer.unitSize * info->db_size);
-    numa_free(info->db_zigzag_mr, info->db_size);
-    numa_free(info->db_zigzag_mw, info->db_size);
-
-}

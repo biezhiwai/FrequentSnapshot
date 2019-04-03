@@ -8,37 +8,37 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
 
     info = pp_info;
     info->db_size = db_size;
-    if (NULL == (info->db_pp_as = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_pp_as = malloc(DBServer.unitSize * db_size))) {
         perror("db_pp_as malloc error");
         return -1;
     }
     memset(info->db_pp_as, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_pp_as_odd = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_pp_as_odd = malloc(DBServer.unitSize * db_size))) {
         perror("db_pp_as_odd malloc error");
         return -1;
     }
     memset(info->db_pp_as_odd, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_pp_as_even = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_pp_as_even = malloc(DBServer.unitSize * db_size))) {
         perror("db_pp_as_even malloc error");
         return -1;
     }
     memset(info->db_pp_as_even, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_pp_odd_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_pp_odd_ba = (bool*)malloc(db_size))) {
         perror("db_pp_current_odd malloc error");
         return -1;
     }
     memset(info->db_pp_odd_ba, 0, db_size);
 
-    if (NULL == (info->db_pp_even_ba = (bool*)numa_alloc_onnode(db_size, 1))) {
+    if (NULL == (info->db_pp_even_ba = (bool*)malloc(db_size))) {
         perror("db_pp_previous_ba malloc error");
         return -1;
     }
     memset(info->db_pp_even_ba, 1, db_size);
 
-    if (NULL == (info->db_pp_as_previous = numa_alloc_onnode(DBServer.unitSize * db_size, 1))) {
+    if (NULL == (info->db_pp_as_previous = malloc(DBServer.unitSize * db_size))) {
         perror("db_pp_as_previous malloc error");
         return -1;
     }
@@ -46,6 +46,18 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
 
     info->current = 0;
     return 0;
+}
+
+void db_pingpong_destroy(void *pp_info) {
+    db_pingpong_infomation *info;
+
+    info = pp_info;
+    free(info->db_pp_as);
+    free(info->db_pp_as_even);
+    free(info->db_pp_as_odd);
+    free(info->db_pp_as_previous);
+    free(info->db_pp_even_ba);
+    free(info->db_pp_odd_ba);
 }
 
 void *pingpong_read(size_t index) {
@@ -80,10 +92,12 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
 
     info = pp_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+"))) {
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
+    char* buf = (char*)malloc(1024L*1024*1024);
+    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     db_size = info->db_size;
 
     //prepare for checkpoint
@@ -105,7 +119,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     pthread_spin_unlock(&(DBServer.presync));
     //db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
-#ifndef OFF_DUMP
+
     timeStart = get_ntime();
     for (i = 0; i < db_size; i++) {
         if (1 == currentBA[i]) {
@@ -116,23 +130,12 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
             currentBA[i] = 0;
         }
     }
-    fwrite(info->db_pp_as_previous, DBServer.unitSize, db_size, ckp_fd);
-#endif
+    fwrite(info->db_pp_as_previous, (size_t)(DBServer.unitSize) * db_size,1, ckp_fd);
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
+    free(buf);
 }
 
-void db_pingpong_destroy(void *pp_info) {
-    db_pingpong_infomation *info;
 
-    info = pp_info;
-    numa_free(info->db_pp_as, DBServer.unitSize * info->db_size);
-    numa_free(info->db_pp_as_even, DBServer.unitSize * info->db_size);
-    numa_free(info->db_pp_as_odd, DBServer.unitSize * info->db_size);
-    numa_free(info->db_pp_as_previous, info->db_size);
-    numa_free(info->db_pp_even_ba, info->db_size);
-    numa_free(info->db_pp_odd_ba, info->db_size);
-
-}
