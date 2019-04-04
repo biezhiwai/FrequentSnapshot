@@ -5,11 +5,13 @@ project(FrequentSnapshot)
 set(CMAKE_C_STANDARD 99)
 set(ADDRESS_MODEL 64)
 set(NODE_TARGET x64)
-set(CMAKE_C_FLAGS "$ENV{CFLAGS} -O3 -Wall")
+set(CMAKE_C_FLAGS "$ENV{CFLAGS} -O3 -m64 -Wall")
 
 add_definitions(-D_GNU_SOURCE)
 add_definitions(-D TICK_UPDATE)
 add_definitions(-D VERBOSE)
+
+
 
 link_libraries(m)
 link_libraries(numa)

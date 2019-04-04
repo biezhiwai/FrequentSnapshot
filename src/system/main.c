@@ -38,10 +38,10 @@ int main(int argc, char *argv[]) {
     // load workload data
     long long _i,t;
 	int times;
-    for ( _i = 0; _i < 2560000; _i++) {
+    for ( _i = 0; _i < 2560000; _i++) {   //30,000 ticks
         fscanf(rf, "%ld\n", DBServer.rfBuf + _i);
     }
-    for( times = 1; times<2000; ++times){
+    for( times = 1; times<3000; ++times){
         for( t = 0; t < 2560000; ++t){
             (DBServer.rfBuf)[times*2560000L+t] =  (DBServer.rfBuf)[t];
         }

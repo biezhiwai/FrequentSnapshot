@@ -56,27 +56,35 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
 
     info = myfork_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
-        perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
-        return;
-    }
-    char* buf = (char*)malloc(1024L*1024*1024);
-    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
-    db_size = info->db_size;
 
+    long long time2= get_ntime();
     pthread_spin_lock(&(DBServer.presync));
     timeStart = get_ntime();
     if (0 == fork()) {  // a child checkpoint process
-        fwrite(info->db_myfork_AS, (size_t)(DBServer.unitSize) * db_size, 1, ckp_fd);
+        if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
+            perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
+            return;
+        }
+        //char* buf = (char*)malloc(1024L*1024*1024);
+        //setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+        setbuf(ckp_fd,NULL);
+        db_size = info->db_size;
+        long long time1 = get_ntime();
+        for (int i = 0; i < db_size; ++i) {
+            fwrite(info->db_myfork_AS + (size_t) i * DBServer.unitSize, (size_t)(DBServer.unitSize), 1, ckp_fd);
+        }
         fflush(ckp_fd);
+        add_overhead_log(&DBServer, get_ntime() - time1);
         fclose(ckp_fd);
+
         _exit(0);
     } else {
-        pthread_spin_unlock(&(DBServer.presync));
         add_prepare_log(&DBServer, get_ntime() - timeStart);
+        pthread_spin_unlock(&(DBServer.presync));
         long long time1 = get_ntime();
-        wait(NULL);
+        wait(NULL);   // waiting for child process exit
         add_overhead_log(&DBServer, get_ntime() - time1);
-        free(buf);
+        while (get_ntime() < time2 + 10000000000);
+        //free(buf);
     }
 }

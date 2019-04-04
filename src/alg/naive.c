@@ -50,11 +50,12 @@ int naive_write(size_t index, void *value) {
 
 void ckp_naive(int ckp_order, void *naive_info) {
     FILE *ckp_fd;
+    //int ckp_fd = 0;
     char ckp_name[32];
     db_naive_infomation *info;
     long long timeStart;
     long long timeEnd;
-    int db_size;
+    long long db_size;
 
     info = naive_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
@@ -62,10 +63,15 @@ void ckp_naive(int ckp_order, void *naive_info) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
-    char* buf = (char*)malloc(1024L*1024*1024);
-    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+//    if(-1 == (ckp_fd = open64(ckp_name,O_WRONLY | O_TRUNC | O_SYNC | O_CREAT , 600))){
+//        perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
+//        return;
+//    }
+    //char* buf = (char*)malloc(1024L*1024*1024);
+    //setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+    setbuf(ckp_fd,NULL);
     db_size = info->db_size;
-
+    long long time1= get_ntime();
     pthread_spin_lock(&(DBServer.presync));
     //db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
@@ -76,9 +82,17 @@ void ckp_naive(int ckp_order, void *naive_info) {
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
     timeStart = get_ntime();
-    fwrite(info->db_naive_AS_shandow, (size_t)(DBServer.unitSize) * db_size, 1, ckp_fd);
+    for (int i = 0; i < db_size; ++i) {
+        fwrite(info->db_naive_AS_shandow + (size_t) i * DBServer.unitSize, (size_t)(DBServer.unitSize), 1, ckp_fd);
+    }
+
+    //pwrite64(ckp_fd,info->db_naive_AS_shandow,(unsigned long long)(DBServer.unitSize) * db_size,0);
     fflush(ckp_fd);
-    fclose(ckp_fd);
+    //fsync(ckp_fd);
+    fclose(ckp_fd);    // is time consuming
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
+
+    //close(ckp_fd);
+    while (get_ntime() < time1 + 10000000000);
 }

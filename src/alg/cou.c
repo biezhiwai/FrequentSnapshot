@@ -105,10 +105,11 @@ void ckp_cou(int ckp_order, void *cou_info) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
-    char* buf = (char*)malloc(1024L*1024*1024);
-    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+    //char* buf = (char*)malloc(1024L*1024*1024);
+    //setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+    setbuf(ckp_fd,NULL);
     db_size = info->db_size;
-
+    long long time1= get_ntime();
     pthread_spin_lock( &(DBServer.presync) );
     //db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();   // MUST after lock
@@ -145,7 +146,9 @@ void ckp_cou(int ckp_order, void *cou_info) {
     fclose(ckp_fd);
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-    free(buf);
+
+    while (get_ntime() < time1 + 10000000000);
+    //free(buf);
 }
 
 

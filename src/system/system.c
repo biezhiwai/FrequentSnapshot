@@ -111,10 +111,9 @@ void *checkpoint_thread(void *arg) {
     pthread_barrier_wait(initBrr);
     long long timeStart;
     long long timeEnd;
-    long long timeCheckpointPeriod;
     while (1) {
 
-        printf("checkpoint triggered\n");
+        printf("checkpoint triggered,%d\n",DBServer.ckpID);
 
         timeStart = get_ntime();
         checkpoint(DBServer.ckpID % 2, info);
@@ -129,9 +128,6 @@ void *checkpoint_thread(void *arg) {
             break;
         }
 
-        timeCheckpointPeriod = timeStart + 10000000000;  // 10s
-        if (timeCheckpointPeriod >= timeEnd)
-            while (get_ntime() < timeCheckpointPeriod) { ; }
     }
 
     printf("\ncheckpoint finish:%d\n", DBServer.ckpID);
@@ -278,7 +274,7 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile) {
     //db_lock(&(DBServer.pre_lock));
     timeTick = get_ntime() + 10000000;  // 10ms
     i = 0;
-
+long long tick_start_index = DBServer.globaltick * times;
 #ifdef TICK_UPDATE
     while (i < times) {
         if (1 != DBServer.dbState) {
@@ -286,8 +282,8 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile) {
             pthread_mutex_unlock(&(DBServer.dbStateRWLock));
             return -1;
         }
-        db_write(1,&i);
-        //db_write(random_buf[tick_start_index + i], &random_buf[tick_start_index + i]);
+        //db_write(1,&i);
+        db_write(random_buf[tick_start_index + i], &random_buf[tick_start_index + i]);
         i++;
         DBServer.update_count++;
     }

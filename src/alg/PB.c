@@ -115,11 +115,12 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
         perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
         return;
     }
-    char* buf = (char*)malloc(1024L*1024*1024);
-    setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+    //char* buf = (char*)malloc(1024L*1024*1024);
+    //setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+    setbuf(ckp_fd,NULL);
     db_size = info->db_size;
 
-
+    long long time1= get_ntime();
     pthread_spin_lock(&(DBServer.presync));
     //db_lock(&(DBServer.pre_lock));
 
@@ -147,11 +148,15 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
         backup = info->db_pb_as1;
     }
 
-    //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize, (size_t)DBServer.unitSize);
-    fwrite(backup, (size_t)(DBServer.unitSize) * db_size, 1,ckp_fd);
-    fflush(ckp_fd);
-    fclose(ckp_fd);
+    for (int i = 0; i < db_size; ++i) {
+        fwrite(backup + (size_t) i * DBServer.unitSize, (size_t)(DBServer.unitSize), 1, ckp_fd);
+    }
 
+    //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize, (size_t)DBServer.unitSize);
+
+    fflush(ckp_fd);
+
+    fclose(ckp_fd);
 /*	mkDiskInfo.fd = ckp_fd;
 	mkDiskInfo.len = DBServer.dbSize * DBServer.unitSize;
 	mkDiskInfo.addr = backup;
@@ -168,7 +173,9 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     }
     timeEnd = get_ntime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-    free(buf);
+    //free(buf);
+
+    while (get_ntime() < time1 + 10000000000);
 }
 
 
