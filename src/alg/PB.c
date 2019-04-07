@@ -33,7 +33,7 @@ int db_pb_init(void *mk_info, size_t db_size) {
     }
     memset(info->db_pb_as2, 'S', DBServer.unitSize * db_size);
 
-    if (NULL == (info->db_pb_ba = (bool*)malloc(db_size))) {
+    if (NULL == (info->db_pb_ba = (unsigned char*)malloc(db_size))) {
         perror("db_pb_ba malloc error");
         return -1;
     }
@@ -87,11 +87,11 @@ void *mk_write_to_disk_thr(void *arg) {
     mk_disk_info *info = arg;
     long long timeStart;
     long long timeEnd;
-    timeStart = get_ntime();
+    timeStart = get_mtime();
     write(info->fd, info->addr, info->len);
     fsync(info->fd);
     close(info->fd);
-    timeEnd = get_ntime();
+    timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
     return NULL;
 }
@@ -111,32 +111,33 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     long long timeEnd;
     info = mk_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
-        perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
-        return;
-    }
-    //char* buf = (char*)malloc(1024L*1024*1024);
-    //setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
-    setbuf(ckp_fd,NULL);
+
     db_size = info->db_size;
 
-    long long time1= get_ntime();
-    pthread_spin_lock(&(DBServer.presync));
-    //db_lock(&(DBServer.pre_lock));
+    long long time1= get_mtime();
 
-    timeStart = get_ntime();
+    db_lock(&(DBServer.pre_lock));
+    timeStart = get_mtime();
     if (info->current == 1)
         info->current = 2;
     else
         info->current = 1;
     //info->current = (1 == (info->current)) ? 2 : 1;
-    timeEnd = get_ntime();
-
-    pthread_spin_unlock(&(DBServer.presync));
-    //db_unlock(&(DBServer.pre_lock));
+    timeEnd = get_mtime();
+    db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
-    timeStart = get_ntime();
+    timeStart = get_mtime();
+
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
+        perror("checkpoint file open error,checkout if the ckp_backup directory "
+               "is exist");
+        return;
+    }
+    // char* buf = (char*)malloc(1024L*1024*1024);
+    // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
+    setbuf(ckp_fd, NULL);
+
     if (1 == info->current) {
         mkCur = 1;
         online = info->db_pb_as1;
@@ -171,11 +172,11 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
         }
 
     }
-    timeEnd = get_ntime();
+    timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
     //free(buf);
 
-    while (get_ntime() < time1 + 10000000000);
+    while (get_mtime() < time1 + 10000);
 }
 
 

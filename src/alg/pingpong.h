@@ -15,8 +15,8 @@ typedef struct {
     char *db_pp_as_odd;
     char *db_pp_as_even;
     char *db_pp_as_previous;
-    bool *db_pp_odd_ba;
-    bool *db_pp_even_ba;
+    unsigned char *db_pp_odd_ba;
+    unsigned char *db_pp_even_ba;
     int current;
 } db_pingpong_infomation;
 

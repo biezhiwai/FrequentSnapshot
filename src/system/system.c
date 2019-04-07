@@ -3,6 +3,7 @@
 
 extern db_server DBServer;
 
+char row[ITEM_SIZE];
 
 int db_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs) {
     db_thread_info dbInfo;
@@ -112,26 +113,20 @@ void *checkpoint_thread(void *arg) {
     long long timeStart;
     long long timeEnd;
     while (1) {
-
         printf("checkpoint triggered,%d\n",DBServer.ckpID);
-
-        timeStart = get_ntime();
+        timeStart = get_mtime();
         checkpoint(DBServer.ckpID % 2, info);
-        timeEnd = get_ntime();
+        timeEnd = get_mtime();
         add_total_log(&DBServer, timeEnd - timeStart);
         DBServer.ckpID++;
-
         if (DBServer.ckpID >= DBServer.ckpMaxNum) {
             //pthread_mutex_lock(&(DBServer.dbStateRWLock));
             DBServer.dbState = 0;
             //pthread_mutex_unlock(&(DBServer.dbStateRWLock));
             break;
         }
-
     }
-
     printf("\ncheckpoint finish:%d\n", DBServer.ckpID);
-
     pthread_barrier_wait(exitBrr);
 
     DB_EXIT:
@@ -240,7 +235,9 @@ void *update_thread(void *arg) {
             DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
             pthread_id);
     pthread_barrier_wait(update_brr_init);
-
+    for (int j = 0; j < ITEM_SIZE; ++j) {
+        row[j]='X';
+    }
     random_update_db(random_buffer, random_buffer_size, log_name, update_frequency);
 
     pthread_barrier_wait(brr_exit);
@@ -252,6 +249,10 @@ void *update_thread(void *arg) {
 // update执行的更新函数
 int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
     FILE *logFile = fopen(log_name, "w+");
+    setbuf(logFile, NULL);
+
+
+
     while (1) {
         if (-1 == tick_update(random_buf, buf_size, uf, logFile))
             break;
@@ -268,13 +269,10 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile) {
     long long timeBegin;
     long long timeEnd;
     long long timeTick;
-    int i;
-    timeBegin = get_ntime();
-    pthread_spin_lock(&(DBServer.presync));
-    //db_lock(&(DBServer.pre_lock));
-    timeTick = get_ntime() + 10000000;  // 10ms
-    i = 0;
-long long tick_start_index = DBServer.globaltick * times;
+    int i=0;
+    timeBegin = get_utime();
+    db_lock(&(DBServer.pre_lock));
+    timeTick = get_utime() + 100000; // 100ms
 #ifdef TICK_UPDATE
     while (i < times) {
         if (1 != DBServer.dbState) {
@@ -282,52 +280,70 @@ long long tick_start_index = DBServer.globaltick * times;
             pthread_mutex_unlock(&(DBServer.dbStateRWLock));
             return -1;
         }
-        //db_write(1,&i);
-        db_write(random_buf[tick_start_index + i], &random_buf[tick_start_index + i]);
-        i++;
-        DBServer.update_count++;
-    }
-    timeEnd = get_ntime();
-    if (timeTick > timeEnd)   // wait loop , with litter error
-        while(get_ntime()<timeTick){;}
-#elif FULL_UPDATE
-    while(1)
-    {
-        if (1 != DBServer.dbState) {
-                printf("update thread prepare to exit\n");
-                pthread_mutex_unlock(&(DBServer.dbStateRWLock));
-                return -1;
-        }
 
-        index = random_buf[tick + i];
-        db_write(index , random_buf + tick);
+        db_write(random_buf[i], row);
+        //db_write(1,row);
         i++;
         DBServer.update_count++;
-        if(abs(timeTick - get_ntime()) <= 100000)
-            break;
+    }
+    timeEnd = get_utime();
+    if (timeTick > timeEnd)   // wait loop , with litter error
+        while (get_utime() < timeTick);
+
+    db_unlock(&(DBServer.pre_lock));
+
+    // free(indexs);
+    DBServer.globaltick++;
+    fprintf(logFile, "%lld\t%lld\n", timeBegin, (timeEnd - timeBegin));
+    return 0;
+#elif FULL_UPDATE
+    while (1) {
+      if (1 != DBServer.dbState) {
+        printf("update thread prepare to exit\n");
+        pthread_mutex_unlock(&(DBServer.dbStateRWLock));
+        return -1;
+      }
+
+      index = random_buf[tick + i];
+      db_write(index, random_buf + tick);
+      i++;
+      DBServer.update_count++;
+      if (abs(timeTick - get_ntime()) <= 100000)
+        break;
     }
     timeEnd = get_ntime();
-#endif
-    pthread_spin_unlock(&(DBServer.presync));
-    //db_unlock(&(DBServer.pre_lock));
+
+    // pthread_spin_unlock(&(DBServer.presync));
+    db_unlock(&(DBServer.pre_lock));
 
     DBServer.globaltick++;
     fprintf(logFile, "%lld\t%lld\n", timeBegin, (timeEnd - timeBegin));
     return 0;
+#endif
 }
+
+
+
 
 
 void add_overhead_log(db_server *s, long long ns) {
     s->ckpOverheadLog[s->ckpID] = ns;
 }
 
+
+
+
 void add_prepare_log(db_server *s, long long ns) {
     s->ckpPrepareLog[s->ckpID] = ns;
 }
 
+
+
 void add_total_log(db_server *s, long long ns) {
     s->ckpTotalOverheadLog[s->ckpID] = ns;
 }
+
+
 
 void write_overhead_log(db_server *s, const char *filePath) {
     FILE *logFile;

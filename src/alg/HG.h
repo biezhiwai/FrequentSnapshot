@@ -14,9 +14,9 @@ typedef struct {
     char *db_hg_as0;
     char *db_hg_as1;
     char *db_hg_prev;
-    bool *db_hg_as0_ba;
-    bool *db_hg_as1_ba;
-    bool *db_hg_mr_ba;
+    unsigned char *db_hg_as0_ba;
+    unsigned char *db_hg_as1_ba;
+    unsigned char *db_hg_mr_ba;
     int current;
 
 } db_hg_infomation;

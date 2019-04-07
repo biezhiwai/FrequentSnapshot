@@ -12,7 +12,7 @@ typedef struct {
     size_t db_size;
     char *db_pb_as1;
     char *db_pb_as2;
-    bool *db_pb_ba;
+    unsigned char *db_pb_ba;
     unsigned char *db_pb_access;
     unsigned char current;
 } db_pb_infomation;

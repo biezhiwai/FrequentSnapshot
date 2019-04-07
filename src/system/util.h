@@ -30,7 +30,7 @@
 #include <pthread.h>
 
 long long get_ntime(void);
-
+long long get_utime(void);
 long long get_mtime(void);
 
 void db_lock(unsigned char *lock);
@@ -39,3 +39,4 @@ void db_unlock(unsigned char *lock);
 
 int pin_To_vCPU(int cpu);
 
+int zipf(double alpha, int n);

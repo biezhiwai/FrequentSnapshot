@@ -9,7 +9,7 @@
 #include "src/alg/HG.h"
 #include "src/alg/myfork.h"
 
-#define ITEM_SIZE sizeof(long)*1
+#define ITEM_SIZE 4
 
 typedef struct {
     int algType;
@@ -29,8 +29,8 @@ typedef struct {
     long long rfBufSize;
     pthread_mutex_t dbStateRWLock;
     pthread_mutex_t accessMutex;
-    pthread_spinlock_t presync;
-    //unsigned char pre_lock;
+    //pthread_spinlock_t presync;
+    unsigned char pre_lock;
     db_naive_infomation naiveInfo;
     db_cou_infomation couInfo;
     db_zigzag_infomation zigzagInfo;

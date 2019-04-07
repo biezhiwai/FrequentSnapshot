@@ -35,15 +35,11 @@ void db_naive_destroy(void *naive_info) {
 
 void *naive_read(size_t index) {
     void *result;
-//    if (index >= DBServer.dbSize) {
-//        index = index % DBServer.dbSize;
-//    }
     result = (void *) ((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize);
     return result;
 }
 
 int naive_write(size_t index, void *value) {
-    //index = index % DBServer.dbSize;
     memcpy((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize, value, ITEM_SIZE);
     return 0;
 }
@@ -59,29 +55,26 @@ void ckp_naive(int ckp_order, void *naive_info) {
 
     info = naive_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
-        perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
-        return;
-    }
-//    if(-1 == (ckp_fd = open64(ckp_name,O_WRONLY | O_TRUNC | O_SYNC | O_CREAT , 600))){
-//        perror("checkpoint file open error,checkout if the ckp_backup directory is exist");
-//        return;
-//    }
-    //char* buf = (char*)malloc(1024L*1024*1024);
-    //setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
-    setbuf(ckp_fd,NULL);
+
     db_size = info->db_size;
-    long long time1= get_ntime();
-    pthread_spin_lock(&(DBServer.presync));
-    //db_lock(&(DBServer.pre_lock));
-    timeStart = get_ntime();
-    memcpy(info->db_naive_AS_shandow, info->db_naive_AS, (size_t) DBServer.unitSize * db_size);
-    timeEnd = get_ntime();
-    //db_unlock(&(DBServer.pre_lock));
-    pthread_spin_unlock(&(DBServer.presync));
+
+    long long time1 = get_mtime();
+    db_lock(&(DBServer.pre_lock));
+    timeStart = get_mtime();
+    memcpy(info->db_naive_AS_shandow, info->db_naive_AS,
+           (long long) DBServer.unitSize * db_size);
+    timeEnd = get_mtime();
+    db_unlock(&(DBServer.pre_lock));
+
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
-    timeStart = get_ntime();
+    timeStart = get_mtime();
+    if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
+        perror("checkpoint file open error,checkout if the ckp_backup directory "
+               "is exist");
+        return;
+    }
+    setbuf(ckp_fd, NULL);
     for (int i = 0; i < db_size; ++i) {
         fwrite(info->db_naive_AS_shandow + (size_t) i * DBServer.unitSize, (size_t)(DBServer.unitSize), 1, ckp_fd);
     }
@@ -90,9 +83,8 @@ void ckp_naive(int ckp_order, void *naive_info) {
     fflush(ckp_fd);
     //fsync(ckp_fd);
     fclose(ckp_fd);    // is time consuming
-    timeEnd = get_ntime();
+    timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-
     //close(ckp_fd);
-    while (get_ntime() < time1 + 10000000000);
+    while (get_mtime() < time1 + 10000); // wait 1s
 }

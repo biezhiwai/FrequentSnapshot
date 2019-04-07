@@ -1,0 +1,10 @@
+
+args=commandArgs(T)
+bound <- as.integer(args[1])
+size <- as.integer(args[2])
+file <- paste("rfg-",bound,"-",size,".txt",sep="",collapse="")
+sink(file)
+x <- sample(1:200, size, replace=T)
+for( i in 1:size)
+        cat(x[i],"\n")
+sink()
