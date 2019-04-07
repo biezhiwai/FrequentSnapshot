@@ -40,7 +40,7 @@ void *naive_read(size_t index) {
 }
 
 int naive_write(size_t index, void *value) {
-    memcpy((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize, value, ITEM_SIZE);
+    memcpy((DBServer.naiveInfo).db_naive_AS + index /** DBServer.unitSize*/, value, ITEM_SIZE);
     return 0;
 }
 
@@ -78,13 +78,9 @@ void ckp_naive(int ckp_order, void *naive_info) {
     for (int i = 0; i < db_size; ++i) {
         fwrite(info->db_naive_AS_shandow + (size_t) i * DBServer.unitSize, (size_t)(DBServer.unitSize), 1, ckp_fd);
     }
-
-    //pwrite64(ckp_fd,info->db_naive_AS_shandow,(unsigned long long)(DBServer.unitSize) * db_size,0);
     fflush(ckp_fd);
-    //fsync(ckp_fd);
     fclose(ckp_fd);    // is time consuming
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-    //close(ckp_fd);
     while (get_mtime() < time1 + 10000); // wait 1s
 }

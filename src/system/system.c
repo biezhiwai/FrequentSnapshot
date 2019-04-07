@@ -113,7 +113,7 @@ void *checkpoint_thread(void *arg) {
     long long timeStart;
     long long timeEnd;
     while (1) {
-        printf("checkpoint triggered,%d\n",DBServer.ckpID);
+        printf("checkpoint triggered,%d\n",DBServer.ckpID + 1);
         timeStart = get_mtime();
         checkpoint(DBServer.ckpID % 2, info);
         timeEnd = get_mtime();
@@ -251,8 +251,6 @@ int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
     FILE *logFile = fopen(log_name, "w+");
     setbuf(logFile, NULL);
 
-
-
     while (1) {
         if (-1 == tick_update(random_buf, buf_size, uf, logFile))
             break;
@@ -330,20 +328,13 @@ void add_overhead_log(db_server *s, long long ns) {
     s->ckpOverheadLog[s->ckpID] = ns;
 }
 
-
-
-
 void add_prepare_log(db_server *s, long long ns) {
     s->ckpPrepareLog[s->ckpID] = ns;
 }
 
-
-
 void add_total_log(db_server *s, long long ns) {
     s->ckpTotalOverheadLog[s->ckpID] = ns;
 }
-
-
 
 void write_overhead_log(db_server *s, const char *filePath) {
     FILE *logFile;

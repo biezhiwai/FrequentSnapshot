@@ -3,7 +3,7 @@
 
 extern db_server DBServer;
 
-void db_cou_lock(int index) {
+void db_cou_lock(long index) {
     unsigned char expected = 0;
 
     while (!__atomic_compare_exchange_1(DBServer.couInfo.db_cou_access + index, &expected,
@@ -12,13 +12,12 @@ void db_cou_lock(int index) {
     }
 }
 
-void db_cou_unlock(int index) {
+void db_cou_unlock(long index) {
     __atomic_store_n(DBServer.couInfo.db_cou_access + index, 0, __ATOMIC_SEQ_CST);
 }
 
 int db_cou_init(void *cou_info, size_t db_size) {
     db_cou_infomation *info;
-
     info = cou_info;
     info->db_size = db_size;
 
@@ -78,14 +77,15 @@ void *cou_read(size_t index) {
 }
 
 int cou_write(size_t index, void *value) {
-    if (!DBServer.couInfo.db_cou_curBA[index]) {
-        db_cou_lock(index);
-        if (DBServer.couInfo.db_cou_chgBA[index])
-            memcpy(DBServer.couInfo.db_cou_shandow + index * DBServer.unitSize, value, ITEM_SIZE);
-        DBServer.couInfo.db_cou_curBA[index] = 1;
-        db_cou_unlock(index);
+    long index_page = index / DBServer.unitSize;
+    if (!DBServer.couInfo.db_cou_curBA[index_page]) {
+        db_cou_lock(index_page);
+        if (DBServer.couInfo.db_cou_chgBA[index_page])
+            memcpy(DBServer.couInfo.db_cou_shandow + index, value, ITEM_SIZE);
+        DBServer.couInfo.db_cou_curBA[index_page] = 1;
+        db_cou_unlock(index_page);
     }
-    memcpy(DBServer.couInfo.db_cou_primary + index * DBServer.unitSize, value, ITEM_SIZE);
+    memcpy(DBServer.couInfo.db_cou_primary + index, value, ITEM_SIZE);
     return 0;
 }
 

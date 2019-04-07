@@ -1,5 +1,6 @@
 #include "util.h"
 #include "system.h"
+#include "config.h"
 
 db_server DBServer;
 
@@ -21,7 +22,7 @@ int main(int argc, char *argv[]) {
     printf("workload file from: %s\n",argv[5]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
-    DBServer.ckpMaxNum = 10;
+    DBServer.ckpMaxNum = CHECKPOINT_COUNT;
     DBServer.update_count = 0;
 
     DBServer.ckpOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);

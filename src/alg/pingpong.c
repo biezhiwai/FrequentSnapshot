@@ -67,14 +67,14 @@ void *pingpong_read(size_t index) {
 }
 
 int pingpong_write(size_t index, void *value) {
-    //index = index % (DBServer.pingpongInfo).db_size;
-    memcpy((DBServer.pingpongInfo).db_pp_as + index * DBServer.unitSize, value, ITEM_SIZE);
+    long index_page = index / DBServer.unitSize;
+    memcpy((DBServer.pingpongInfo).db_pp_as + index, value, ITEM_SIZE);
     if (0 == (DBServer.pingpongInfo).current) {
-        memcpy((DBServer.pingpongInfo).db_pp_as_odd + index * DBServer.unitSize + index % DBServer.unitSize, value, ITEM_SIZE);
-        (DBServer.pingpongInfo).db_pp_odd_ba[index] = 1;
+        memcpy((DBServer.pingpongInfo).db_pp_as_odd + index, value, ITEM_SIZE);
+        (DBServer.pingpongInfo).db_pp_odd_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pingpongInfo).db_pp_as_even + index * DBServer.unitSize + index % DBServer.unitSize, value, ITEM_SIZE);
-        (DBServer.pingpongInfo).db_pp_even_ba[index] = 1;
+        memcpy((DBServer.pingpongInfo).db_pp_as_even + index, value, ITEM_SIZE);
+        (DBServer.pingpongInfo).db_pp_even_ba[index_page] = 1;
     }
     return 0;
 }

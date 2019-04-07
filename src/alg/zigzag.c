@@ -57,15 +57,15 @@ void *zigzag_read(size_t index) {
 }
 
 int zigzag_write(size_t index, void *value) {
-    //index = index % (DBServer.zigzagInfo).db_size;
-    unsigned char flag = (DBServer.zigzagInfo).db_zigzag_mw[index];
+    long index_page = index / DBServer.unitSize;
+    unsigned char flag = (DBServer.zigzagInfo).db_zigzag_mw[index_page];
     if (0==flag) {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize, value, ITEM_SIZE);
-        (DBServer.zigzagInfo).db_zigzag_mr[index] = 0;
+        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index, value, ITEM_SIZE);
+        (DBServer.zigzagInfo).db_zigzag_mr[index_page] = 0;
         return 0;
     } else {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.unitSize, value, ITEM_SIZE);
-        (DBServer.zigzagInfo).db_zigzag_mr[index] = 1;
+        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + index, value, ITEM_SIZE);
+        (DBServer.zigzagInfo).db_zigzag_mr[index_page] = 1;
         return 0;
     }
 }

@@ -8,8 +8,8 @@
 #include "src/alg/PB.h"
 #include "src/alg/HG.h"
 #include "src/alg/myfork.h"
+#include "config.h"
 
-#define ITEM_SIZE 4
 
 typedef struct {
     int algType;

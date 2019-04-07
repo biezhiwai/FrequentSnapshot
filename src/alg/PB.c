@@ -66,13 +66,13 @@ void *pb_read(size_t index) {
 }
 
 int pb_write(size_t index, void *value) {
-    //index = index % (DBServer.mkInfo).db_size;
+    long index_page = index / DBServer.unitSize;
     if (1 == (DBServer.pbInfo).current) {
-        memcpy((DBServer.pbInfo).db_pb_as1 + index * DBServer.unitSize, value, ITEM_SIZE);
-        (DBServer.pbInfo).db_pb_ba[index] = 1;
+        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, ITEM_SIZE);
+        (DBServer.pbInfo).db_pb_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pbInfo).db_pb_as2 + index * DBServer.unitSize, value, ITEM_SIZE);
-        (DBServer.pbInfo).db_pb_ba[index] = 2;
+        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, ITEM_SIZE);
+        (DBServer.pbInfo).db_pb_ba[index_page] = 2;
     }
     return 0;
 }

@@ -32,7 +32,7 @@ void *myfork_read(size_t index) {
 }
 
 int myfork_write(size_t index, void *value) {
-    memcpy((DBServer.myforkInfo).db_myfork_AS + index * DBServer.unitSize, value, ITEM_SIZE);
+    memcpy((DBServer.myforkInfo).db_myfork_AS + index, value, ITEM_SIZE);
     return 0;
 }
 
