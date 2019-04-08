@@ -65,7 +65,7 @@ void *hg_read(size_t index) {
 }
 
 int hg_write(size_t index, void *value) {
-    long index_page = index / DBServer.unitSize;
+    long index_page = index >> 12;
     if (1 == (DBServer.hgInfo).current) {
         memcpy((DBServer.hgInfo).db_hg_as1 + index, value, ITEM_SIZE);
         (DBServer.hgInfo).db_hg_as1_ba[index_page] = 1;
@@ -95,7 +95,7 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
 
 
     db_lock(&(DBServer.pre_lock));
-    timeStart = get_mtime();
+    timeStart = get_ntime();
     //prepare for checkpoint
     info->current = !(info->current);
     if (0 == info->current) {
@@ -105,7 +105,7 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
         currentBackup = info->db_hg_as0;
         currentBA = info->db_hg_as0_ba;
     }
-    timeEnd = get_mtime();
+    timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
     for (i = 0; i < db_size; i++) {

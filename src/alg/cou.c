@@ -77,7 +77,7 @@ void *cou_read(size_t index) {
 }
 
 int cou_write(size_t index, void *value) {
-    long index_page = index / DBServer.unitSize;
+    long index_page = index >> 12;
     if (!DBServer.couInfo.db_cou_curBA[index_page]) {
         db_cou_lock(index_page);
         if (DBServer.couInfo.db_cou_chgBA[index_page])
@@ -88,6 +88,9 @@ int cou_write(size_t index, void *value) {
     memcpy(DBServer.couInfo.db_cou_primary + index, value, ITEM_SIZE);
     return 0;
 }
+
+
+
 
 void ckp_cou(int ckp_order, void *cou_info) {
     FILE *ckp_fd;
@@ -100,18 +103,18 @@ void ckp_cou(int ckp_order, void *cou_info) {
     static int times = 0;
     info = cou_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-
     db_size = info->db_size;
+
     long long time1= get_mtime();
 
     db_lock(&(DBServer.pre_lock));
-    timeStart = get_mtime(); // MUST after lock
+    timeStart = get_ntime(); // MUST after lock
     for (i = 0; i < db_size; i++) {
         info->db_cou_chgBA[i] = info->db_cou_curBA[i] | info->db_cou_preBA[i];
         info->db_cou_preBA[i] = info->db_cou_curBA[i];
         info->db_cou_curBA[i] = 1;
     }
-    timeEnd = get_mtime();
+    timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
     timeStart = get_mtime();
@@ -121,8 +124,6 @@ void ckp_cou(int ckp_order, void *cou_info) {
                "is exist");
         return;
     }
-    // char* buf = (char*)malloc(1024L*1024*1024);
-    // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     setbuf(ckp_fd, NULL);
     if (!times) {
         fwrite(info->db_cou_shandow, (size_t) DBServer.unitSize * db_size, 1, ckp_fd);

@@ -49,9 +49,9 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
     long long time2= get_mtime();
 
     db_lock(&(DBServer.pre_lock));
-    timeStart = get_mtime();
+    timeStart = get_ntime();
     if (0 != fork()) {
-        timeEnd = get_mtime();
+        timeEnd = get_ntime();
         db_unlock(&(DBServer.pre_lock));
         add_prepare_log(&DBServer, timeEnd - timeStart);
 

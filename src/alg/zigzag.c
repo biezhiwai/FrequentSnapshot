@@ -57,7 +57,7 @@ void *zigzag_read(size_t index) {
 }
 
 int zigzag_write(size_t index, void *value) {
-    long index_page = index / DBServer.unitSize;
+    long index_page = index >> 12;
     unsigned char flag = (DBServer.zigzagInfo).db_zigzag_mw[index_page];
     if (0==flag) {
         memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index, value, ITEM_SIZE);
@@ -69,6 +69,8 @@ int zigzag_write(size_t index, void *value) {
         return 0;
     }
 }
+
+
 
 void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     FILE *ckp_fd;
@@ -85,11 +87,11 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     db_size = info->db_size;
     long long time1= get_mtime();
     db_lock(&(DBServer.pre_lock));
-    timeStart = get_mtime();
+    timeStart = get_ntime();
     for (i = 0; i < db_size; i++) {
         info->db_zigzag_mw[i] = !(info->db_zigzag_mr[i]);
     }
-    timeEnd = get_mtime();
+    timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
 
     add_prepare_log(&DBServer, timeEnd - timeStart);

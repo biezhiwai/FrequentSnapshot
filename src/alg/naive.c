@@ -6,7 +6,6 @@ extern db_server DBServer;
 
 int db_naive_init(void *naive_info, size_t db_size) {
     db_naive_infomation *info;
-
     info = naive_info;
     info->db_size = db_size;
 
@@ -40,9 +39,10 @@ void *naive_read(size_t index) {
 }
 
 int naive_write(size_t index, void *value) {
-    memcpy((DBServer.naiveInfo).db_naive_AS + index /** DBServer.unitSize*/, value, ITEM_SIZE);
+    memcpy((DBServer.naiveInfo).db_naive_AS + index, value, ITEM_SIZE);
     return 0;
 }
+
 
 void ckp_naive(int ckp_order, void *naive_info) {
     FILE *ckp_fd;
@@ -54,20 +54,17 @@ void ckp_naive(int ckp_order, void *naive_info) {
     long long db_size;
 
     info = naive_info;
-    sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
-
     db_size = info->db_size;
+    sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     long long time1 = get_mtime();
     db_lock(&(DBServer.pre_lock));
-    timeStart = get_mtime();
+    timeStart = get_ntime();
     memcpy(info->db_naive_AS_shandow, info->db_naive_AS,
-           (long long) DBServer.unitSize * db_size);
-    timeEnd = get_mtime();
+           (long long) DBServer.unitSize * DBServer.dbSize);
+    timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
-
     add_prepare_log(&DBServer, timeEnd - timeStart);
-
     timeStart = get_mtime();
     if (NULL == (ckp_fd = fopen(ckp_name, "w+b"))) {
         perror("checkpoint file open error,checkout if the ckp_backup directory "
@@ -82,5 +79,5 @@ void ckp_naive(int ckp_order, void *naive_info) {
     fclose(ckp_fd);    // is time consuming
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-    while (get_mtime() < time1 + 10000); // wait 1s
+    while (get_mtime() < time1 + 10000); // wait 10s
 }

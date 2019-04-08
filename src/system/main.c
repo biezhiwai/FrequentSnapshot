@@ -69,7 +69,7 @@ DBServer.pre_lock = UNLOCK;
     }
     free(update_thread_array);
     pthread_barrier_destroy(&brr_exit);
-    sprintf(logName, "./log/overhead/%d_overhead_%dk_%ld_%d.log",
+    sprintf(logName, "./log/%d_overhead_%dk_%ld_%d.log",
             DBServer.algType, DBServer.updateFrequency / 1000,
             DBServer.dbSize, DBServer.unitSize);
     write_overhead_log(&DBServer, logName);
@@ -77,7 +77,7 @@ DBServer.pre_lock = UNLOCK;
     //print the database throughput
     FILE *throughputFile;
     char logPath[64];
-    sprintf(logPath, "./log/overhead/tps_%d", DBServer.algType);
+    sprintf(logPath, "./log/tps_%d", DBServer.algType);
     throughputFile = fopen(logPath, "w+");
     fprintf(throughputFile, "TPS:%lld", DBServer.update_count / (DBServer.dbEndTime - DBServer.dbStartTime));
     fclose(throughputFile);

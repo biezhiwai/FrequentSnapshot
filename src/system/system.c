@@ -231,7 +231,7 @@ void *update_thread(void *arg) {
             perror("alg_type error");
             break;
     }
-    sprintf(log_name, "./log/latency/%d_latency_%dk_%ld_%d_%d.log", DBServer.algType,
+    sprintf(log_name, "./log/%d_latency_%dk_%ld_%d_%d.log", DBServer.algType,
             DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
             pthread_id);
     pthread_barrier_wait(update_brr_init);
@@ -280,7 +280,6 @@ int tick_update(long *random_buf, int buf_size, int times, FILE *logFile) {
         }
 
         db_write(random_buf[i], row);
-        //db_write(1,row);
         i++;
         DBServer.update_count++;
     }

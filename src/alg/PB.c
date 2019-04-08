@@ -66,7 +66,7 @@ void *pb_read(size_t index) {
 }
 
 int pb_write(size_t index, void *value) {
-    long index_page = index / DBServer.unitSize;
+    long index_page = index >> 12;
     if (1 == (DBServer.pbInfo).current) {
         memcpy((DBServer.pbInfo).db_pb_as1 + index, value, ITEM_SIZE);
         (DBServer.pbInfo).db_pb_ba[index_page] = 1;
@@ -117,13 +117,13 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     long long time1= get_mtime();
 
     db_lock(&(DBServer.pre_lock));
-    timeStart = get_mtime();
+    timeStart = get_ntime();
     if (info->current == 1)
         info->current = 2;
     else
         info->current = 1;
     //info->current = (1 == (info->current)) ? 2 : 1;
-    timeEnd = get_mtime();
+    timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
 
