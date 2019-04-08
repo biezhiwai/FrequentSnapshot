@@ -1,10 +1,7 @@
-
-args=commandArgs(T)
-bound <- as.integer(args[1])
-page_size <- as.integer(args[2])
-count <- as.integer(args[3])
-file <- paste("rfg-",bound,"-",page_size,"-",count,".txt",sep="",collapse="")
-sink(file)
+bound = 2000000
+page_size = 4096
+count = 1024000
+sink("rfg.txt")
 x <- sample(1:bound*page_size, count, replace=T)
 for( i in 1:count)
         cat(x[i],"\n")
