@@ -10,14 +10,14 @@ int db_naive_init(void *naive_info, size_t db_size) {
     info->db_size = db_size;
 
     if (NULL == (info->db_naive_AS =
-                         (char *) malloc(DBServer.unitSize * db_size))) {
+                         (char *) malloc(DBServer.pageSize * db_size))) {
         perror("da_navie_AS malloc error");
         return -1;
     }
-    memset(info->db_naive_AS, 'S', DBServer.unitSize * db_size);
+    memset(info->db_naive_AS, 'S', DBServer.pageSize * db_size);
 
     if (NULL == (info->db_naive_AS_shandow =
-                         (char *) malloc(DBServer.unitSize * db_size))) {
+                         (char *) malloc(DBServer.pageSize * db_size))) {
         perror("db_navie_AS_shandow malloc error");
         return -1;
     }
@@ -34,7 +34,7 @@ void db_naive_destroy(void *naive_info) {
 
 void *naive_read(size_t index) {
     void *result;
-    result = (void *) ((DBServer.naiveInfo).db_naive_AS + index * DBServer.unitSize);
+    result = (void *) ((DBServer.naiveInfo).db_naive_AS + index * DBServer.pageSize);
     return result;
 }
 
@@ -61,7 +61,7 @@ void ckp_naive(int ckp_order, void *naive_info) {
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
     memcpy(info->db_naive_AS_shandow, info->db_naive_AS,
-           (long long) DBServer.unitSize * DBServer.dbSize);
+           (long long) DBServer.pageSize * DBServer.dbSize);
     timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
@@ -73,7 +73,7 @@ void ckp_naive(int ckp_order, void *naive_info) {
     }
     setbuf(ckp_fd, NULL);
     for (int i = 0; i < db_size; ++i) {
-        fwrite(info->db_naive_AS_shandow + (size_t) i * DBServer.unitSize, (size_t)(DBServer.unitSize), 1, ckp_fd);
+        fwrite(info->db_naive_AS_shandow + (size_t) i * DBServer.pageSize, (size_t)(DBServer.pageSize), 1, ckp_fd);
     }
     fflush(ckp_fd);
     fclose(ckp_fd);    // is time consuming

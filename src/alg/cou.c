@@ -21,17 +21,17 @@ int db_cou_init(void *cou_info, size_t db_size) {
     info = cou_info;
     info->db_size = db_size;
 
-    if (NULL == (info->db_cou_primary = (char *) malloc(DBServer.unitSize * db_size))) {
+    if (NULL == (info->db_cou_primary = (char *) malloc(DBServer.pageSize * db_size))) {
         perror("db_cou_primary malloc error");
         return -1;
     }
-    memset(info->db_cou_primary, 'S', DBServer.unitSize * db_size);
+    memset(info->db_cou_primary, 'S', DBServer.pageSize * db_size);
 
-    if (NULL == (info->db_cou_shandow = (char *) malloc(DBServer.unitSize * db_size))) {
+    if (NULL == (info->db_cou_shandow = (char *) malloc(DBServer.pageSize * db_size))) {
         perror("db_cou_shandow malloc error");
         return -1;
     }
-    memset(info->db_cou_shandow, 'S', DBServer.unitSize * db_size);
+    memset(info->db_cou_shandow, 'S', DBServer.pageSize * db_size);
 
     if (NULL == (info->db_cou_curBA = (unsigned char *) malloc(db_size))) {
         perror("db_cou_bitarray malloc error");
@@ -72,12 +72,12 @@ void *cou_read(size_t index) {
     void *result;
     //if (index > DBServer.dbSize)
     //    index = index % DBServer.dbSize;
-    result = (DBServer.couInfo).db_cou_primary + index * DBServer.unitSize;
+    result = (DBServer.couInfo).db_cou_primary + index * DBServer.pageSize;
     return result;
 }
 
 int cou_write(size_t index, void *value) {
-    long index_page = index >> 12;
+    long index_page = index >> DBServer.logscale_pagesize;
     if (!DBServer.couInfo.db_cou_curBA[index_page]) {
         db_cou_lock(index_page);
         if (DBServer.couInfo.db_cou_chgBA[index_page])
@@ -126,18 +126,18 @@ void ckp_cou(int ckp_order, void *cou_info) {
     }
     setbuf(ckp_fd, NULL);
     if (!times) {
-        fwrite(info->db_cou_shandow, (size_t) DBServer.unitSize * db_size, 1, ckp_fd);
+        fwrite(info->db_cou_shandow, (size_t) DBServer.pageSize * db_size, 1, ckp_fd);
         times++;
     } else {
         for (i = 0; i < db_size; i++) {
             if (info->db_cou_chgBA[i]) {
                 db_cou_lock(i);
                 if (info->db_cou_curBA[i]) {
-                    fwrite(info->db_cou_shandow + (size_t) i * DBServer.unitSize, (size_t) DBServer.unitSize, 1,
+                    fwrite(info->db_cou_shandow + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1,
                            ckp_fd);
                     db_cou_unlock(i);
                 } else {
-                    fwrite(info->db_cou_primary + (size_t) i * DBServer.unitSize, (size_t) DBServer.unitSize, 1,
+                    fwrite(info->db_cou_primary + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1,
                            ckp_fd);
                     db_cou_unlock(i);
                 }

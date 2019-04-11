@@ -14,7 +14,8 @@
 typedef struct {
     int algType;
     size_t dbSize;
-    int unitSize;
+    int pageSize;
+    int logscale_pagesize;
     struct timespec ckpTimeLog[2000];
     long long *ckpOverheadLog;
     long long *ckpPrepareLog;

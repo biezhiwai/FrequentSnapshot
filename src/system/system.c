@@ -40,7 +40,7 @@ void *checkpoint_thread(void *arg) {
     void *info;
 
     printf("database thread start alg_type:%d, dbSize:%d, unit_size:%d, set uf:%d\n",
-           algType, dbSize, DBServer.unitSize, DBServer.updateFrequency);
+           algType, dbSize, DBServer.pageSize, DBServer.updateFrequency);
 
     switch (algType) {
         case NAIVE_ALG:
@@ -232,7 +232,7 @@ void *update_thread(void *arg) {
             break;
     }
     sprintf(log_name, "./log/%d_latency_%dk_%ld_%d_%d.log", DBServer.algType,
-            DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.unitSize,
+            DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.pageSize,
             pthread_id);
     pthread_barrier_wait(update_brr_init);
     for (int j = 0; j < ITEM_SIZE; ++j) {
@@ -257,7 +257,7 @@ int random_update_db(long *random_buf, int buf_size, char *log_name, int uf) {
     }
     fclose(logFile);
 
-    printf("global_tick = %lld\n", DBServer.globaltick);
+    printf("global_tick = %lld, global_update_count = %lld\n", DBServer.globaltick, DBServer.update_count);
 
     return 0;
 }

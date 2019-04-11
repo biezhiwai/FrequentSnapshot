@@ -10,17 +10,17 @@ int db_zigzag_init(void *zigzag_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_zigzag_as0 = (char *) malloc(DBServer.unitSize * db_size))) {
+    if (NULL == (info->db_zigzag_as0 = (char *) malloc(DBServer.pageSize * db_size))) {
         perror("db_zigzag_as0 malloc error");
         return -1;
     }
-    memset(info->db_zigzag_as0, 'S', DBServer.unitSize * db_size);
+    memset(info->db_zigzag_as0, 'S', DBServer.pageSize * db_size);
 
-    if (NULL == (info->db_zigzag_as1 = (char *) malloc(DBServer.unitSize * db_size))) {
+    if (NULL == (info->db_zigzag_as1 = (char *) malloc(DBServer.pageSize * db_size))) {
         perror("db_zigzag_sa1 malloc error");
         return -1;
     }
-    memset(info->db_zigzag_as0, 'S', DBServer.unitSize * db_size);
+    memset(info->db_zigzag_as0, 'S', DBServer.pageSize * db_size);
 
     if (NULL == (info->db_zigzag_mr = (unsigned char *) malloc(db_size))) {
         perror("db_zigzag_mr malloc error");
@@ -50,14 +50,14 @@ void *zigzag_read(size_t index) {
 //    if (index > (DBServer.zigzagInfo).db_size)
 //        index = index % (DBServer.zigzagInfo).db_size;
     if (0 == (DBServer.zigzagInfo).db_zigzag_mr[index]) {
-        return (void *) ((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.unitSize);
+        return (void *) ((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.pageSize);
     } else {
-        return (void *) ((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.unitSize);
+        return (void *) ((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.pageSize);
     }
 }
 
 int zigzag_write(size_t index, void *value) {
-    long index_page = index >> 12;
+    long index_page = index >> DBServer.logscale_pagesize;
     unsigned char flag = (DBServer.zigzagInfo).db_zigzag_mw[index_page];
     if (0==flag) {
         memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index, value, ITEM_SIZE);
@@ -107,9 +107,9 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     setbuf(ckp_fd, NULL);
     for (i = 0; i < db_size; i++) {
         if (0 == info->db_zigzag_mw[i]) {
-            fwrite(info->db_zigzag_as1 + (size_t) i * DBServer.unitSize, (size_t) DBServer.unitSize, 1, ckp_fd);
+            fwrite(info->db_zigzag_as1 + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1, ckp_fd);
         } else {
-            fwrite(info->db_zigzag_as0 + (size_t) i * DBServer.unitSize, (size_t) DBServer.unitSize, 1, ckp_fd);
+            fwrite(info->db_zigzag_as0 + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1, ckp_fd);
         }
     }
     fflush(ckp_fd);

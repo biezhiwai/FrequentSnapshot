@@ -10,11 +10,11 @@ int db_myfork_init(void *myfork_info, size_t db_size) {
     info->db_size = db_size;
 
     if (NULL == (info->db_myfork_AS =
-                         (char *) malloc(DBServer.unitSize * db_size))) {
+                         (char *) malloc(DBServer.pageSize * db_size))) {
         perror("da_navie_AS malloc error");
         return -1;
     }
-    memset(info->db_myfork_AS, 'S', DBServer.unitSize * db_size);
+    memset(info->db_myfork_AS, 'S', DBServer.pageSize * db_size);
 
     return 0;
 }
@@ -27,7 +27,7 @@ void db_myfork_destroy(void *myfork_info) {
 
 void *myfork_read(size_t index) {
     void *result;
-    result = (void *) ((DBServer.myforkInfo).db_myfork_AS + index * DBServer.unitSize);
+    result = (void *) ((DBServer.myforkInfo).db_myfork_AS + index * DBServer.pageSize);
     return result;
 }
 
@@ -71,8 +71,8 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
         db_size = info->db_size;
         long long time1 = get_mtime();
         for (int i = 0; i < db_size; ++i) {
-            fwrite(info->db_myfork_AS + (size_t) i * DBServer.unitSize,
-                   (size_t) (DBServer.unitSize), 1, ckp_fd);
+            fwrite(info->db_myfork_AS + (size_t) i * DBServer.pageSize,
+                   (size_t) (DBServer.pageSize), 1, ckp_fd);
         }
         fflush(ckp_fd);
         fclose(ckp_fd);

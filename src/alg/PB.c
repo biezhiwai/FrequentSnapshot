@@ -21,17 +21,17 @@ int db_pb_init(void *mk_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_pb_as1 = malloc(DBServer.unitSize * db_size))) {
+    if (NULL == (info->db_pb_as1 = malloc(DBServer.pageSize * db_size))) {
         perror("db_pb_as1 malloc error");
         return -1;
     }
-    memset(info->db_pb_as1, 'S', DBServer.unitSize * db_size);
+    memset(info->db_pb_as1, 'S', DBServer.pageSize * db_size);
 
-    if (NULL == (info->db_pb_as2 = malloc(DBServer.unitSize * db_size))) {
+    if (NULL == (info->db_pb_as2 = malloc(DBServer.pageSize * db_size))) {
         perror("db_pb_as2 malloc error");
         return -1;
     }
-    memset(info->db_pb_as2, 'S', DBServer.unitSize * db_size);
+    memset(info->db_pb_as2, 'S', DBServer.pageSize * db_size);
 
     if (NULL == (info->db_pb_ba = (unsigned char*)malloc(db_size))) {
         perror("db_pb_ba malloc error");
@@ -58,15 +58,15 @@ void *pb_read(size_t index) {
 //    if (index > (DBServer.mkInfo).db_size)
 //        index = index % (DBServer.mkInfo).db_size;
     if (1 == (DBServer.pbInfo).current) {
-        return (DBServer.pbInfo).db_pb_as1 + index * DBServer.unitSize;
+        return (DBServer.pbInfo).db_pb_as1 + index * DBServer.pageSize;
     } else {
-        return (DBServer.pbInfo).db_pb_as2 + index * DBServer.unitSize;
+        return (DBServer.pbInfo).db_pb_as2 + index * DBServer.pageSize;
     }
     return NULL;
 }
 
 int pb_write(size_t index, void *value) {
-    long index_page = index >> 12;
+    long index_page = index >> DBServer.logscale_pagesize;
     if (1 == (DBServer.pbInfo).current) {
         memcpy((DBServer.pbInfo).db_pb_as1 + index, value, ITEM_SIZE);
         (DBServer.pbInfo).db_pb_ba[index_page] = 1;
@@ -150,24 +150,24 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     }
 
     for (int i = 0; i < db_size; ++i) {
-        fwrite(backup + (size_t) i * DBServer.unitSize, (size_t)(DBServer.unitSize), 1, ckp_fd);
+        fwrite(backup + (size_t) i * DBServer.pageSize, (size_t)(DBServer.pageSize), 1, ckp_fd);
     }
 
-    //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.unitSize, (size_t)DBServer.unitSize);
+    //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.pageSize, (size_t)DBServer.pageSize);
 
     fflush(ckp_fd);
 
     fclose(ckp_fd);
 /*	mkDiskInfo.fd = ckp_fd;
-	mkDiskInfo.len = DBServer.dbSize * DBServer.unitSize;
+	mkDiskInfo.len = DBServer.dbSize * DBServer.pageSize;
 	mkDiskInfo.addr = backup;
 	pthread_create(&mkDiskThrId,NULL,mk_write_to_disk_thr,&mkDiskInfo);
     */
     for (i = 0; i < db_size; i++) {
 
         if (mkCur != info->db_pb_ba[i] && 0 != mkCur) {
-            memcpy(online + i * DBServer.unitSize,
-                   backup + i * DBServer.unitSize, (size_t) DBServer.unitSize);
+            memcpy(online + i * DBServer.pageSize,
+                   backup + i * DBServer.pageSize, (size_t) DBServer.pageSize);
             info->db_pb_ba[i] = 0;
         }
 

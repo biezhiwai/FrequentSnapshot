@@ -1,7 +1,7 @@
 #include "util.h"
 #include "system.h"
 #include "config.h"
-
+#include <math.h>
 db_server DBServer;
 
 int main(int argc, char *argv[]) {
@@ -17,7 +17,8 @@ int main(int argc, char *argv[]) {
     DBServer.updateThrNum = 1;
     DBServer.algType = atoi(argv[1]);
     DBServer.dbSize = atoi(argv[2]);
-    DBServer.unitSize = atoi(argv[3]);
+    DBServer.pageSize = atoi(argv[3]);
+    DBServer.logscale_pagesize = log(DBServer.pageSize)/log(2);
     DBServer.updateFrequency = atoi(argv[4])*1000;
     printf("workload file from: %s\n",argv[5]);
     DBServer.ckpID = 0;
@@ -71,7 +72,7 @@ DBServer.pre_lock = UNLOCK;
     pthread_barrier_destroy(&brr_exit);
     sprintf(logName, "./log/%d_overhead_%dk_%ld_%d.log",
             DBServer.algType, DBServer.updateFrequency / 1000,
-            DBServer.dbSize, DBServer.unitSize);
+            DBServer.dbSize, DBServer.pageSize);
     write_overhead_log(&DBServer, logName);
 
     //print the database throughput
