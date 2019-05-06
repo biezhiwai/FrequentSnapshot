@@ -1,6 +1,5 @@
 #include "util.h"
 #include "system.h"
-#include "config.h"
 #include <math.h>
 db_server DBServer;
 
@@ -26,9 +25,9 @@ int main(int argc, char *argv[]) {
     DBServer.ckpMaxNum = CHECKPOINT_COUNT;
     DBServer.update_count = 0;
 
-    DBServer.ckpOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
-    DBServer.ckpPrepareLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
-    DBServer.ckpTotalOverheadLog = malloc(sizeof(long long) * DBServer.ckpMaxNum);
+    DBServer.ckpOverheadLog = malloc(sizeof(integer) * DBServer.ckpMaxNum);
+    DBServer.ckpPrepareLog = malloc(sizeof(integer) * DBServer.ckpMaxNum);
+    DBServer.ckpTotalOverheadLog = malloc(sizeof(integer) * DBServer.ckpMaxNum);
 
     DBServer.globaltick = 0;
 DBServer.pre_lock = UNLOCK;
@@ -37,13 +36,13 @@ DBServer.pre_lock = UNLOCK;
         perror("random file open error!\n");
         return -1;
     }
-    DBServer.rfBufSize = (long long) DBServer.updateFrequency;
-    DBServer.rfBuf = (long *) malloc(DBServer.rfBufSize * sizeof(long));
+    DBServer.rfBufSize = (integer) DBServer.updateFrequency;
+    DBServer.rfBuf = (integer *) malloc(DBServer.rfBufSize * sizeof(integer));
     // load workload data
-    long long _i;
-    long long dataset_len = (long long) DBServer.updateFrequency;
+    integer _i;
+    integer dataset_len = (integer) DBServer.updateFrequency;
     for (_i = 0; _i < dataset_len; _i++) {
-        fscanf(rf, "%ld\n", DBServer.rfBuf + _i);
+        fscanf(rf, "%lld\n", DBServer.rfBuf + _i);
     }
     fclose(rf);
 

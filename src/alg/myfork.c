@@ -32,7 +32,7 @@ void *myfork_read(size_t index) {
 }
 
 int myfork_write(size_t index, void *value) {
-    memcpy((DBServer.myforkInfo).db_myfork_AS + index, value, ITEM_SIZE);
+    memcpy((DBServer.myforkInfo).db_myfork_AS + (index << DBServer.logscale_pagesize), value, DBServer.pageSize);
     return 0;
 }
 
@@ -40,13 +40,13 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
     FILE *ckp_fd;
     char ckp_name[32];
     db_myfork_infomation *info;
-    long long timeStart, timeEnd;
+    integer timeStart, timeEnd;
     int db_size;
 
     info = myfork_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
-    long long time2= get_mtime();
+    integer time2= get_mtime();
 
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
@@ -54,8 +54,7 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
         timeEnd = get_ntime();
         db_unlock(&(DBServer.pre_lock));
         add_prepare_log(&DBServer, timeEnd - timeStart);
-
-        long long time1 = get_mtime();
+        integer time1 = get_mtime();
         wait(NULL); // waiting for child process exit
         add_overhead_log(&DBServer, get_mtime() - time1);
         while (get_mtime() < time2 + 10000);
@@ -69,7 +68,6 @@ void ckp_myfork(int ckp_order, void *myfork_info) {
         // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
         setbuf(ckp_fd, NULL);
         db_size = info->db_size;
-        long long time1 = get_mtime();
         for (int i = 0; i < db_size; ++i) {
             fwrite(info->db_myfork_AS + (size_t) i * DBServer.pageSize,
                    (size_t) (DBServer.pageSize), 1, ckp_fd);

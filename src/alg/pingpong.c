@@ -66,14 +66,14 @@ void *pingpong_read(size_t index) {
     return (DBServer.pingpongInfo).db_pp_as + index * DBServer.pageSize;
 }
 
-int pingpong_write(size_t index, void *value) {
-    long index_page = index >> DBServer.logscale_pagesize;
-    memcpy((DBServer.pingpongInfo).db_pp_as + index, value, ITEM_SIZE);
+int pingpong_write(size_t index_page, void *value) {
+    integer index2 = index_page << DBServer.logscale_pagesize;
+    memcpy((DBServer.pingpongInfo).db_pp_as + index2, value, DBServer.pageSize);
     if (0 == (DBServer.pingpongInfo).current) {
-        memcpy((DBServer.pingpongInfo).db_pp_as_odd + index, value, ITEM_SIZE);
+        memcpy((DBServer.pingpongInfo).db_pp_as_odd + index2, value, DBServer.pageSize);
         (DBServer.pingpongInfo).db_pp_odd_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pingpongInfo).db_pp_as_even + index, value, ITEM_SIZE);
+        memcpy((DBServer.pingpongInfo).db_pp_as_even + index2, value, DBServer.pageSize);
         (DBServer.pingpongInfo).db_pp_even_ba[index_page] = 1;
     }
     return 0;
@@ -87,14 +87,14 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     db_pingpong_infomation *info;
     char *currentBackup;
     unsigned char *currentBA;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
 
     info = pp_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-    long long time1= get_mtime();
+    integer time1= get_mtime();
     //prepare for checkpoint
 
     db_lock(&(DBServer.pre_lock));

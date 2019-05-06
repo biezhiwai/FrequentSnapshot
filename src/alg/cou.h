@@ -10,7 +10,7 @@
 #include "src/system/util.h"
 
 typedef struct {
-    size_t db_size;
+    integer db_size;
     char *db_cou_primary;
     char *db_cou_shandow;
     unsigned char*db_cou_curBA;

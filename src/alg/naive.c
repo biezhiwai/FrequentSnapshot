@@ -27,19 +27,18 @@ int db_naive_init(void *naive_info, size_t db_size) {
 void db_naive_destroy(void *naive_info) {
     db_naive_infomation *info;
     info = naive_info;
-
     free(info->db_naive_AS);
     free(info->db_naive_AS_shandow);
 }
 
 void *naive_read(size_t index) {
     void *result;
-    result = (void *) ((DBServer.naiveInfo).db_naive_AS + index * DBServer.pageSize);
+    result = (void *) ((DBServer.naiveInfo).db_naive_AS + (index << DBServer.logscale_pagesize));
     return result;
 }
 
 int naive_write(size_t index, void *value) {
-    memcpy((DBServer.naiveInfo).db_naive_AS + index, value, ITEM_SIZE);
+    memcpy((DBServer.naiveInfo).db_naive_AS + (index << DBServer.logscale_pagesize), value, DBServer.pageSize);
     return 0;
 }
 
@@ -49,19 +48,19 @@ void ckp_naive(int ckp_order, void *naive_info) {
     //int ckp_fd = 0;
     char ckp_name[32];
     db_naive_infomation *info;
-    long long timeStart;
-    long long timeEnd;
-    long long db_size;
+    integer timeStart;
+    integer timeEnd;
+    integer db_size;
 
     info = naive_info;
     db_size = info->db_size;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
-    long long time1 = get_mtime();
+    integer time1 = get_mtime();
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
     memcpy(info->db_naive_AS_shandow, info->db_naive_AS,
-           (long long) DBServer.pageSize * DBServer.dbSize);
+           (integer) DBServer.pageSize * DBServer.dbSize);
     timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);

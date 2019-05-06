@@ -20,4 +20,4 @@ link_libraries(pthread)
 
 include_directories(.)
 
-add_executable(app src/system/main.c src/system/system.c src/system/util.c src/alg/cou.c src/alg/HG.c src/alg/myfork.c src/alg/PB.c src/alg/naive.c src/alg/pingpong.c src/alg/zigzag.c src/system/config.h)
+add_executable(app src/system/main.c src/system/system.c src/system/util.c src/alg/cou.c src/alg/HG.c src/alg/myfork.c src/alg/PB.c src/alg/naive.c src/alg/pingpong.c src/alg/zigzag.c)

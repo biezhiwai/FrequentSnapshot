@@ -8,9 +8,9 @@
 #pragma once
 
 #include<pthread.h>
-
+#include "src/system/util.h"
 typedef struct {
-    size_t db_size;
+    integer db_size;
     char *db_pp_as;
     char *db_pp_as_odd;
     char *db_pp_as_even;

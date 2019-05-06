@@ -8,7 +8,6 @@
 #include "src/alg/PB.h"
 #include "src/alg/HG.h"
 #include "src/alg/myfork.h"
-#include "config.h"
 
 
 typedef struct {
@@ -17,17 +16,17 @@ typedef struct {
     int pageSize;
     int logscale_pagesize;
     struct timespec ckpTimeLog[2000];
-    long long *ckpOverheadLog;
-    long long *ckpPrepareLog;
-    long long *ckpTotalOverheadLog;
+    integer *ckpOverheadLog;
+    integer *ckpPrepareLog;
+    integer *ckpTotalOverheadLog;
     int ckpMaxNum;
     int ckpID;
     int dbState;
     int updateThrNum;
     int updateFrequency;
-    long long globaltick;
-    long *rfBuf;
-    long long rfBufSize;
+    integer globaltick;
+    integer *rfBuf;
+    integer rfBufSize;
     pthread_mutex_t dbStateRWLock;
     pthread_mutex_t accessMutex;
     //pthread_spinlock_t presync;
@@ -39,26 +38,26 @@ typedef struct {
     db_pb_infomation pbInfo;
     db_hg_infomation hgInfo;
     db_myfork_infomation myforkInfo;
-    long long update_count;
-    long long dbStartTime;
-    long long dbEndTime;
+    integer update_count;
+    integer  dbStartTime;
+    integer dbEndTime;
 } db_server;
 
 //void log_time_write(db_server *s);
-void add_overhead_log(db_server *s, long long ns);
+void add_overhead_log(db_server *s, integer ns);
 
 void write_overhead_log(db_server *s, const char *filePath);
 
-void add_prepare_log(db_server *s, long long ns);
+void add_prepare_log(db_server *s, integer ns);
 
-void add_total_log(db_server *s, long long ns);
+void add_total_log(db_server *s, integer ns);
 
 ///////////////////////////////////////////////////////////////
 
 typedef struct {
     size_t db_size;
     int alg_type;
-    long *random_buffer;
+    integer *random_buffer;
     int random_buffer_size;
     pthread_barrier_t *update_brr_init;
     pthread_barrier_t *brr_exit;
@@ -70,9 +69,9 @@ void *update_thread(void *arg);
 
 int update_thread_start(pthread_t *update_thread_id_array[], pthread_barrier_t *brr_exit, db_server *dbs);
 
-int random_update_db(long *random_buf, int buf_size, char *log_name, int uf);
+int random_update_db(integer *random_buf, int buf_size, char *log_name, int uf);
 
-int tick_update(long *random_buf, int buf_size, int times, FILE *logFile);
+int tick_update(integer *random_buf, int buf_size, int times, FILE *logFile);
 
 void* (*db_read)(size_t index);
 

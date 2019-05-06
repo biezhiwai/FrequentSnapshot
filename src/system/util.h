@@ -10,6 +10,9 @@
 #define HG_ALG              5
 #define MYFORK_ALG           6
 
+
+#define CHECKPOINT_COUNT 10
+
 #include <stdio.h>
 #include <stdbool.h>
 #include<sys/mman.h>
@@ -29,9 +32,11 @@
 #include <sched.h>
 #include <pthread.h>
 
-long long get_ntime(void);
-long long get_utime(void);
-long long get_mtime(void);
+typedef int64_t integer;
+
+integer get_ntime(void);
+integer get_utime(void);
+integer get_mtime(void);
 
 void db_lock(unsigned char *lock);
 

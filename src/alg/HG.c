@@ -64,13 +64,13 @@ void *hg_read(size_t index) {
     }
 }
 
-int hg_write(size_t index, void *value) {
-    long index_page = index >> DBServer.logscale_pagesize;
+int hg_write(size_t index_page, void *value) {
+    integer index = index_page << DBServer.logscale_pagesize;
     if (1 == (DBServer.hgInfo).current) {
-        memcpy((DBServer.hgInfo).db_hg_as1 + index, value, ITEM_SIZE);
+        memcpy((DBServer.hgInfo).db_hg_as1 + index, value, DBServer.pageSize);
         (DBServer.hgInfo).db_hg_as1_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.hgInfo).db_hg_as0 + index, value, ITEM_SIZE);
+        memcpy((DBServer.hgInfo).db_hg_as0 + index, value, DBServer.pageSize);
         (DBServer.hgInfo).db_hg_as0_ba[index_page] = 1;
     }
     return 0;
@@ -79,19 +79,19 @@ int hg_write(size_t index, void *value) {
 void db_hg_ckp(int ckp_order, void *ll_info) {
     FILE *ckp_fd;
     char ckp_name[32];
-    long long i;
+    integer i;
     int db_size;
     db_hg_infomation *info;
     char *currentBackup;
     unsigned char *currentBA;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
 
     info = ll_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-    long long time1= get_mtime();
+    integer time1= get_mtime();
 
 
     db_lock(&(DBServer.pre_lock));

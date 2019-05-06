@@ -8,10 +8,10 @@
 #pragma once
 
 #include<pthread.h>
-
+#include "src/system/util.h"
 
 typedef struct {
-    size_t db_size;
+    integer db_size;
     char *db_naive_AS;
     char *db_naive_AS_shandow;
 } db_naive_infomation;

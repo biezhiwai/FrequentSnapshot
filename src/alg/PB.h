@@ -7,9 +7,9 @@
 #pragma once
 
 #include<pthread.h>
-
+#include "src/system/util.h"
 typedef struct {
-    size_t db_size;
+    integer db_size;
     char *db_pb_as1;
     char *db_pb_as2;
     unsigned char *db_pb_ba;

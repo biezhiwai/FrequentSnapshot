@@ -43,7 +43,6 @@ int db_pb_init(void *mk_info, size_t db_size) {
     memset(info->db_pb_access, 0, db_size);
     info->current = 1;
     return 0;
-
 }
 
 void db_pb_destroy(void *mk_info) {
@@ -55,8 +54,6 @@ void db_pb_destroy(void *mk_info) {
 }
 
 void *pb_read(size_t index) {
-//    if (index > (DBServer.mkInfo).db_size)
-//        index = index % (DBServer.mkInfo).db_size;
     if (1 == (DBServer.pbInfo).current) {
         return (DBServer.pbInfo).db_pb_as1 + index * DBServer.pageSize;
     } else {
@@ -65,13 +62,13 @@ void *pb_read(size_t index) {
     return NULL;
 }
 
-int pb_write(size_t index, void *value) {
-    long index_page = index >> DBServer.logscale_pagesize;
+int pb_write(size_t index_page, void *value) {
+    integer index = index_page >> DBServer.logscale_pagesize;
     if (1 == (DBServer.pbInfo).current) {
-        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, ITEM_SIZE);
+        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, DBServer.pageSize);
         (DBServer.pbInfo).db_pb_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, ITEM_SIZE);
+        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, DBServer.pageSize);
         (DBServer.pbInfo).db_pb_ba[index_page] = 2;
     }
     return 0;
@@ -85,8 +82,8 @@ typedef struct {
 
 void *mk_write_to_disk_thr(void *arg) {
     mk_disk_info *info = arg;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
     timeStart = get_mtime();
     write(info->fd, info->addr, info->len);
     fsync(info->fd);
@@ -107,14 +104,14 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     int mkCur;
     char *backup;
     char *online;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
     info = mk_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
 
-    long long time1= get_mtime();
+    integer time1= get_mtime();
 
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();

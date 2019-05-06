@@ -3,7 +3,7 @@
 
 extern db_server DBServer;
 
-void db_cou_lock(long index) {
+void db_cou_lock(integer index) {
     unsigned char expected = 0;
 
     while (!__atomic_compare_exchange_1(DBServer.couInfo.db_cou_access + index, &expected,
@@ -12,7 +12,7 @@ void db_cou_lock(long index) {
     }
 }
 
-void db_cou_unlock(long index) {
+void db_cou_unlock(integer index) {
     __atomic_store_n(DBServer.couInfo.db_cou_access + index, 0, __ATOMIC_SEQ_CST);
 }
 
@@ -76,16 +76,16 @@ void *cou_read(size_t index) {
     return result;
 }
 
-int cou_write(size_t index, void *value) {
-    long index_page = index >> DBServer.logscale_pagesize;
+int cou_write(size_t index_page, void *value) {
+    integer index2 = index_page << DBServer.logscale_pagesize;
     if (!DBServer.couInfo.db_cou_curBA[index_page]) {
         db_cou_lock(index_page);
         if (DBServer.couInfo.db_cou_chgBA[index_page])
-            memcpy(DBServer.couInfo.db_cou_shandow + index, value, ITEM_SIZE);
+            memcpy(DBServer.couInfo.db_cou_shandow + index2, value, DBServer.pageSize);
         DBServer.couInfo.db_cou_curBA[index_page] = 1;
         db_cou_unlock(index_page);
     }
-    memcpy(DBServer.couInfo.db_cou_primary + index, value, ITEM_SIZE);
+    memcpy(DBServer.couInfo.db_cou_primary + index2, value, DBServer.pageSize);
     return 0;
 }
 
@@ -98,14 +98,14 @@ void ckp_cou(int ckp_order, void *cou_info) {
     size_t i;
     size_t db_size;
     db_cou_infomation *info;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
     static int times = 0;
     info = cou_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
     db_size = info->db_size;
 
-    long long time1= get_mtime();
+    integer time1= get_mtime();
 
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime(); // MUST after lock
