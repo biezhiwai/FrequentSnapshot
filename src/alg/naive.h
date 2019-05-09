@@ -18,9 +18,9 @@ typedef struct {
 
 int db_naive_init(void *db_naive_info, size_t db_size);
 
-void *naive_read(size_t index);
+void *naive_read(size_t page_index);
 
-int naive_write(size_t index, void *value);
+int naive_write(size_t page_index, void *value);
 
 void ckp_naive(int ckp_id, void *db_naive_info);
 

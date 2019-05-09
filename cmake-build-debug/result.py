@@ -13,8 +13,8 @@ uf=sys.argv[2]
 size=sys.argv[3]
 page=sys.argv[4]
 
-latency_path="./log/"+str(i)+"_latency_"+str(uf)+"k_"+str(size)+"_"+str(page)+"_0.log"
-prepare_path="./log/"+str(i)+"_overhead_"+str(uf)+"k_"+str(size)+"_"+str(page)+".log"
+latency_path="./log/latency_"+str(i)+"_"+str(uf)+"k_"+str(size)+"_"+str(page)+"_0.log"
+prepare_path="./log/"+str(i)+"_"+str(uf)+"k_"+str(size)+"_"+str(page)+"_overhead.log"
 
 latency_file = open(latency_path)
 prepare_file = open(prepare_path)
@@ -22,8 +22,7 @@ latencys = []
 prepares = []
 overheads = []
 for eachline in latency_file.readlines():
-    timestart, time = eachline.split("\t")
-    latencys.append(float(time))
+    latencys.append(float(eachline))
 for el in prepare_file.readlines():
     el.replace(' ','')
     prepare,overhead,total = el.split("\t")

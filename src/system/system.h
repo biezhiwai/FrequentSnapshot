@@ -88,5 +88,5 @@ typedef struct {
 
 void *checkpoint_thread(void *arg);
 
-int db_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs);
+int ckp_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs);
 

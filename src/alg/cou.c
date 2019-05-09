@@ -70,8 +70,6 @@ void db_cou_destroy(void *cou_info) {
 
 void *cou_read(size_t index) {
     void *result;
-    //if (index > DBServer.dbSize)
-    //    index = index % DBServer.dbSize;
     result = (DBServer.couInfo).db_cou_primary + index * DBServer.pageSize;
     return result;
 }

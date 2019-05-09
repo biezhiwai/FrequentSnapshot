@@ -5,7 +5,7 @@ extern db_server DBServer;
 
 char row[4096];
 
-int db_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs) {
+int ckp_thread_start(pthread_t *db_thread_id, pthread_barrier_t *brr_exit, db_server *dbs) {
     db_thread_info dbInfo;
     pthread_barrier_t brrDBInit;
     pthread_barrier_init(&brrDBInit, NULL, 2);
@@ -39,7 +39,7 @@ void *checkpoint_thread(void *arg) {
     void (*db_destroy)(void *);
     void *info;
 
-    printf("database thread start alg_type:%d, dbSize:%d, unit_size:%d, set uf:%d\n",
+    printf("database thread start alg_type:%d, ROW_Count:%d, ROW_SIZE:%d, uf:%d\n",
            algType, dbSize, DBServer.pageSize, DBServer.updateFrequency);
 
     switch (algType) {
@@ -231,7 +231,7 @@ void *update_thread(void *arg) {
             perror("alg_type error");
             break;
     }
-    sprintf(log_name, "./log/%d_latency_%dk_%ld_%d_%d.log", DBServer.algType,
+    sprintf(log_name, "./log/latency_%d_%dk_%ld_%d_%d.log", DBServer.algType,
             DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.pageSize,
             pthread_id);
     pthread_barrier_wait(update_brr_init);
@@ -289,7 +289,7 @@ int tick_update(integer *random_buf, int buf_size, int times, FILE *logFile) {
 
     db_unlock(&(DBServer.pre_lock));
     DBServer.globaltick++;
-    fprintf(logFile, "%lld\t%lld\n", timeBegin, (timeEnd - timeBegin));
+    fprintf(logFile, "%lld\n", (timeEnd - timeBegin));
     return 0;
 #elif FULL_UPDATE
     while (1) {
@@ -316,9 +316,6 @@ int tick_update(integer *random_buf, int buf_size, int times, FILE *logFile) {
     return 0;
 #endif
 }
-
-
-
 
 
 void add_overhead_log(db_server *s, integer ns) {

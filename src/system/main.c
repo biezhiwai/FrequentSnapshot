@@ -1,6 +1,7 @@
 #include "util.h"
 #include "system.h"
 #include <math.h>
+
 db_server DBServer;
 
 int main(int argc, char *argv[]) {
@@ -17,9 +18,9 @@ int main(int argc, char *argv[]) {
     DBServer.algType = atoi(argv[1]);
     DBServer.dbSize = atoi(argv[2]);
     DBServer.pageSize = atoi(argv[3]);
-    DBServer.logscale_pagesize = log(DBServer.pageSize)/log(2);
-    DBServer.updateFrequency = atoi(argv[4])*1000;
-    printf("workload file from: %s\n",argv[5]);
+    DBServer.logscale_pagesize = log(DBServer.pageSize) / log(2);
+    DBServer.updateFrequency = atoi(argv[4]) * 1000;
+    printf("workload file from: %s\n", argv[5]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
     DBServer.ckpMaxNum = CHECKPOINT_COUNT;
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
     DBServer.ckpTotalOverheadLog = malloc(sizeof(integer) * DBServer.ckpMaxNum);
 
     DBServer.globaltick = 0;
-DBServer.pre_lock = UNLOCK;
+    DBServer.pre_lock = UNLOCK;
 
     if (NULL == (rf = fopen(argv[5], "r"))) {
         perror("random file open error!\n");
@@ -51,7 +52,7 @@ DBServer.pre_lock = UNLOCK;
 
     pthread_barrier_init(&brr_exit, NULL, DBServer.updateThrNum + 1);
 
-    if (0 != db_thread_start(&db_thread_id, &brr_exit, &DBServer)) {
+    if (0 != ckp_thread_start(&db_thread_id, &brr_exit, &DBServer)) {
         perror("db thread start fail!");
         exit(1);
     }
@@ -69,7 +70,7 @@ DBServer.pre_lock = UNLOCK;
     }
     free(update_thread_array);
     pthread_barrier_destroy(&brr_exit);
-    sprintf(logName, "./log/%d_overhead_%dk_%ld_%d.log",
+    sprintf(logName, "./log/%d_%dk_%ld_%d_overhead.log",
             DBServer.algType, DBServer.updateFrequency / 1000,
             DBServer.dbSize, DBServer.pageSize);
     write_overhead_log(&DBServer, logName);

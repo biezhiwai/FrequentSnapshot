@@ -31,21 +31,21 @@ void db_naive_destroy(void *naive_info) {
     free(info->db_naive_AS_shandow);
 }
 
-void *naive_read(size_t index) {
+void *naive_read(size_t page_index) {
     void *result;
-    result = (void *) ((DBServer.naiveInfo).db_naive_AS + (index << DBServer.logscale_pagesize));
+    result = (void *) ((DBServer.naiveInfo).db_naive_AS + (page_index << DBServer.logscale_pagesize));
     return result;
 }
 
-int naive_write(size_t index, void *value) {
-    memcpy((DBServer.naiveInfo).db_naive_AS + (index << DBServer.logscale_pagesize), value, DBServer.pageSize);
+int naive_write(size_t page_index, void *value) {
+    integer index2 = page_index << DBServer.logscale_pagesize;
+    memcpy((DBServer.naiveInfo).db_naive_AS + index2, value, DBServer.pageSize);
     return 0;
 }
 
 
 void ckp_naive(int ckp_order, void *naive_info) {
     FILE *ckp_fd;
-    //int ckp_fd = 0;
     char ckp_name[32];
     db_naive_infomation *info;
     integer timeStart;

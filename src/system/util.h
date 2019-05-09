@@ -11,7 +11,7 @@
 #define MYFORK_ALG           6
 
 
-#define CHECKPOINT_COUNT 10
+#define CHECKPOINT_COUNT 5
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -32,7 +32,7 @@
 #include <sched.h>
 #include <pthread.h>
 
-typedef int64_t integer;
+typedef long long int integer;
 
 integer get_ntime(void);
 integer get_utime(void);
@@ -44,4 +44,3 @@ void db_unlock(unsigned char *lock);
 
 int pin_To_vCPU(int cpu);
 
-int zipf(double alpha, int n);
