@@ -9,6 +9,7 @@
 
 #include<pthread.h>
 #include "src/system/util.h"
+
 typedef struct {
     integer db_size;
     char *db_hg_as0;

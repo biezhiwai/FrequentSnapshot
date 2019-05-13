@@ -1,12 +1,13 @@
 #include "util.h"
 #include <math.h>
+
 integer get_ntime(void) {
     struct timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
     return timeNow.tv_sec * 1000000000 + timeNow.tv_nsec;
 }
 
-integer get_utime(void){
+integer get_utime(void) {
     return get_ntime() / 1000;
 }
 

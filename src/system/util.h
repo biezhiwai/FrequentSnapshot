@@ -4,15 +4,16 @@
 
 #define NAIVE_ALG           0
 #define COPY_ON_UPDATE_ALG  1
-#define ZIGZAG_ALG          2
-#define PINGPONG_ALG        3
-#define PB_ALG              4
+#define MYFORK_ALG          2
+#define ZIGZAG_ALG          3
+#define PINGPONG_ALG        4
 #define HG_ALG              5
-#define MYFORK_ALG           6
+#define PB_ALG              6
+
 
 
 #define CHECKPOINT_COUNT 5
-
+#define FILED_SIZE 8
 #include <stdio.h>
 #include <stdbool.h>
 #include<sys/mman.h>
@@ -35,7 +36,9 @@
 typedef long long int integer;
 
 integer get_ntime(void);
+
 integer get_utime(void);
+
 integer get_mtime(void);
 
 void db_lock(unsigned char *lock);

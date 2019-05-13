@@ -24,17 +24,17 @@ int db_hg_init(void *ll_info, size_t db_size) {
         return -1;
     }
     memset(info->db_hg_prev, 'S', DBServer.pageSize * db_size);
-    if (NULL == (info->db_hg_as0_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_hg_as0_ba = (unsigned char *) malloc(db_size))) {
         perror("db_hg_as0_ba malloc error");
         return -1;
     }
     memset(info->db_hg_as0_ba, 0, db_size);
-    if (NULL == (info->db_hg_as1_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_hg_as1_ba = (unsigned char *) malloc(db_size))) {
         perror("db_hg_as1_ba malloc error");
         return -1;
     }
     memset(info->db_hg_as1_ba, 0, db_size);
-    if (NULL == (info->db_hg_mr_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_hg_mr_ba = (unsigned char *) malloc(db_size))) {
         perror("db_hg_as1_ba malloc error");
         return -1;
     }
@@ -65,12 +65,12 @@ void *hg_read(size_t index) {
 }
 
 int hg_write(size_t index_page, void *value) {
-    integer index = index_page << DBServer.logscale_pagesize;
+    integer offset = index_page << DBServer.logscale_pagesize;
     if (1 == (DBServer.hgInfo).current) {
-        memcpy((DBServer.hgInfo).db_hg_as1 + index, value, DBServer.pageSize);
+        memcpy((DBServer.hgInfo).db_hg_as1 + offset, value, FILED_SIZE);
         (DBServer.hgInfo).db_hg_as1_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.hgInfo).db_hg_as0 + index, value, DBServer.pageSize);
+        memcpy((DBServer.hgInfo).db_hg_as0 + offset, value, FILED_SIZE);
         (DBServer.hgInfo).db_hg_as0_ba[index_page] = 1;
     }
     return 0;
@@ -91,8 +91,6 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-    integer time1= get_mtime();
-
 
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
@@ -127,15 +125,14 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
     // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     setbuf(ckp_fd, NULL);
 
-    for (int i = 0; i < db_size; ++i) {
-        fwrite(info->db_hg_prev + (size_t) i * DBServer.pageSize, (size_t)(DBServer.pageSize), 1, ckp_fd);
-    }
+    //for (int i = 0; i < db_size; ++i) {
+    fwrite(info->db_hg_prev, (size_t) DBServer.pageSize * db_size, 1, ckp_fd);
+    //}
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 
-    while (get_mtime() < time1 + 10000);
     //free(buf);
 }
 

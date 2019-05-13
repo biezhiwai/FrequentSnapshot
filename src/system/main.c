@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     pthread_barrier_t brr_exit;
     char logName[128];
     if (argc != 6) {
-        perror("usage:./app [algorithm type:0-6] [page num] [page size] [update frequency (k/tick)] [random file name]");
+        perror("usage:./app [algorithm type:0-6] [page num] [page size] [update frequency (k/tick)] [workload file]");
     }
     DBServer.updateThrNum = 1;
     DBServer.algType = atoi(argv[1]);
@@ -20,7 +20,6 @@ int main(int argc, char *argv[]) {
     DBServer.pageSize = atoi(argv[3]);
     DBServer.logscale_pagesize = log(DBServer.pageSize) / log(2);
     DBServer.updateFrequency = atoi(argv[4]) * 1000;
-    printf("workload file from: %s\n", argv[5]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
     DBServer.ckpMaxNum = CHECKPOINT_COUNT;
@@ -34,7 +33,7 @@ int main(int argc, char *argv[]) {
     DBServer.pre_lock = UNLOCK;
 
     if (NULL == (rf = fopen(argv[5], "r"))) {
-        perror("random file open error!\n");
+        perror("workload file open error!\n");
         return -1;
     }
     DBServer.rfBufSize = (integer) DBServer.updateFrequency;

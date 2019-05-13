@@ -57,19 +57,17 @@ void *zigzag_read(size_t index) {
 }
 
 int zigzag_write(size_t index_page, void *value) {
-    integer index2 = index_page << DBServer.logscale_pagesize;
-    unsigned char flag = (DBServer.zigzagInfo).db_zigzag_mw[index_page];
-    if (0==flag) {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + index2, value, DBServer.pageSize);
+    integer offset = index_page << DBServer.logscale_pagesize;
+    if (0 == (DBServer.zigzagInfo).db_zigzag_mw[index_page]) {
+        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + offset, value, FILED_SIZE);
         (DBServer.zigzagInfo).db_zigzag_mr[index_page] = 0;
         return 0;
     } else {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + index2, value, DBServer.pageSize);
+        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + offset, value, FILED_SIZE);
         (DBServer.zigzagInfo).db_zigzag_mr[index_page] = 1;
         return 0;
     }
 }
-
 
 
 void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
@@ -85,11 +83,10 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-    integer time1= get_mtime();
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
     for (i = 0; i < db_size; i++) {
-        info->db_zigzag_mw[i] = !(info->db_zigzag_mr[i]);
+        info->db_zigzag_mw[i] = 1 - (info->db_zigzag_mr[i]);
     }
     timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
@@ -105,20 +102,28 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     // char* buf = (char*)malloc(1024L*1024*1024);
     // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     setbuf(ckp_fd, NULL);
+    char *mem = (char *) malloc(DBServer.pageSize * db_size);
     for (i = 0; i < db_size; i++) {
         if (0 == info->db_zigzag_mw[i]) {
-            fwrite(info->db_zigzag_as1 + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1, ckp_fd);
+            memcpy(mem + (size_t) i * DBServer.pageSize, info->db_zigzag_as1 + (size_t) i * DBServer.pageSize,
+                   (size_t) DBServer.pageSize);
+
         } else {
-            fwrite(info->db_zigzag_as0 + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1, ckp_fd);
+            memcpy(mem + (size_t) i * DBServer.pageSize, info->db_zigzag_as0 + (size_t) i * DBServer.pageSize,
+                   (size_t) DBServer.pageSize);
+
         }
     }
+    fwrite(mem, (size_t) (DBServer.pageSize) * db_size, 1, ckp_fd);
+    free(mem);
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 
-    while (get_mtime() < time1 + 10000);
     //free(buf);
 }
+
+
 
 

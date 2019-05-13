@@ -47,7 +47,7 @@ int db_cou_init(void *cou_info, size_t db_size) {
         perror("db_cou_bitarray malloc error");
         return -1;
     }
-    if(NULL == (info->db_cou_access = (unsigned char*) malloc(db_size))){
+    if (NULL == (info->db_cou_access = (unsigned char *) malloc(db_size))) {
         perror("db_cou_bitarray malloc error");
     }
     memset(info->db_cou_curBA, 0, db_size);
@@ -75,19 +75,17 @@ void *cou_read(size_t index) {
 }
 
 int cou_write(size_t index_page, void *value) {
-    integer index2 = index_page << DBServer.logscale_pagesize;
+    integer offset = index_page << DBServer.logscale_pagesize;
     if (!DBServer.couInfo.db_cou_curBA[index_page]) {
         db_cou_lock(index_page);
         if (DBServer.couInfo.db_cou_chgBA[index_page])
-            memcpy(DBServer.couInfo.db_cou_shandow + index2, value, DBServer.pageSize);
+            memcpy(DBServer.couInfo.db_cou_shandow + offset, value, DBServer.pageSize);
         DBServer.couInfo.db_cou_curBA[index_page] = 1;
         db_cou_unlock(index_page);
     }
-    memcpy(DBServer.couInfo.db_cou_primary + index2, value, DBServer.pageSize);
+    memcpy(DBServer.couInfo.db_cou_primary + offset, value, FILED_SIZE);
     return 0;
 }
-
-
 
 
 void ckp_cou(int ckp_order, void *cou_info) {
@@ -102,8 +100,6 @@ void ckp_cou(int ckp_order, void *cou_info) {
     info = cou_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
     db_size = info->db_size;
-
-    integer time1= get_mtime();
 
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime(); // MUST after lock
@@ -123,31 +119,34 @@ void ckp_cou(int ckp_order, void *cou_info) {
         return;
     }
     setbuf(ckp_fd, NULL);
+
     if (!times) {
         fwrite(info->db_cou_shandow, (size_t) DBServer.pageSize * db_size, 1, ckp_fd);
         times++;
     } else {
+        char *mem = (char *) malloc(DBServer.pageSize * db_size);
         for (i = 0; i < db_size; i++) {
             if (info->db_cou_chgBA[i]) {
                 db_cou_lock(i);
                 if (info->db_cou_curBA[i]) {
-                    fwrite(info->db_cou_shandow + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1,
-                           ckp_fd);
+                    memcpy(mem + (size_t) i * DBServer.pageSize, info->db_cou_shandow + (size_t) i * DBServer.pageSize,
+                           (size_t) DBServer.pageSize);
                     db_cou_unlock(i);
                 } else {
-                    fwrite(info->db_cou_primary + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize, 1,
-                           ckp_fd);
+                    memcpy(mem + (size_t) i * DBServer.pageSize, info->db_cou_primary + (size_t) i * DBServer.pageSize,
+                           (size_t) DBServer.pageSize);
                     db_cou_unlock(i);
                 }
             }
         }
+        fwrite(mem, (size_t) (DBServer.pageSize) * db_size, 1, ckp_fd);
+        free(mem);
     }
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 
-    while (get_mtime() < time1 + 10000);  // 10s
     //free(buf);
 }
 

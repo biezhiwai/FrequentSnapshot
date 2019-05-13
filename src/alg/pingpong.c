@@ -26,13 +26,13 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
     }
     memset(info->db_pp_as_even, 'S', DBServer.pageSize * db_size);
 
-    if (NULL == (info->db_pp_odd_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_pp_odd_ba = (unsigned char *) malloc(db_size))) {
         perror("db_pp_current_odd malloc error");
         return -1;
     }
     memset(info->db_pp_odd_ba, 0, db_size);
 
-    if (NULL == (info->db_pp_even_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_pp_even_ba = (unsigned char *) malloc(db_size))) {
         perror("db_pp_previous_ba malloc error");
         return -1;
     }
@@ -67,13 +67,13 @@ void *pingpong_read(size_t index) {
 }
 
 int pingpong_write(size_t index_page, void *value) {
-    integer index2 = index_page << DBServer.logscale_pagesize;
-    memcpy((DBServer.pingpongInfo).db_pp_as + index2, value, DBServer.pageSize);
+    integer offset = index_page << DBServer.logscale_pagesize;
+    memcpy((DBServer.pingpongInfo).db_pp_as + offset, value, FILED_SIZE);
     if (0 == (DBServer.pingpongInfo).current) {
-        memcpy((DBServer.pingpongInfo).db_pp_as_odd + index2, value, DBServer.pageSize);
+        memcpy((DBServer.pingpongInfo).db_pp_as_odd + offset, value, FILED_SIZE);
         (DBServer.pingpongInfo).db_pp_odd_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pingpongInfo).db_pp_as_even + index2, value, DBServer.pageSize);
+        memcpy((DBServer.pingpongInfo).db_pp_as_even + offset, value, FILED_SIZE);
         (DBServer.pingpongInfo).db_pp_even_ba[index_page] = 1;
     }
     return 0;
@@ -94,13 +94,11 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-    integer time1= get_mtime();
     //prepare for checkpoint
 
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
     info->current = !(info->current);
-
     if (0 == info->current) {
         currentBackup = info->db_pp_as_odd;
         currentBA = info->db_pp_odd_ba;
@@ -122,6 +120,7 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     // char* buf = (char*)malloc(1024L*1024*1024);
     // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     setbuf(ckp_fd, NULL);
+    //char* mem = (char *) malloc(DBServer.pageSize * db_size);
     for (i = 0; i < db_size; i++) {
         if (1 == currentBA[i]) {
             //info->db_pp_as_previous[i] = info->db_pp_as_even[i];
@@ -131,16 +130,16 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
             currentBA[i] = 0;
         }
     }
-    for (int i = 0; i < db_size; ++i) {
-        fwrite(info->db_pp_as_previous + (size_t) i * DBServer.pageSize, (size_t)(DBServer.pageSize), 1, ckp_fd);
-    }
+    //for (int i = 0; i < db_size; ++i) {
+    fwrite(info->db_pp_as_previous, (size_t) DBServer.pageSize * db_size, 1, ckp_fd);
+    //}
+    //fwrite(mem, (size_t) (DBServer.pageSize)*db_size, 1, ckp_fd);
+    //free(mem);
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-    //free(buf);
 
-    while (get_mtime() < time1 + 10000);
 }
 
 

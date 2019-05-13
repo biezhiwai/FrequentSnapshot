@@ -39,7 +39,7 @@ typedef struct {
     db_hg_infomation hgInfo;
     db_myfork_infomation myforkInfo;
     integer update_count;
-    integer  dbStartTime;
+    integer dbStartTime;
     integer dbEndTime;
 } db_server;
 
@@ -73,7 +73,7 @@ int random_update_db(integer *random_buf, int buf_size, char *log_name, int uf);
 
 int tick_update(integer *random_buf, int buf_size, int times, FILE *logFile);
 
-void* (*db_read)(size_t index);
+void *(*db_read)(size_t index);
 
 int (*db_write)(size_t index, void *value);
 

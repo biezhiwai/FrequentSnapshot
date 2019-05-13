@@ -33,7 +33,7 @@ int db_pb_init(void *mk_info, size_t db_size) {
     }
     memset(info->db_pb_as2, 'S', DBServer.pageSize * db_size);
 
-    if (NULL == (info->db_pb_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_pb_ba = (unsigned char *) malloc(db_size))) {
         perror("db_pb_ba malloc error");
         return -1;
     }
@@ -63,12 +63,12 @@ void *pb_read(size_t index) {
 }
 
 int pb_write(size_t index_page, void *value) {
-    integer index = index_page >> DBServer.logscale_pagesize;
+    integer index = index_page << DBServer.logscale_pagesize;
     if (1 == (DBServer.pbInfo).current) {
-        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, DBServer.pageSize);
+        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, FILED_SIZE);
         (DBServer.pbInfo).db_pb_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, DBServer.pageSize);
+        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, FILED_SIZE);
         (DBServer.pbInfo).db_pb_ba[index_page] = 2;
     }
     return 0;
@@ -110,16 +110,9 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-
-    integer time1= get_mtime();
-
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
-    if (info->current == 1)
-        info->current = 2;
-    else
-        info->current = 1;
-    //info->current = (1 == (info->current)) ? 2 : 1;
+    info->current = 3 - info->current;
     timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
@@ -146,9 +139,9 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
         backup = info->db_pb_as1;
     }
 
-    for (int i = 0; i < db_size; ++i) {
-        fwrite(backup + (size_t) i * DBServer.pageSize, (size_t)(DBServer.pageSize), 1, ckp_fd);
-    }
+    //for (int i = 0; i < db_size; ++i) {
+    fwrite(backup, (size_t) DBServer.pageSize * db_size, 1, ckp_fd);
+    //}
 
     //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.pageSize, (size_t)DBServer.pageSize);
 
@@ -171,9 +164,7 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     }
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-    //free(buf);
 
-    while (get_mtime() < time1 + 10000);
 }
 
 

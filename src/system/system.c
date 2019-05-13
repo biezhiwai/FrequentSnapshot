@@ -113,7 +113,9 @@ void *checkpoint_thread(void *arg) {
     integer timeStart;
     integer timeEnd;
     while (1) {
-        printf("checkpoint triggered,%d\n",DBServer.ckpID + 1);
+        printf("checkpoint triggered,%d\n", DBServer.ckpID + 1);
+        timeStart = get_mtime();
+        while (get_mtime() < (timeStart + 10000)); // wait 10s
         timeStart = get_mtime();
         checkpoint(DBServer.ckpID % 2, info);
         timeEnd = get_mtime();
@@ -236,7 +238,7 @@ void *update_thread(void *arg) {
             pthread_id);
     pthread_barrier_wait(update_brr_init);
     for (int j = 0; j < 4096; ++j) {
-        row[j]='X';
+        row[j] = 'X';
     }
     random_update_db(random_buffer, random_buffer_size, log_name, update_frequency);
 
@@ -267,10 +269,10 @@ int tick_update(integer *random_buf, int buf_size, int times, FILE *logFile) {
     integer timeBegin;
     integer timeEnd;
     integer timeTick;
-    int i=0;
+    int i = 0;
     timeBegin = get_utime();
     db_lock(&(DBServer.pre_lock));
-    timeTick = get_utime() + 100000; // 100ms
+    timeTick = get_utime() + 10000; // 10ms
 #ifdef TICK_UPDATE
     while (i < times) {
         if (1 != DBServer.dbState) {

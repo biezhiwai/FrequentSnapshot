@@ -7,9 +7,9 @@ fileName = sys.argv[1]
 zipfSize = int(sys.argv[2]) * 1000
 zipfMax = int(sys.argv[3])
 
-s = numpy.random.zipf(2,zipfSize)
+s = numpy.random.zipf(2, zipfSize)
 
-zipfFile = open(fileName,"w")
+zipfFile = open(fileName, "w")
 
 for eachItem in s:
     if eachItem > zipfMax:
