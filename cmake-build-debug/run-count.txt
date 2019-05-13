@@ -1,0 +1,540 @@
+[100%] Built target app
+mkdir: cannot create directory ‘log’: File exists
+database thread start alg_type:0, ROW_Count:16000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 5822, global_update_count = 186304000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:16000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 6301, global_update_count = 201632000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:16000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 5836, global_update_count = 186754420
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:16000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 6162, global_update_count = 197184000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:16000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 5893, global_update_count = 188576000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:16000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 5824, global_update_count = 186368000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:16000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 5958, global_update_count = 190656000
+database thread exit
+update thread 0 exit!
+==========
+1110	454703546	1648
+1758	44897867	2664
+1217	22399429	1751
+2337	19822063	2381
+2613	87	1801
+1540	60	1633
+1570	80	1920
+[100%] Built target app
+mkdir: cannot create directory ‘log’: File exists
+database thread start alg_type:0, ROW_Count:32000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 6638, global_update_count = 212416000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:32000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 7571, global_update_count = 242272000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:32000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 6695, global_update_count = 214240000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:32000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 7307, global_update_count = 233830126
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:32000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 6765, global_update_count = 216495704
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:32000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 6650, global_update_count = 212800000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:32000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 6893, global_update_count = 220576000
+database thread exit
+update thread 0 exit!
+==========
+1377	913521693	3291
+2111	89592302	5319
+1454	44426326	3575
+2829	39605150	4874
+3353	77	3550
+1911	60	3296
+1965	66	3836
+[100%] Built target app
+mkdir: cannot create directory ‘log’: File exists
+database thread start alg_type:0, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8253, global_update_count = 264096000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 10117, global_update_count = 323757368
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8608, global_update_count = 275456000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 9539, global_update_count = 305263591
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8608, global_update_count = 275456000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 8290, global_update_count = 265291486
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8729, global_update_count = 279328000
+database thread exit
+update thread 0 exit!
+==========
+1457	1788938171	6515
+2455	178190679	10552
+1745	87666357	7313
+3646	79228511	9532
+4183	86	7251
+2468	60	6629
+2758	65	7482
+[100%] Built target app
+mkdir: cannot create directory ‘log’: File exists
+database thread start alg_type:0, ROW_Count:128000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 11569, global_update_count = 370214250
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:128000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 15178, global_update_count = 485696000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:128000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 12411, global_update_count = 397152000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:128000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 14081, global_update_count = 450620940
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:128000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 12237, global_update_count = 391604528
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:128000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 11571, global_update_count = 370290452
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:128000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 12608, global_update_count = 403456000
+database thread exit
+update thread 0 exit!
+==========
+1962	3522674763	13176
+3116	362654782	20830
+2223	175511458	14935
+4066	159263437	18784
+5417	80	14528
+3400	73	13073
+3305	72	15256
+[100%] Built target app
+mkdir: cannot create directory ‘log’: File exists
+database thread start alg_type:0, ROW_Count:256000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 18008, global_update_count = 576275650
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:256000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 25065, global_update_count = 802080000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:256000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 19429, global_update_count = 621752739
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:256000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 23348, global_update_count = 747136366
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:256000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 19975, global_update_count = 639221079
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:256000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 18286, global_update_count = 585173453
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:256000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 21494, global_update_count = 687816885
+database thread exit
+update thread 0 exit!
+==========
+2656	7222117699	26134
+3811	730183640	41018
+2499	289889711	29008
+5212	329274289	37772
+6102	86	30041
+3664	67	26470
+3642	69	33142
