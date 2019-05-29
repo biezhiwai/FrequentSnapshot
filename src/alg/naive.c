@@ -1,5 +1,5 @@
-#include"naive.h"
-#include"src/system/system.h"
+#include"src/include/naive.h"
+#include"src/include/system.h"
 
 
 extern db_server DBServer;
@@ -10,14 +10,14 @@ int db_naive_init(void *naive_info, size_t db_size) {
     info->db_size = db_size;
 
     if (NULL == (info->db_naive_AS =
-                         (char *) malloc(DBServer.pageSize * db_size))) {
+                         (char *) malloc(DBServer.rowSize * db_size))) {
         perror("da_navie_AS malloc error");
         return -1;
     }
-    memset(info->db_naive_AS, 'S', DBServer.pageSize * db_size);
+    memset(info->db_naive_AS, 'S', DBServer.rowSize * db_size);
 
     if (NULL == (info->db_naive_AS_shandow =
-                         (char *) malloc(DBServer.pageSize * db_size))) {
+                         (char *) malloc(DBServer.rowSize * db_size))) {
         perror("db_navie_AS_shandow malloc error");
         return -1;
     }
@@ -59,7 +59,7 @@ void ckp_naive(int ckp_order, void *naive_info) {
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
     memcpy(info->db_naive_AS_shandow, info->db_naive_AS,
-           (integer) DBServer.pageSize * DBServer.dbSize);
+           (integer) DBServer.rowSize * DBServer.dbSize);
     timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
@@ -71,7 +71,7 @@ void ckp_naive(int ckp_order, void *naive_info) {
     }
     setbuf(ckp_fd, NULL);
 
-    fwrite(info->db_naive_AS_shandow, (size_t) db_size * DBServer.pageSize, 1, ckp_fd);
+    fwrite(info->db_naive_AS_shandow, (size_t) db_size * DBServer.rowSize, 1, ckp_fd);
 
     fflush(ckp_fd);
     fclose(ckp_fd);    // is time consuming

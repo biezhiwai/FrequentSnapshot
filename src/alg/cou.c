@@ -1,5 +1,5 @@
-#include"src/system/system.h"
-#include"cou.h"
+#include"src/include/system.h"
+#include"src/include/cou.h"
 
 extern db_server DBServer;
 
@@ -21,17 +21,17 @@ int db_cou_init(void *cou_info, size_t db_size) {
     info = cou_info;
     info->db_size = db_size;
 
-    if (NULL == (info->db_cou_primary = (char *) malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_cou_primary = (char *) malloc(DBServer.rowSize * db_size))) {
         perror("db_cou_primary malloc error");
         return -1;
     }
-    memset(info->db_cou_primary, 'S', DBServer.pageSize * db_size);
+    memset(info->db_cou_primary, 'S', DBServer.rowSize * db_size);
 
-    if (NULL == (info->db_cou_shandow = (char *) malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_cou_shandow = (char *) malloc(DBServer.rowSize * db_size))) {
         perror("db_cou_shandow malloc error");
         return -1;
     }
-    memset(info->db_cou_shandow, 'S', DBServer.pageSize * db_size);
+    memset(info->db_cou_shandow, 'S', DBServer.rowSize * db_size);
 
     if (NULL == (info->db_cou_curBA = (unsigned char *) malloc(db_size))) {
         perror("db_cou_bitarray malloc error");
@@ -70,7 +70,7 @@ void db_cou_destroy(void *cou_info) {
 
 void *cou_read(size_t index) {
     void *result;
-    result = (DBServer.couInfo).db_cou_primary + index * DBServer.pageSize;
+    result = (DBServer.couInfo).db_cou_primary + index * DBServer.rowSize;
     return result;
 }
 
@@ -79,7 +79,7 @@ int cou_write(size_t index_page, void *value) {
     if (!DBServer.couInfo.db_cou_curBA[index_page]) {
         db_cou_lock(index_page);
         if (DBServer.couInfo.db_cou_chgBA[index_page])
-            memcpy(DBServer.couInfo.db_cou_shandow + offset, value, DBServer.pageSize);
+            memcpy(DBServer.couInfo.db_cou_shandow + offset, value, DBServer.rowSize);
         DBServer.couInfo.db_cou_curBA[index_page] = 1;
         db_cou_unlock(index_page);
     }
@@ -121,25 +121,25 @@ void ckp_cou(int ckp_order, void *cou_info) {
     setbuf(ckp_fd, NULL);
 
     if (!times) {
-        fwrite(info->db_cou_shandow, (size_t) DBServer.pageSize * db_size, 1, ckp_fd);
+        fwrite(info->db_cou_shandow, (size_t) DBServer.rowSize * db_size, 1, ckp_fd);
         times++;
     } else {
-        char *mem = (char *) malloc(DBServer.pageSize * db_size);
+        char *mem = (char *) malloc(DBServer.rowSize * db_size);
         for (i = 0; i < db_size; i++) {
             if (info->db_cou_chgBA[i]) {
                 db_cou_lock(i);
                 if (info->db_cou_curBA[i]) {
-                    memcpy(mem + (size_t) i * DBServer.pageSize, info->db_cou_shandow + (size_t) i * DBServer.pageSize,
-                           (size_t) DBServer.pageSize);
+                    memcpy(mem + (size_t) i * DBServer.rowSize, info->db_cou_shandow + (size_t) i * DBServer.rowSize,
+                           (size_t) DBServer.rowSize);
                     db_cou_unlock(i);
                 } else {
-                    memcpy(mem + (size_t) i * DBServer.pageSize, info->db_cou_primary + (size_t) i * DBServer.pageSize,
-                           (size_t) DBServer.pageSize);
+                    memcpy(mem + (size_t) i * DBServer.rowSize, info->db_cou_primary + (size_t) i * DBServer.rowSize,
+                           (size_t) DBServer.rowSize);
                     db_cou_unlock(i);
                 }
             }
         }
-        fwrite(mem, (size_t) (DBServer.pageSize) * db_size, 1, ckp_fd);
+        fwrite(mem, (size_t) (DBServer.rowSize) * db_size, 1, ckp_fd);
         free(mem);
     }
     fflush(ckp_fd);

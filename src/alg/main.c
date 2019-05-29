@@ -1,5 +1,5 @@
-#include "util.h"
-#include "system.h"
+#include "src/include/util.h"
+#include "src/include/system.h"
 #include <math.h>
 
 db_server DBServer;
@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
     DBServer.updateThrNum = 1;
     DBServer.algType = atoi(argv[1]);
     DBServer.dbSize = atoi(argv[2]);
-    DBServer.pageSize = atoi(argv[3]);
-    DBServer.logscale_pagesize = log(DBServer.pageSize) / log(2);
+    DBServer.rowSize = atoi(argv[3]);
+    DBServer.logscale_pagesize = log(DBServer.rowSize) / log(2);
     DBServer.updateFrequency = atoi(argv[4]) * 1000;
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     pthread_barrier_destroy(&brr_exit);
     sprintf(logName, "./log/%d_%dk_%ld_%d_overhead.log",
             DBServer.algType, DBServer.updateFrequency / 1000,
-            DBServer.dbSize, DBServer.pageSize);
+            DBServer.dbSize, DBServer.rowSize);
     write_overhead_log(&DBServer, logName);
 
     //print the database throughput

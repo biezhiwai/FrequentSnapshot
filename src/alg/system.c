@@ -1,4 +1,4 @@
-#include "system.h"
+#include "src/include/system.h"
 #include <math.h>
 
 extern db_server DBServer;
@@ -40,7 +40,7 @@ void *checkpoint_thread(void *arg) {
     void *info;
 
     printf("database thread start alg_type:%d, ROW_Count:%d, ROW_SIZE:%d, uf:%d\n",
-           algType, dbSize, DBServer.pageSize, DBServer.updateFrequency);
+           algType, dbSize, DBServer.rowSize, DBServer.updateFrequency);
 
     switch (algType) {
         case NAIVE_ALG:
@@ -234,7 +234,7 @@ void *update_thread(void *arg) {
             break;
     }
     sprintf(log_name, "./log/latency_%d_%dk_%ld_%d_%d.log", DBServer.algType,
-            DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.pageSize,
+            DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.rowSize,
             pthread_id);
     pthread_barrier_wait(update_brr_init);
     for (int j = 0; j < 4096; ++j) {

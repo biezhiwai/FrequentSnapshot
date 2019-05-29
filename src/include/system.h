@@ -1,19 +1,19 @@
 #pragma once
 
-#include "util.h"
-#include "src/alg/naive.h"
-#include "src/alg/cou.h"
-#include "src/alg/zigzag.h"
-#include "src/alg/pingpong.h"
-#include "src/alg/PB.h"
-#include "src/alg/HG.h"
-#include "src/alg/myfork.h"
+#include "src/include/util.h"
+#include "src/include/naive.h"
+#include "src/include/cou.h"
+#include "src/include/zigzag.h"
+#include "src/include/pingpong.h"
+#include "src/include/PB.h"
+#include "src/include/HG.h"
+#include "src/include/myfork.h"
 
 
 typedef struct {
     int algType;
     size_t dbSize;
-    int pageSize;
+    int rowSize;
     int logscale_pagesize;
     struct timespec ckpTimeLog[2000];
     integer *ckpOverheadLog;

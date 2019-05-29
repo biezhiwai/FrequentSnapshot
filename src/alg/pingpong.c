@@ -1,5 +1,5 @@
-#include"src/system/system.h"
-#include"pingpong.h"
+#include"src/include/system.h"
+#include"src/include/pingpong.h"
 
 extern db_server DBServer;
 
@@ -8,23 +8,23 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
 
     info = pp_info;
     info->db_size = db_size;
-    if (NULL == (info->db_pp_as = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_pp_as = malloc(DBServer.rowSize * db_size))) {
         perror("db_pp_as malloc error");
         return -1;
     }
-    memset(info->db_pp_as, 'S', DBServer.pageSize * db_size);
+    memset(info->db_pp_as, 'S', DBServer.rowSize * db_size);
 
-    if (NULL == (info->db_pp_as_odd = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_pp_as_odd = malloc(DBServer.rowSize * db_size))) {
         perror("db_pp_as_odd malloc error");
         return -1;
     }
-    memset(info->db_pp_as_odd, 'S', DBServer.pageSize * db_size);
+    memset(info->db_pp_as_odd, 'S', DBServer.rowSize * db_size);
 
-    if (NULL == (info->db_pp_as_even = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_pp_as_even = malloc(DBServer.rowSize * db_size))) {
         perror("db_pp_as_even malloc error");
         return -1;
     }
-    memset(info->db_pp_as_even, 'S', DBServer.pageSize * db_size);
+    memset(info->db_pp_as_even, 'S', DBServer.rowSize * db_size);
 
     if (NULL == (info->db_pp_odd_ba = (unsigned char *) malloc(db_size))) {
         perror("db_pp_current_odd malloc error");
@@ -38,11 +38,11 @@ int db_pingpong_init(void *pp_info, size_t db_size) {
     }
     memset(info->db_pp_even_ba, 1, db_size);
 
-    if (NULL == (info->db_pp_as_previous = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_pp_as_previous = malloc(DBServer.rowSize * db_size))) {
         perror("db_pp_as_previous malloc error");
         return -1;
     }
-    memset(info->db_pp_as_even, 'S', DBServer.pageSize * db_size);
+    memset(info->db_pp_as_even, 'S', DBServer.rowSize * db_size);
 
     info->current = 0;
     return 0;
@@ -63,7 +63,7 @@ void db_pingpong_destroy(void *pp_info) {
 void *pingpong_read(size_t index) {
 //    if (index > (DBServer.pingpongInfo).db_size)
 //        index = index % (DBServer.pingpongInfo).db_size;
-    return (DBServer.pingpongInfo).db_pp_as + index * DBServer.pageSize;
+    return (DBServer.pingpongInfo).db_pp_as + index * DBServer.rowSize;
 }
 
 int pingpong_write(size_t index_page, void *value) {
@@ -120,20 +120,20 @@ void db_pingpong_ckp(int ckp_order, void *pp_info) {
     // char* buf = (char*)malloc(1024L*1024*1024);
     // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     setbuf(ckp_fd, NULL);
-    //char* mem = (char *) malloc(DBServer.pageSize * db_size);
+    //char* mem = (char *) malloc(DBServer.rowSize * db_size);
     for (i = 0; i < db_size; i++) {
         if (1 == currentBA[i]) {
             //info->db_pp_as_previous[i] = info->db_pp_as_even[i];
-            memcpy(info->db_pp_as_previous + (size_t) i * DBServer.pageSize,
-                   currentBackup + (size_t) i * DBServer.pageSize, (size_t) DBServer.pageSize);
-            memset(currentBackup + (size_t) i * DBServer.pageSize, 0, (size_t) DBServer.pageSize);
+            memcpy(info->db_pp_as_previous + (size_t) i * DBServer.rowSize,
+                   currentBackup + (size_t) i * DBServer.rowSize, (size_t) DBServer.rowSize);
+            memset(currentBackup + (size_t) i * DBServer.rowSize, 0, (size_t) DBServer.rowSize);
             currentBA[i] = 0;
         }
     }
     //for (int i = 0; i < db_size; ++i) {
-    fwrite(info->db_pp_as_previous, (size_t) DBServer.pageSize * db_size, 1, ckp_fd);
+    fwrite(info->db_pp_as_previous, (size_t) DBServer.rowSize * db_size, 1, ckp_fd);
     //}
-    //fwrite(mem, (size_t) (DBServer.pageSize)*db_size, 1, ckp_fd);
+    //fwrite(mem, (size_t) (DBServer.rowSize)*db_size, 1, ckp_fd);
     //free(mem);
     fflush(ckp_fd);
     fclose(ckp_fd);

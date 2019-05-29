@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "src/system/util.h"
+#include "util.h"
 
 typedef struct {
     integer db_size;

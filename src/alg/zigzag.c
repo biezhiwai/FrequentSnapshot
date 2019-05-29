@@ -1,5 +1,5 @@
-#include"src/system/system.h"
-#include"zigzag.h"
+#include"src/include/system.h"
+#include"src/include/zigzag.h"
 
 extern db_server DBServer;
 
@@ -10,17 +10,17 @@ int db_zigzag_init(void *zigzag_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_zigzag_as0 = (char *) malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_zigzag_as0 = (char *) malloc(DBServer.rowSize * db_size))) {
         perror("db_zigzag_as0 malloc error");
         return -1;
     }
-    memset(info->db_zigzag_as0, 'S', DBServer.pageSize * db_size);
+    memset(info->db_zigzag_as0, 'S', DBServer.rowSize * db_size);
 
-    if (NULL == (info->db_zigzag_as1 = (char *) malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_zigzag_as1 = (char *) malloc(DBServer.rowSize * db_size))) {
         perror("db_zigzag_sa1 malloc error");
         return -1;
     }
-    memset(info->db_zigzag_as0, 'S', DBServer.pageSize * db_size);
+    memset(info->db_zigzag_as0, 'S', DBServer.rowSize * db_size);
 
     if (NULL == (info->db_zigzag_mr = (unsigned char *) malloc(db_size))) {
         perror("db_zigzag_mr malloc error");
@@ -50,9 +50,9 @@ void *zigzag_read(size_t index) {
 //    if (index > (DBServer.zigzagInfo).db_size)
 //        index = index % (DBServer.zigzagInfo).db_size;
     if (0 == (DBServer.zigzagInfo).db_zigzag_mr[index]) {
-        return (void *) ((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.pageSize);
+        return (void *) ((DBServer.zigzagInfo).db_zigzag_as0 + index * DBServer.rowSize);
     } else {
-        return (void *) ((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.pageSize);
+        return (void *) ((DBServer.zigzagInfo).db_zigzag_as1 + index * DBServer.rowSize);
     }
 }
 
@@ -102,19 +102,19 @@ void db_zigzag_ckp(int ckp_order, void *zigzag_info) {
     // char* buf = (char*)malloc(1024L*1024*1024);
     // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     setbuf(ckp_fd, NULL);
-    char *mem = (char *) malloc(DBServer.pageSize * db_size);
+    char *mem = (char *) malloc(DBServer.rowSize * db_size);
     for (i = 0; i < db_size; i++) {
         if (0 == info->db_zigzag_mw[i]) {
-            memcpy(mem + (size_t) i * DBServer.pageSize, info->db_zigzag_as1 + (size_t) i * DBServer.pageSize,
-                   (size_t) DBServer.pageSize);
+            memcpy(mem + (size_t) i * DBServer.rowSize, info->db_zigzag_as1 + (size_t) i * DBServer.rowSize,
+                   (size_t) DBServer.rowSize);
 
         } else {
-            memcpy(mem + (size_t) i * DBServer.pageSize, info->db_zigzag_as0 + (size_t) i * DBServer.pageSize,
-                   (size_t) DBServer.pageSize);
+            memcpy(mem + (size_t) i * DBServer.rowSize, info->db_zigzag_as0 + (size_t) i * DBServer.rowSize,
+                   (size_t) DBServer.rowSize);
 
         }
     }
-    fwrite(mem, (size_t) (DBServer.pageSize) * db_size, 1, ckp_fd);
+    fwrite(mem, (size_t) (DBServer.rowSize) * db_size, 1, ckp_fd);
     free(mem);
     fflush(ckp_fd);
     fclose(ckp_fd);
