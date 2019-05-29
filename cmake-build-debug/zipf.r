@@ -4,10 +4,10 @@ library(splines)
 library(VGAM)
 
 args=commandArgs(T)
-delta <- as.double(args[1])
-bound <- 500000*4096
-size <- 256000
+delta <- 0.1
+bound <- 64000000
+size <- 33000
 x <- rzipf(size,bound,delta)
-
+x <- sort(x)
 for( i in 1:size)
-        cat(x[i],"\n")
+        cat((x[i]-1),"\n")

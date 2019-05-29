@@ -1,5 +1,5 @@
-#include "src/system/system.h"
-#include "HG.h"
+#include "src/include/system.h"
+#include "src/include/HG.h"
 
 extern db_server DBServer;
 
@@ -8,33 +8,33 @@ int db_hg_init(void *ll_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_hg_as0 = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_hg_as0 = malloc(DBServer.rowSize * db_size))) {
         perror("db_hg_as0 malloc error");
         return -1;
     }
-    memset(info->db_hg_as0, 'S', DBServer.pageSize * db_size);
+    memset(info->db_hg_as0, 'S', DBServer.rowSize * db_size);
 
-    if (NULL == (info->db_hg_as1 = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_hg_as1 = malloc(DBServer.rowSize * db_size))) {
         perror("db_hg_as1 malloc error");
         return -1;
     }
-    memset(info->db_hg_as1, 'S', DBServer.pageSize * db_size);
-    if (NULL == (info->db_hg_prev = malloc(DBServer.pageSize * db_size))) {
+    memset(info->db_hg_as1, 'S', DBServer.rowSize * db_size);
+    if (NULL == (info->db_hg_prev = malloc(DBServer.rowSize * db_size))) {
         perror("db_hg_prev malloc error");
         return -1;
     }
-    memset(info->db_hg_prev, 'S', DBServer.pageSize * db_size);
-    if (NULL == (info->db_hg_as0_ba = (unsigned char*)malloc(db_size))) {
+    memset(info->db_hg_prev, 'S', DBServer.rowSize * db_size);
+    if (NULL == (info->db_hg_as0_ba = (unsigned char *) malloc(db_size))) {
         perror("db_hg_as0_ba malloc error");
         return -1;
     }
     memset(info->db_hg_as0_ba, 0, db_size);
-    if (NULL == (info->db_hg_as1_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_hg_as1_ba = (unsigned char *) malloc(db_size))) {
         perror("db_hg_as1_ba malloc error");
         return -1;
     }
     memset(info->db_hg_as1_ba, 0, db_size);
-    if (NULL == (info->db_hg_mr_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_hg_mr_ba = (unsigned char *) malloc(db_size))) {
         perror("db_hg_as1_ba malloc error");
         return -1;
     }
@@ -58,19 +58,19 @@ void *hg_read(size_t index) {
 //    if (index > (DBServer.llInfo).db_size)
 //        index = index % (DBServer.llInfo).db_size;
     if (1 == (DBServer.hgInfo).current) {
-        return (DBServer.hgInfo).db_hg_as1 + index * DBServer.pageSize;
+        return (DBServer.hgInfo).db_hg_as1 + index * DBServer.rowSize;
     } else {
-        return (DBServer.hgInfo).db_hg_as0 + index * DBServer.pageSize;
+        return (DBServer.hgInfo).db_hg_as0 + index * DBServer.rowSize;
     }
 }
 
-int hg_write(size_t index, void *value) {
-    long index_page = index >> DBServer.logscale_pagesize;
+int hg_write(size_t index_page, void *value) {
+    integer offset = index_page << DBServer.logscale_pagesize;
     if (1 == (DBServer.hgInfo).current) {
-        memcpy((DBServer.hgInfo).db_hg_as1 + index, value, ITEM_SIZE);
+        memcpy((DBServer.hgInfo).db_hg_as1 + offset, value, FILED_SIZE);
         (DBServer.hgInfo).db_hg_as1_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.hgInfo).db_hg_as0 + index, value, ITEM_SIZE);
+        memcpy((DBServer.hgInfo).db_hg_as0 + offset, value, FILED_SIZE);
         (DBServer.hgInfo).db_hg_as0_ba[index_page] = 1;
     }
     return 0;
@@ -79,20 +79,18 @@ int hg_write(size_t index, void *value) {
 void db_hg_ckp(int ckp_order, void *ll_info) {
     FILE *ckp_fd;
     char ckp_name[32];
-    long long i;
+    integer i;
     int db_size;
     db_hg_infomation *info;
     char *currentBackup;
     unsigned char *currentBA;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
 
     info = ll_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-    long long time1= get_mtime();
-
 
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
@@ -111,8 +109,8 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
     for (i = 0; i < db_size; i++) {
         if (1 == currentBA[i]) {
             //info->db_pp_as_previous[i] = info->db_pp_as_even[i];
-            memcpy(info->db_hg_prev + i * DBServer.pageSize,
-                   currentBackup + i * DBServer.pageSize, DBServer.pageSize);
+            memcpy(info->db_hg_prev + i * DBServer.rowSize,
+                   currentBackup + i * DBServer.rowSize, DBServer.rowSize);
             currentBA[i] = 0;
         }
     }
@@ -127,15 +125,14 @@ void db_hg_ckp(int ckp_order, void *ll_info) {
     // setvbuf(ckp_fd,buf,_IOFBF,1024L*1024*1024);
     setbuf(ckp_fd, NULL);
 
-    for (int i = 0; i < db_size; ++i) {
-        fwrite(info->db_hg_prev + (size_t) i * DBServer.pageSize, (size_t)(DBServer.pageSize), 1, ckp_fd);
-    }
+    //for (int i = 0; i < db_size; ++i) {
+    fwrite(info->db_hg_prev, (size_t) DBServer.rowSize * db_size, 1, ckp_fd);
+    //}
     fflush(ckp_fd);
     fclose(ckp_fd);
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
 
-    while (get_mtime() < time1 + 10000);
     //free(buf);
 }
 

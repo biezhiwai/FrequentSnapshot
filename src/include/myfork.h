@@ -8,10 +8,10 @@
 #pragma once
 
 #include<pthread.h>
-
+#include "util.h"
 
 typedef struct {
-    size_t db_size;
+    integer db_size;
     char *db_myfork_AS;
     //char *db_myfork_AS_shandow;
 

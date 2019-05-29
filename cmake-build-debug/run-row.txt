@@ -1,0 +1,535 @@
+[100%] Built target app
+database thread start alg_type:0, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8569, global_update_count = 274223720
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 9990, global_update_count = 319701972
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8460, global_update_count = 270746049
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 9316, global_update_count = 298126600
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8482, global_update_count = 271437184
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8372, global_update_count = 267904000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:64000000, ROW_SIZE:64, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 8664, global_update_count = 277273724
+database thread exit
+update thread 0 exit!
+==========
+1754	1796542444	7155
+2723	178569808	10176
+1622	80606874	7010
+3594	79445978	8914
+4566	74	7117
+2665	59	6838
+2833	58	7392
+[100%] Built target app
+database thread start alg_type:0, ROW_Count:32000000, ROW_SIZE:128, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8259, global_update_count = 264297842
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:32000000, ROW_SIZE:128, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 9482, global_update_count = 303424000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:32000000, ROW_SIZE:128, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8403, global_update_count = 268896000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:32000000, ROW_SIZE:128, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 9263, global_update_count = 296416000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:32000000, ROW_SIZE:128, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 8430, global_update_count = 269784272
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:32000000, ROW_SIZE:128, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8187, global_update_count = 262012779
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:32000000, ROW_SIZE:128, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8636, global_update_count = 276352000
+database thread exit
+update thread 0 exit!
+==========
+1631	1790116507	6531
+2492	89439159	9178
+1966	79684879	6895
+3545	39816704	8798
+4618	89	6890
+2531	70	6397
+2642	71	7295
+[100%] Built target app
+database thread start alg_type:0, ROW_Count:16000000, ROW_SIZE:256, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8165, global_update_count = 261280000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:16000000, ROW_SIZE:256, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 9207, global_update_count = 294624000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:16000000, ROW_SIZE:256, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8328, global_update_count = 266498856
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:16000000, ROW_SIZE:256, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 9449, global_update_count = 302368000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:16000000, ROW_SIZE:256, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8440, global_update_count = 270080000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:16000000, ROW_SIZE:256, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8221, global_update_count = 263076317
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:16000000, ROW_SIZE:256, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8584, global_update_count = 274698628
+database thread exit
+update thread 0 exit!
+==========
+2084	1790638025	6353
+2845	44739023	8650
+2222	79765977	6750
+3467	19858744	9160
+4703	95	7103
+2561	66	6598
+2809	66	7191
+[100%] Built target app
+database thread start alg_type:0, ROW_Count:8000000, ROW_SIZE:512, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8141, global_update_count = 260535691
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:8000000, ROW_SIZE:512, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 9170, global_update_count = 293451412
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:8000000, ROW_SIZE:512, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8439, global_update_count = 270060292
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:8000000, ROW_SIZE:512, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 9323, global_update_count = 298345037
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:8000000, ROW_SIZE:512, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8434, global_update_count = 269888000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:8000000, ROW_SIZE:512, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8148, global_update_count = 260736000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:8000000, ROW_SIZE:512, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8587, global_update_count = 274812492
+database thread exit
+update thread 0 exit!
+==========
+3092	1790919701	6303
+3413	23215923	8535
+3004	80354101	6995
+3686	9966315	8950
+4595	87	6963
+3488	68	6332
+3640	71	7208
+[100%] Built target app
+database thread start alg_type:0, ROW_Count:4000000, ROW_SIZE:1024, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8194, global_update_count = 262208000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:1, ROW_Count:4000000, ROW_SIZE:1024, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+update thread prepare to exit
+
+checkpoint finish:5
+global_tick = 9148, global_update_count = 292759899
+database thread exit
+update thread 0 exit!
+database thread start alg_type:2, ROW_Count:4000000, ROW_SIZE:1024, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8386, global_update_count = 268368374
+database thread exit
+update thread 0 exit!
+database thread start alg_type:3, ROW_Count:4000000, ROW_SIZE:1024, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 9403, global_update_count = 300896000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:4, ROW_Count:4000000, ROW_SIZE:1024, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8571, global_update_count = 274272000
+database thread exit
+update thread 0 exit!
+database thread start alg_type:5, ROW_Count:4000000, ROW_SIZE:1024, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8148, global_update_count = 260739383
+database thread exit
+update thread 0 exit!
+database thread start alg_type:6, ROW_Count:4000000, ROW_SIZE:1024, uf:32000
+db thread init success!
+checkpoint triggered,1
+update thread 0 create success
+checkpoint triggered,2
+checkpoint triggered,3
+checkpoint triggered,4
+checkpoint triggered,5
+
+checkpoint finish:5
+update thread prepare to exit
+global_tick = 8651, global_update_count = 276832000
+database thread exit
+update thread 0 exit!
+==========
+3360	1794426084	6406
+3540	11438820	8507
+3361	79860895	6863
+3649	4955351	9073
+4485	89	7235
+3559	69	6395
+3587	72	7331

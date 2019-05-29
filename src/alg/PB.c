@@ -1,5 +1,5 @@
-#include"src/system/system.h"
-#include"PB.h"
+#include"src/include/system.h"
+#include"src/include/PB.h"
 
 extern db_server DBServer;
 
@@ -21,19 +21,19 @@ int db_pb_init(void *mk_info, size_t db_size) {
 
     info->db_size = db_size;
 
-    if (NULL == (info->db_pb_as1 = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_pb_as1 = malloc(DBServer.rowSize * db_size))) {
         perror("db_pb_as1 malloc error");
         return -1;
     }
-    memset(info->db_pb_as1, 'S', DBServer.pageSize * db_size);
+    memset(info->db_pb_as1, 'S', DBServer.rowSize * db_size);
 
-    if (NULL == (info->db_pb_as2 = malloc(DBServer.pageSize * db_size))) {
+    if (NULL == (info->db_pb_as2 = malloc(DBServer.rowSize * db_size))) {
         perror("db_pb_as2 malloc error");
         return -1;
     }
-    memset(info->db_pb_as2, 'S', DBServer.pageSize * db_size);
+    memset(info->db_pb_as2, 'S', DBServer.rowSize * db_size);
 
-    if (NULL == (info->db_pb_ba = (unsigned char*)malloc(db_size))) {
+    if (NULL == (info->db_pb_ba = (unsigned char *) malloc(db_size))) {
         perror("db_pb_ba malloc error");
         return -1;
     }
@@ -43,7 +43,6 @@ int db_pb_init(void *mk_info, size_t db_size) {
     memset(info->db_pb_access, 0, db_size);
     info->current = 1;
     return 0;
-
 }
 
 void db_pb_destroy(void *mk_info) {
@@ -55,23 +54,21 @@ void db_pb_destroy(void *mk_info) {
 }
 
 void *pb_read(size_t index) {
-//    if (index > (DBServer.mkInfo).db_size)
-//        index = index % (DBServer.mkInfo).db_size;
     if (1 == (DBServer.pbInfo).current) {
-        return (DBServer.pbInfo).db_pb_as1 + index * DBServer.pageSize;
+        return (DBServer.pbInfo).db_pb_as1 + index * DBServer.rowSize;
     } else {
-        return (DBServer.pbInfo).db_pb_as2 + index * DBServer.pageSize;
+        return (DBServer.pbInfo).db_pb_as2 + index * DBServer.rowSize;
     }
     return NULL;
 }
 
-int pb_write(size_t index, void *value) {
-    long index_page = index >> DBServer.logscale_pagesize;
+int pb_write(size_t index_page, void *value) {
+    integer index = index_page << DBServer.logscale_pagesize;
     if (1 == (DBServer.pbInfo).current) {
-        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, ITEM_SIZE);
+        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, FILED_SIZE);
         (DBServer.pbInfo).db_pb_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, ITEM_SIZE);
+        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, FILED_SIZE);
         (DBServer.pbInfo).db_pb_ba[index_page] = 2;
     }
     return 0;
@@ -85,8 +82,8 @@ typedef struct {
 
 void *mk_write_to_disk_thr(void *arg) {
     mk_disk_info *info = arg;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
     timeStart = get_mtime();
     write(info->fd, info->addr, info->len);
     fsync(info->fd);
@@ -107,22 +104,15 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
     int mkCur;
     char *backup;
     char *online;
-    long long timeStart;
-    long long timeEnd;
+    integer timeStart;
+    integer timeEnd;
     info = mk_info;
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_size = info->db_size;
-
-    long long time1= get_mtime();
-
     db_lock(&(DBServer.pre_lock));
     timeStart = get_ntime();
-    if (info->current == 1)
-        info->current = 2;
-    else
-        info->current = 1;
-    //info->current = (1 == (info->current)) ? 2 : 1;
+    info->current = 3 - info->current;
     timeEnd = get_ntime();
     db_unlock(&(DBServer.pre_lock));
     add_prepare_log(&DBServer, timeEnd - timeStart);
@@ -149,34 +139,32 @@ void db_pb_ckp(int ckp_order, void *mk_info) {
         backup = info->db_pb_as1;
     }
 
-    for (int i = 0; i < db_size; ++i) {
-        fwrite(backup + (size_t) i * DBServer.pageSize, (size_t)(DBServer.pageSize), 1, ckp_fd);
-    }
+    //for (int i = 0; i < db_size; ++i) {
+    fwrite(backup, (size_t) DBServer.rowSize * db_size, 1, ckp_fd);
+    //}
 
-    //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.pageSize, (size_t)DBServer.pageSize);
+    //writeLarge(ckp_fd,backup,(size_t)DBServer.dbSize * DBServer.rowSize, (size_t)DBServer.rowSize);
 
     fflush(ckp_fd);
 
     fclose(ckp_fd);
 /*	mkDiskInfo.fd = ckp_fd;
-	mkDiskInfo.len = DBServer.dbSize * DBServer.pageSize;
+	mkDiskInfo.len = DBServer.dbSize * DBServer.rowSize;
 	mkDiskInfo.addr = backup;
 	pthread_create(&mkDiskThrId,NULL,mk_write_to_disk_thr,&mkDiskInfo);
     */
     for (i = 0; i < db_size; i++) {
 
         if (mkCur != info->db_pb_ba[i] && 0 != mkCur) {
-            memcpy(online + i * DBServer.pageSize,
-                   backup + i * DBServer.pageSize, (size_t) DBServer.pageSize);
+            memcpy(online + i * DBServer.rowSize,
+                   backup + i * DBServer.rowSize, (size_t) DBServer.rowSize);
             info->db_pb_ba[i] = 0;
         }
 
     }
     timeEnd = get_mtime();
     add_overhead_log(&DBServer, timeEnd - timeStart);
-    //free(buf);
 
-    while (get_mtime() < time1 + 10000);
 }
 
 

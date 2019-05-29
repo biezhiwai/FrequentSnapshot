@@ -7,9 +7,10 @@
 #pragma once
 
 #include<pthread.h>
+#include "util.h"
 
 typedef struct {
-    size_t db_size;
+    integer db_size;
     char *db_zigzag_as0;
     char *db_zigzag_as1;
     unsigned char *db_zigzag_mr;
