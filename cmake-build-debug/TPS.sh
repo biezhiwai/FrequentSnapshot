@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+##!/usr/bin/env bash
 #可更改
 DB_SIZE='25000'
 UF='12800'
@@ -15,7 +15,7 @@ mkdir ckp_backup
 mkdir log/overhead
 mkdir log/latency
 #1. generate the zipf random file
-#python ./src/zipf_create/Zipf.py $RF_FILE $UF $DB_SIZE
+python Zipf.py $RF_FILE $UF $DB_SIZE
 
 for i in 0 1 2 3 4 5 
 do 
@@ -27,4 +27,4 @@ do
 done
 
 PLOT_ARG=${DATA_DIR}" "${DB_SIZE}" "${UNIT_SIZE}" "${THREAD_NUM}" "${RESULT_DIR}
-python diagrams/tps_plot.py $PLOT_ARG
+#python diagrams/tps_plot.py $PLOT_ARG
