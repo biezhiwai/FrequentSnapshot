@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #可更改
 DB_SIZE=25000
 UF=12800
