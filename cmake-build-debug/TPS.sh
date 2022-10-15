@@ -1,14 +1,14 @@
 #可更改
-DB_SIZE='25000'
-UF='12800'
-THREAD_NUM='1'
+DB_SIZE=25000
+UF=12800
+THREAD_NUM=1
 UNIT_SIZE=4096
 #不可更改
 ALG_NAME=("NAIVE" "COU" "ZIGZAG" "PINGPONG" "MK" "LL")
 LOG_NAME=("naive" "cou" "zigzag" "pingpong" "mk" "ll")
-RF_FILE="./rfg.txt"
-DATA_DIR="./log/overhead/"
-RESULT_DIR="./diagrams/experimental_result/"
+RF_FILE=./rfg.txt
+DATA_DIR=./log/overhead/
+RESULT_DIR=./diagrams/experimental_result/
 mkdir log
 mkdir ckp_backup
 mkdir log/overhead
