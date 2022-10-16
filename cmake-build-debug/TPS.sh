@@ -22,7 +22,7 @@ do
 	echo ${ALG_NAME[i]}
 	echo "-------------------------------------"
 	ARG_CKP_LATENCY=${THREAD_NUM}" "${DB_SIZE}" "$i" "$RF_FILE" "${UF}" "$UNIT_SIZE
-	#./bin/ckp_simulator $ARG_CKP_LATENCY 
+	#./bin/ckp_simulator $ARG_CKP_LATENCY
 	echo "-------------------------------------"
 done
 
