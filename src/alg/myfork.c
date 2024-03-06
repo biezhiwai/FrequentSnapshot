@@ -33,7 +33,7 @@ void *myfork_read(size_t index) {
 
 int myfork_write(size_t page_index, void *value) {
     integer offset = page_index << DBServer.logscale_pagesize;
-    memcpy((DBServer.myforkInfo).db_myfork_AS + offset, value, FILED_SIZE);
+    memcpy((DBServer.myforkInfo).db_myfork_AS + offset, value, DBServer.rowSize);
     return 0;
 }
 

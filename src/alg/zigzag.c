@@ -59,11 +59,11 @@ void *zigzag_read(size_t index) {
 int zigzag_write(size_t index_page, void *value) {
     integer offset = index_page << DBServer.logscale_pagesize;
     if (0 == (DBServer.zigzagInfo).db_zigzag_mw[index_page]) {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + offset, value, FILED_SIZE);
+        memcpy((DBServer.zigzagInfo).db_zigzag_as0 + offset, value, DBServer.rowSize);
         (DBServer.zigzagInfo).db_zigzag_mr[index_page] = 0;
         return 0;
     } else {
-        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + offset, value, FILED_SIZE);
+        memcpy((DBServer.zigzagInfo).db_zigzag_as1 + offset, value, DBServer.rowSize);
         (DBServer.zigzagInfo).db_zigzag_mr[index_page] = 1;
         return 0;
     }

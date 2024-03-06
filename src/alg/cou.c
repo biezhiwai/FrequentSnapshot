@@ -83,7 +83,7 @@ int cou_write(size_t index_page, void *value) {
         DBServer.couInfo.db_cou_curBA[index_page] = 1;
         db_cou_unlock(index_page);
     }
-    memcpy(DBServer.couInfo.db_cou_primary + offset, value, FILED_SIZE);
+    memcpy(DBServer.couInfo.db_cou_primary + offset, value, DBServer.rowSize);
     return 0;
 }
 

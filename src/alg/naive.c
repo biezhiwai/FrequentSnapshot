@@ -39,7 +39,7 @@ void *naive_read(size_t page_index) {
 
 int naive_write(size_t page_index, void *value) {
     integer offset = page_index << DBServer.logscale_pagesize;
-    memcpy((DBServer.naiveInfo).db_naive_AS + offset, value, FILED_SIZE);
+    memcpy((DBServer.naiveInfo).db_naive_AS + offset, value, DBServer.rowSize);
     return 0;
 }
 

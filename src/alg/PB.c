@@ -65,10 +65,10 @@ void *pb_read(size_t index) {
 int pb_write(size_t index_page, void *value) {
     integer index = index_page << DBServer.logscale_pagesize;
     if (1 == (DBServer.pbInfo).current) {
-        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, FILED_SIZE);
+        memcpy((DBServer.pbInfo).db_pb_as1 + index, value, DBServer.rowSize);
         (DBServer.pbInfo).db_pb_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, FILED_SIZE);
+        memcpy((DBServer.pbInfo).db_pb_as2 + index, value, DBServer.rowSize);
         (DBServer.pbInfo).db_pb_ba[index_page] = 2;
     }
     return 0;

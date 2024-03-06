@@ -68,12 +68,12 @@ void *pingpong_read(size_t index) {
 
 int pingpong_write(size_t index_page, void *value) {
     integer offset = index_page << DBServer.logscale_pagesize;
-    memcpy((DBServer.pingpongInfo).db_pp_as + offset, value, FILED_SIZE);
+    memcpy((DBServer.pingpongInfo).db_pp_as + offset, value, DBServer.rowSize);
     if (0 == (DBServer.pingpongInfo).current) {
-        memcpy((DBServer.pingpongInfo).db_pp_as_odd + offset, value, FILED_SIZE);
+        memcpy((DBServer.pingpongInfo).db_pp_as_odd + offset, value, DBServer.rowSize);
         (DBServer.pingpongInfo).db_pp_odd_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.pingpongInfo).db_pp_as_even + offset, value, FILED_SIZE);
+        memcpy((DBServer.pingpongInfo).db_pp_as_even + offset, value, DBServer.rowSize);
         (DBServer.pingpongInfo).db_pp_even_ba[index_page] = 1;
     }
     return 0;

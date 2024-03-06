@@ -78,6 +78,13 @@ void *checkpoint_thread(void *arg) {
             info = &(DBServer.pbInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/mk_%d_ckp_log", dbSize);
             break;
+        case MM_ALG:
+            db_init = db_mm_init;
+            checkpoint = db_mm_ckp;
+            db_destroy = db_mm_destroy;
+            info = &(DBServer.mmInfo);
+            snprintf(dbLogPath, sizeof(dbLogPath), "./log/mm_%d_ckp_log", dbSize);
+            break;
         case HG_ALG:
             db_init = db_hg_init;
             checkpoint = db_hg_ckp;
@@ -219,6 +226,11 @@ void *update_thread(void *arg) {
             db_write = pb_write;
             db_read = pb_read;
             //    snprintf(log_name,sizeof(log_name),"./log/mk_update_log_%d",pthread_id);
+            break;
+        case MM_ALG:
+            db_write = mm_write;
+            db_read = mm_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/mm_update_log_%d",pthread_id);
             break;
         case HG_ALG:
             db_write = hg_write;

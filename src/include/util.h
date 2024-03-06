@@ -9,6 +9,7 @@
 #define PINGPONG_ALG        4
 #define HG_ALG              5
 #define PB_ALG              6
+#define MM_ALG              7
 
 
 

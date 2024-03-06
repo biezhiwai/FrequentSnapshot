@@ -7,6 +7,7 @@
 #include "src/include/pingpong.h"
 #include "src/include/PB.h"
 #include "src/include/HG.h"
+#include "src/include/mm.h"
 #include "src/include/myfork.h"
 
 
@@ -38,6 +39,7 @@ typedef struct {
     db_pb_infomation pbInfo;
     db_hg_infomation hgInfo;
     db_myfork_infomation myforkInfo;
+    db_mm_infomation mmInfo;
     integer update_count;
     integer dbStartTime;
     integer dbEndTime;
