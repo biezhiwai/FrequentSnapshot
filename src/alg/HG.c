@@ -67,10 +67,10 @@ void *hg_read(size_t index) {
 int hg_write(size_t index_page, void *value) {
     integer offset = index_page << DBServer.logscale_pagesize;
     if (1 == (DBServer.hgInfo).current) {
-        memcpy((DBServer.hgInfo).db_hg_as1 + offset, value, DBServer.rowSize);
+        memcpy((DBServer.hgInfo).db_hg_as1 + offset, value, FILED_SIZE);
         (DBServer.hgInfo).db_hg_as1_ba[index_page] = 1;
     } else {
-        memcpy((DBServer.hgInfo).db_hg_as0 + offset, value, DBServer.rowSize);
+        memcpy((DBServer.hgInfo).db_hg_as0 + offset, value, FILED_SIZE);
         (DBServer.hgInfo).db_hg_as0_ba[index_page] = 1;
     }
     return 0;

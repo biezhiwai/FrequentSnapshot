@@ -45,7 +45,7 @@ void *mm_read(size_t index) {
 
 int mm_write(size_t index_page, void *value) {
     integer index = index_page << DBServer.logscale_pagesize;
-    memcpy((DBServer.mmInfo).db_mm_as1 + index, value, DBServer.rowSize);
+    memcpy((DBServer.mmInfo).db_mm_as1 + index, value, FILED_SIZE);
     if(!DBServer.mmInfo.update->vis[index_page]){
         *(DBServer.mmInfo.update->top++) = index_page;
         DBServer.mmInfo.update->vis[index_page] = 1;

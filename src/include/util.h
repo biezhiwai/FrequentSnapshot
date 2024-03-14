@@ -10,6 +10,7 @@
 #define HG_ALG              5
 #define PB_ALG              6
 #define MM_ALG              7
+#define MYFORK_LRU_ALG      8
 
 
 

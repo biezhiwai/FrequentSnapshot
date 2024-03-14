@@ -39,8 +39,8 @@ void *checkpoint_thread(void *arg) {
     void (*db_destroy)(void *);
     void *info;
 
-    printf("database thread start alg_type:%d, ROW_Count:%d, ROW_SIZE:%d, uf:%d\n",
-           algType, dbSize, DBServer.rowSize, DBServer.updateFrequency);
+    printf("database thread start alg_type:%d, ROW_Count:%d, ROW_SIZE:%d, uf:%d, hpr:%.2f\n",
+           algType, dbSize, DBServer.rowSize, DBServer.updateFrequency, DBServer.myfork_lruInfo.huge_page_ratio);
 
     switch (algType) {
         case NAIVE_ALG:
@@ -99,6 +99,13 @@ void *checkpoint_thread(void *arg) {
             info = &(DBServer.myforkInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_%d_ckp_log", dbSize);
             break;
+        case MYFORK_LRU_ALG:
+            db_init = db_myfork_lru_init;
+            checkpoint = ckp_myfork_lru;
+            db_destroy = db_myfork_lru_destroy;
+            info = &(DBServer.myfork_lruInfo);
+            snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_lru_%d_ckp_log", dbSize);
+            break;
         default:
             printf("alg_type error!");
             goto DB_EXIT;
@@ -142,7 +149,7 @@ void *checkpoint_thread(void *arg) {
 
     printf("database thread exit\n");
 
-    //db_destroy(info);
+    db_destroy(info);
 
     pthread_exit(NULL);
 }
@@ -241,13 +248,18 @@ void *update_thread(void *arg) {
             db_read = myfork_read;
             //    snprintf(log_name,sizeof(log_name),"./log/myfork_update_log_%d",pthread_id);
             break;
+        case MYFORK_LRU_ALG:
+            db_write = myfork_lru_write;
+            db_read = myfork_lru_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/myfork_lru_update_log_%d",pthread_id);
+            break;
         default:
             perror("alg_type error");
             break;
     }
-    sprintf(log_name, "./log/latency_%d_%dk_%ld_%d_%d.log", DBServer.algType,
+    sprintf(log_name, "./log/latency_%d_%dk_%ld_%d_%d_%.2f.log", DBServer.algType,
             DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.rowSize,
-            pthread_id);
+            pthread_id, DBServer.myfork_lruInfo.huge_page_ratio);
     pthread_barrier_wait(update_brr_init);
     for (int j = 0; j < 4096; ++j) {
         row[j] = 'X';

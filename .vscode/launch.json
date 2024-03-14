@@ -1,0 +1,17 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "(gdb) Launch (cxk)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/cxk/C++Projects/FrequentSnapshot/build/app",
+            "args": ["8", "16000000", "64", "32", "zipf_1.5.txt", "0.00"],
+            "cwd": "/home/cxk/C++Projects/FrequentSnapshot/build/",
+        }
+    ]
+}
