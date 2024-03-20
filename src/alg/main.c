@@ -48,7 +48,10 @@ int main(int argc, char *argv[]) {
     DBServer.pre_lock = UNLOCK;
 
     // Open the workload file
-    if (NULL == (rf = fopen(argv[5], "r"))) {
+    DBServer.alpha = atof(argv[5]);
+    char zipfFileName[64];
+    sprintf(zipfFileName, "zipf_%.1f_%lu.txt", DBServer.alpha, DBServer.dbSize);
+    if (NULL == (rf = fopen(zipfFileName, "r"))) {
         perror("workload file open error!\n");
         printf("%s\n", argv[5]);
         return -1;
@@ -102,9 +105,9 @@ int main(int argc, char *argv[]) {
     pthread_barrier_destroy(&brr_exit);
 
     // Write the overhead log
-    sprintf(logName, "./log/%d_%dk_%ld_%d_%.2f_overhead.log",
+    sprintf(logName, "./log/%d_%dk_%ld_%d_%.1f_%.2f_overhead.log",
             DBServer.algType, DBServer.updateFrequency / 1000,
-            DBServer.dbSize, DBServer.rowSize,DBServer.myfork_lruInfo.huge_page_ratio);
+            DBServer.dbSize, DBServer.rowSize, DBServer.alpha, DBServer.myfork_lruInfo.huge_page_ratio);
     write_overhead_log(&DBServer, logName);
 
     // Print the database throughput

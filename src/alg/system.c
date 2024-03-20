@@ -37,10 +37,10 @@ void *checkpoint_thread(void *arg) {
     int (*db_init)(void *, size_t);
     void (*checkpoint)(int, void *);
     void (*db_destroy)(void *);
-    void *info;
+    void *info = NULL;
 
-    printf("database thread start alg_type:%d, ROW_Count:%d, ROW_SIZE:%d, uf:%d, hpr:%.2f\n",
-           algType, dbSize, DBServer.rowSize, DBServer.updateFrequency, DBServer.myfork_lruInfo.huge_page_ratio);
+    printf("database thread start alg_type:%d, ROW_Count:%d, ROW_SIZE:%d, uf:%d, alpha:%.1f, hpr:%.2f\n",
+           algType, dbSize, DBServer.rowSize, DBServer.updateFrequency, DBServer.alpha, DBServer.myfork_lruInfo.huge_page_ratio);
 
     switch (algType) {
         case NAIVE_ALG:
@@ -129,7 +129,7 @@ void *checkpoint_thread(void *arg) {
     while (1) {
         printf("checkpoint triggered,%d\n", DBServer.ckpID + 1);
         timeStart = get_mtime();
-        while (get_mtime() < (timeStart + 10000)); // wait 10s
+        while (get_mtime() < (timeStart + 6000)); // wait 10s
         timeStart = get_mtime();
         checkpoint(DBServer.ckpID % 2, info);
         timeEnd = get_mtime();
@@ -149,7 +149,7 @@ void *checkpoint_thread(void *arg) {
 
     printf("database thread exit\n");
 
-    db_destroy(info);
+    if(info!=NULL) db_destroy(info);
 
     pthread_exit(NULL);
 }
@@ -257,9 +257,9 @@ void *update_thread(void *arg) {
             perror("alg_type error");
             break;
     }
-    sprintf(log_name, "./log/latency_%d_%dk_%ld_%d_%d_%.2f.log", DBServer.algType,
+    sprintf(log_name, "./log/latency_%d_%dk_%ld_%d_%d_%.1f_%.2f.log", DBServer.algType,
             DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.rowSize,
-            pthread_id, DBServer.myfork_lruInfo.huge_page_ratio);
+            pthread_id, DBServer.alpha, DBServer.myfork_lruInfo.huge_page_ratio);
     pthread_barrier_wait(update_brr_init);
     for (int j = 0; j < 4096; ++j) {
         row[j] = 'X';

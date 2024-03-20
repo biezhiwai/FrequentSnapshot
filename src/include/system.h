@@ -45,6 +45,7 @@ typedef struct {
     integer update_count;
     integer dbStartTime;
     integer dbEndTime;
+    float alpha;
 } db_server;
 
 //void log_time_write(db_server *s);
