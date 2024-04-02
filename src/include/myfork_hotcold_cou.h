@@ -21,16 +21,16 @@ typedef struct {
     void** cold_update;
     integer *base;
     int size;
-} db_myfork_lru_infomation;
+} db_myfork_hotcold_cou_infomation;
 
 
-int db_myfork_lru_init(void *db_myfork_lru_info, size_t db_size);
+int db_myfork_hotcold_cou_init(void *db_myfork_hotcold_cou_info, size_t db_size);
 
-void *myfork_lru_read(size_t index);
+void *myfork_hotcold_cou_read(size_t index);
 
-int myfork_lru_write(size_t index, void *value);
+int myfork_hotcold_cou_write(size_t index, void *value);
 
-void ckp_myfork_lru(int ckp_id, void *db_myfork_lru_info);
+void ckp_myfork_hotcold_cou(int ckp_id, void *db_myfork_hotcold_cou_info);
 
-void db_myfork_lru_destroy(void *db_myfork_lru_info);
+void db_myfork_hotcold_cou_destroy(void *db_myfork_hotcold_cou_info);
 

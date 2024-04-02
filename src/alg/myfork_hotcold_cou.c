@@ -1,12 +1,12 @@
 #include "src/include/system.h"
-#include "src/include/myfork_lru.h"
+#include "src/include/myfork_hotcold_cou.h"
 
 extern db_server DBServer;
 
 
-int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
-    db_myfork_lru_infomation *info;
-    info = myfork_lru_info;
+int db_myfork_hotcold_cou_init(void *myfork_hotcold_cou_info, size_t db_size) {
+    db_myfork_hotcold_cou_infomation *info;
+    info = myfork_hotcold_cou_info;
 
 
     info->cold_update = (void**)malloc(sizeof(void*) * db_size);
@@ -44,9 +44,9 @@ int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
     return 0;
 }
 
-void db_myfork_lru_destroy(void *myfork_lru_info) {
-    db_myfork_lru_infomation *info;
-    info = myfork_lru_info;
+void db_myfork_hotcold_cou_destroy(void *myfork_hotcold_cou_info) {
+    db_myfork_hotcold_cou_infomation *info;
+    info = myfork_hotcold_cou_info;
 
     free(info->db_small_page);
     munmap(info->db_huge_page, info->huge_page_size * DBServer.rowSize);
@@ -59,12 +59,12 @@ void db_myfork_lru_destroy(void *myfork_lru_info) {
     free(info->base);
 }
 
-void *myfork_lru_read(size_t index) {
+void *myfork_hotcold_cou_read(size_t index) {
     return NULL;
 }
 
-int myfork_lru_write(size_t page_index, void *value) {
-    db_myfork_lru_infomation* info = &DBServer.myfork_lruInfo;
+int myfork_hotcold_cou_write(size_t page_index, void *value) {
+    db_myfork_hotcold_cou_infomation* info = &DBServer.myfork_hotcold_couInfo;
     int rowSize = DBServer.rowSize;
 
     if(page_index < info->small_page_size){
@@ -81,12 +81,12 @@ int myfork_lru_write(size_t page_index, void *value) {
     return 0;
 }
 
-void ckp_myfork_lru(int ckp_order, void *myfork_lru_info) {
+void ckp_myfork_hotcold_cou(int ckp_order, void *myfork_hotcold_cou_info) {
     FILE* ckp_fd;
     char ckp_name[32];
-    db_myfork_lru_infomation *info;
+    db_myfork_hotcold_cou_infomation *info;
     integer timeStart, timeEnd;
-    info = myfork_lru_info;
+    info = myfork_hotcold_cou_info;
 
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 

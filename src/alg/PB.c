@@ -85,7 +85,9 @@ void *mk_write_to_disk_thr(void *arg) {
     integer timeStart;
     integer timeEnd;
     timeStart = get_mtime();
-    write(info->fd, info->addr, info->len);
+    if(info->len > write(info->fd, info->addr, info->len)){
+        perror("write to disk error");
+    }
     fsync(info->fd);
     close(info->fd);
     timeEnd = get_mtime();

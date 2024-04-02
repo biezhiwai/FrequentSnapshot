@@ -40,7 +40,7 @@ void *checkpoint_thread(void *arg) {
     void *info = NULL;
 
     printf("database thread start alg_type:%d, ROW_Count:%d, ROW_SIZE:%d, uf:%d, alpha:%.1f, hpr:%.2f\n",
-           algType, dbSize, DBServer.rowSize, DBServer.updateFrequency, DBServer.alpha, DBServer.myfork_lruInfo.huge_page_ratio);
+           algType, dbSize, DBServer.rowSize, DBServer.updateFrequency, DBServer.alpha, DBServer.myfork_hotcold_couInfo.huge_page_ratio);
 
     switch (algType) {
         case NAIVE_ALG:
@@ -78,12 +78,12 @@ void *checkpoint_thread(void *arg) {
             info = &(DBServer.pbInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/mk_%d_ckp_log", dbSize);
             break;
-        case MM_ALG:
-            db_init = db_mm_init;
-            checkpoint = db_mm_ckp;
-            db_destroy = db_mm_destroy;
-            info = &(DBServer.mmInfo);
-            snprintf(dbLogPath, sizeof(dbLogPath), "./log/mm_%d_ckp_log", dbSize);
+        case MYFORK_HOTCOLD_ALG:
+            db_init = db_myfork_hotcold_init;
+            checkpoint = ckp_myfork_hotcold;
+            db_destroy = db_myfork_hotcold_destroy;
+            info = &(DBServer.myfork_hotcoldInfo);
+            snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_hotcold_%d_ckp_log", dbSize);
             break;
         case HG_ALG:
             db_init = db_hg_init;
@@ -99,12 +99,12 @@ void *checkpoint_thread(void *arg) {
             info = &(DBServer.myforkInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_%d_ckp_log", dbSize);
             break;
-        case MYFORK_LRU_ALG:
-            db_init = db_myfork_lru_init;
-            checkpoint = ckp_myfork_lru;
-            db_destroy = db_myfork_lru_destroy;
-            info = &(DBServer.myfork_lruInfo);
-            snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_lru_%d_ckp_log", dbSize);
+        case MYFORK_HOTCOLD_COU_ALG:
+            db_init = db_myfork_hotcold_cou_init;
+            checkpoint = ckp_myfork_hotcold_cou;
+            db_destroy = db_myfork_hotcold_cou_destroy;
+            info = &(DBServer.myfork_hotcold_couInfo);
+            snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_hotcold_cou_%d_ckp_log", dbSize);
             break;
         default:
             printf("alg_type error!");
@@ -234,10 +234,10 @@ void *update_thread(void *arg) {
             db_read = pb_read;
             //    snprintf(log_name,sizeof(log_name),"./log/mk_update_log_%d",pthread_id);
             break;
-        case MM_ALG:
-            db_write = mm_write;
-            db_read = mm_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/mm_update_log_%d",pthread_id);
+        case MYFORK_HOTCOLD_ALG:
+            db_write = myfork_hotcold_write;
+            db_read = myfork_hotcold_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/myfork_hotcold_update_log_%d",pthread_id);
             break;
         case HG_ALG:
             db_write = hg_write;
@@ -248,10 +248,10 @@ void *update_thread(void *arg) {
             db_read = myfork_read;
             //    snprintf(log_name,sizeof(log_name),"./log/myfork_update_log_%d",pthread_id);
             break;
-        case MYFORK_LRU_ALG:
-            db_write = myfork_lru_write;
-            db_read = myfork_lru_read;
-            //    snprintf(log_name,sizeof(log_name),"./log/myfork_lru_update_log_%d",pthread_id);
+        case MYFORK_HOTCOLD_COU_ALG:
+            db_write = myfork_hotcold_cou_write;
+            db_read = myfork_hotcold_cou_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/myfork_hotcold_cou_update_log_%d",pthread_id);
             break;
         default:
             perror("alg_type error");
@@ -259,7 +259,7 @@ void *update_thread(void *arg) {
     }
     sprintf(log_name, "./log/latency_%d_%dk_%ld_%d_%d_%.1f_%.2f.log", DBServer.algType,
             DBServer.updateFrequency / 1000, DBServer.dbSize, DBServer.rowSize,
-            pthread_id, DBServer.alpha, DBServer.myfork_lruInfo.huge_page_ratio);
+            pthread_id, DBServer.alpha, DBServer.myfork_hotcold_couInfo.huge_page_ratio);
     pthread_barrier_wait(update_brr_init);
     for (int j = 0; j < 4096; ++j) {
         row[j] = 'X';

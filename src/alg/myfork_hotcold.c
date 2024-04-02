@@ -1,18 +1,12 @@
 #include "src/include/system.h"
-#include "src/include/myfork_lru.h"
+#include "src/include/myfork_hotcold.h"
 
 extern db_server DBServer;
 
 
-int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
-    db_myfork_lru_infomation *info;
-    info = myfork_lru_info;
-
-
-    info->cold_update = (void**)malloc(sizeof(void*) * db_size);
-    memset(info->cold_update, 0, sizeof(void*) * db_size);
-    info->base = (integer*)malloc(sizeof(integer) * db_size);
-    info->size = 0;
+int db_myfork_hotcold_init(void *myfork_hotcold_info, size_t db_size) {
+    db_myfork_hotcold_infomation *info;
+    info = myfork_hotcold_info;
 
     info->db_size = db_size;
     info->huge_page_size = (integer)(info->huge_page_ratio * db_size);
@@ -44,62 +38,42 @@ int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
     return 0;
 }
 
-void db_myfork_lru_destroy(void *myfork_lru_info) {
-    db_myfork_lru_infomation *info;
-    info = myfork_lru_info;
+void db_myfork_hotcold_destroy(void *myfork_hotcold_info) {
+    db_myfork_hotcold_infomation *info;
+    info = myfork_hotcold_info;
 
     free(info->db_small_page);
     munmap(info->db_huge_page, info->huge_page_size * DBServer.rowSize);
-    while(info->size > 0){
-        integer page_index = info->base[--info->size];
-        free(info->cold_update[page_index]);
-        info->cold_update[page_index] = NULL;
-    }
-    free(info->cold_update);
-    free(info->base);
 }
 
-void *myfork_lru_read(size_t index) {
+void *myfork_hotcold_read(size_t index) {
     return NULL;
 }
 
-int myfork_lru_write(size_t page_index, void *value) {
-    db_myfork_lru_infomation* info = &DBServer.myfork_lruInfo;
+int myfork_hotcold_write(size_t page_index, void *value) {
+    db_myfork_hotcold_infomation* info = &DBServer.myfork_hotcoldInfo;
     int rowSize = DBServer.rowSize;
 
     if(page_index < info->small_page_size){
         memcpy(info->db_small_page + page_index * rowSize, value, FILED_SIZE);
     }else{
-        if(info->cold_update[page_index] == NULL){
-            info->cold_update[page_index] = malloc(rowSize);
-            info->base[info->size++] = page_index;
-        }
-        // memcpy(info->cold_update[page_index], info->db_huge_page + (page_index - info->small_page_size) * rowSize, rowSize);
-        memcpy(info->cold_update[page_index], value, FILED_SIZE);
+        memcpy(info->db_huge_page + (page_index - info->small_page_size) * rowSize, value, FILED_SIZE);
     }
 
     return 0;
 }
 
-void ckp_myfork_lru(int ckp_order, void *myfork_lru_info) {
+void ckp_myfork_hotcold(int ckp_order, void *myfork_hotcold_info) {
     FILE* ckp_fd;
     char ckp_name[32];
-    db_myfork_lru_infomation *info;
+    db_myfork_hotcold_infomation *info;
     integer timeStart, timeEnd;
-    info = myfork_lru_info;
+    info = myfork_hotcold_info;
 
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
     db_lock(&(DBServer.pre_lock));
-    printf("%d\n", info->size);
     timeStart = get_ntime();
-    while(info->size > 0){
-        integer page_index = info->base[--info->size];
-        memcpy(info->db_huge_page + (page_index - info->small_page_size) * DBServer.rowSize, info->cold_update[page_index], DBServer.rowSize);
-        free(info->cold_update[page_index]);
-        info->cold_update[page_index] = NULL;
-    }
-
     pid_t pid = fork();
     if (0 != pid) {
         timeEnd = get_ntime();

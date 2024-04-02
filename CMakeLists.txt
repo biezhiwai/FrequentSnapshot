@@ -19,4 +19,5 @@ link_libraries(pthread)
 
 include_directories(.)
 
-add_executable(app src/alg/main.c src/alg/system.c src/alg/util.c src/alg/cou.c src/alg/HG.c src/alg/myfork.c src/alg/PB.c src/alg/naive.c src/alg/pingpong.c src/alg/zigzag.c src/alg/mm.c src/alg/myfork_lru.c)
+add_executable(app src/alg/main.c src/alg/system.c src/alg/util.c src/alg/cou.c src/alg/HG.c src/alg/myfork.c src/alg/PB.c src/alg/naive.c src/alg/pingpong.c src/alg/zigzag.c src/alg/myfork_hotcold.c src/alg/myfork_hotcold_cou.c src/alg/myfork_lru.c)
+add_executable(HugePageOnFork src/alg/HugePageOnFork.c src/alg/util.c)

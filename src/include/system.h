@@ -7,8 +7,9 @@
 #include "src/include/pingpong.h"
 #include "src/include/PB.h"
 #include "src/include/HG.h"
-#include "src/include/mm.h"
+#include "src/include/myfork_hotcold.h"
 #include "src/include/myfork.h"
+#include "src/include/myfork_hotcold_cou.h"
 #include "src/include/myfork_lru.h"
 
 
@@ -40,8 +41,9 @@ typedef struct {
     db_pb_infomation pbInfo;
     db_hg_infomation hgInfo;
     db_myfork_infomation myforkInfo;
+    db_myfork_hotcold_cou_infomation myfork_hotcold_couInfo;
+    db_myfork_hotcold_infomation myfork_hotcoldInfo;
     db_myfork_lru_infomation myfork_lruInfo;
-    db_mm_infomation mmInfo;
     integer update_count;
     integer dbStartTime;
     integer dbEndTime;

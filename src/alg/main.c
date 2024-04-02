@@ -33,7 +33,8 @@ int main(int argc, char *argv[]) {
     DBServer.rowSize = atoi(argv[3]);
     DBServer.logscale_pagesize = log(DBServer.rowSize) / log(2);
     DBServer.updateFrequency = atoi(argv[4]) * 1000;
-    DBServer.myfork_lruInfo.huge_page_ratio = atof(argv[6]);
+    DBServer.myfork_hotcold_couInfo.huge_page_ratio = atof(argv[6]);
+    DBServer.myfork_hotcoldInfo.huge_page_ratio = atof(argv[6]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
     DBServer.ckpMaxNum = CHECKPOINT_COUNT;
@@ -65,7 +66,10 @@ int main(int argc, char *argv[]) {
     integer _i;
     integer dataset_len = (integer) DBServer.updateFrequency;
     for (_i = 0; _i < dataset_len; _i++) {
-        fscanf(rf, "%lld\n", DBServer.rfBuf + _i);
+        if (fscanf(rf, "%lld\n", DBServer.rfBuf + _i) != 1) {
+            perror("Error reading from file!\n");
+            return -1;
+        }
     }
     fclose(rf);
 
@@ -107,7 +111,7 @@ int main(int argc, char *argv[]) {
     // Write the overhead log
     sprintf(logName, "./log/%d_%dk_%ld_%d_%.1f_%.2f_overhead.log",
             DBServer.algType, DBServer.updateFrequency / 1000,
-            DBServer.dbSize, DBServer.rowSize, DBServer.alpha, DBServer.myfork_lruInfo.huge_page_ratio);
+            DBServer.dbSize, DBServer.rowSize, DBServer.alpha, DBServer.myfork_hotcold_couInfo.huge_page_ratio);
     write_overhead_log(&DBServer, logName);
 
     // Print the database throughput

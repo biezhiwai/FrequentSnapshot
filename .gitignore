@@ -1,3 +1,4 @@
 # Project exclude paths
 /build/
 storage_demo.code-workspace
+/result/

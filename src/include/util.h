@@ -9,8 +9,9 @@
 #define PINGPONG_ALG        4
 #define HG_ALG              5
 #define PB_ALG              6
-#define MM_ALG              7
-#define MYFORK_LRU_ALG      8
+#define MYFORK_HOTCOLD_ALG          7
+#define MYFORK_HOTCOLD_COU_ALG      8
+#define MYFORK_LRU_ALG              9
 
 
 
