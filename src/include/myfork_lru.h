@@ -21,6 +21,7 @@ typedef struct {
     void** cold_update;
     integer *base;
     int size;
+    bool *hot_vis;
 } db_myfork_lru_infomation;
 
 

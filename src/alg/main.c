@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
     DBServer.updateFrequency = atoi(argv[4]) * 1000;
     DBServer.myfork_hotcold_couInfo.huge_page_ratio = atof(argv[6]);
     DBServer.myfork_hotcoldInfo.huge_page_ratio = atof(argv[6]);
+    DBServer.myfork_lruInfo.huge_page_ratio = atof(argv[6]);
     DBServer.ckpID = 0;
     DBServer.dbState = 0;
     DBServer.ckpMaxNum = CHECKPOINT_COUNT;

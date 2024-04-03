@@ -106,6 +106,13 @@ void *checkpoint_thread(void *arg) {
             info = &(DBServer.myfork_hotcold_couInfo);
             snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_hotcold_cou_%d_ckp_log", dbSize);
             break;
+        case MYFORK_LRU_ALG:
+            db_init = db_myfork_lru_init;
+            checkpoint = ckp_myfork_lru;
+            db_destroy = db_myfork_lru_destroy;
+            info = &(DBServer.myfork_lruInfo);
+            snprintf(dbLogPath, sizeof(dbLogPath), "./log/myfork_lru_%d_ckp_log", dbSize);
+            break;
         default:
             printf("alg_type error!");
             goto DB_EXIT;
@@ -252,6 +259,11 @@ void *update_thread(void *arg) {
             db_write = myfork_hotcold_cou_write;
             db_read = myfork_hotcold_cou_read;
             //    snprintf(log_name,sizeof(log_name),"./log/myfork_hotcold_cou_update_log_%d",pthread_id);
+            break;
+        case MYFORK_LRU_ALG:
+            db_write = myfork_lru_write;
+            db_read = myfork_lru_read;
+            //    snprintf(log_name,sizeof(log_name),"./log/myfork_lru_update_log_%d",pthread_id);
             break;
         default:
             perror("alg_type error");

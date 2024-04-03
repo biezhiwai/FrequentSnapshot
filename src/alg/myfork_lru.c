@@ -3,6 +3,9 @@
 
 extern db_server DBServer;
 
+int generateRandomNumber(int min, int max) {
+    return rand() % (max - min + 1) + min;
+}
 
 int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
     db_myfork_lru_infomation *info;
@@ -17,6 +20,9 @@ int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
     info->db_size = db_size;
     info->huge_page_size = (integer)(info->huge_page_ratio * db_size);
     info->small_page_size = db_size - info->huge_page_size;
+    info->hot_vis = (bool*)malloc(sizeof(bool) * info->small_page_size);
+    memset(info->hot_vis, 0, sizeof(bool) * info->small_page_size);
+
     if(info->small_page_size > 0){
         info->db_small_page = (char*)malloc(info->small_page_size * DBServer.rowSize);
         if(info->db_small_page == NULL){
@@ -57,6 +63,7 @@ void db_myfork_lru_destroy(void *myfork_lru_info) {
     }
     free(info->cold_update);
     free(info->base);
+    free(info->hot_vis);
 }
 
 void *myfork_lru_read(size_t index) {
@@ -69,6 +76,7 @@ int myfork_lru_write(size_t page_index, void *value) {
 
     if(page_index < info->small_page_size){
         memcpy(info->db_small_page + page_index * rowSize, value, FILED_SIZE);
+        info->hot_vis[page_index] = 1;
     }else{
         if(info->cold_update[page_index] == NULL){
             info->cold_update[page_index] = malloc(rowSize);
@@ -90,12 +98,22 @@ void ckp_myfork_lru(int ckp_order, void *myfork_lru_info) {
 
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
+    srand(time(NULL));
+    int deport_cnt = 0;
+
     db_lock(&(DBServer.pre_lock));
     printf("%d\n", info->size);
     timeStart = get_ntime();
     while(info->size > 0){
         integer page_index = info->base[--info->size];
-        memcpy(info->db_huge_page + (page_index - info->small_page_size) * DBServer.rowSize, info->cold_update[page_index], DBServer.rowSize);
+        int rand_index = generateRandomNumber(0, info->small_page_size - 1);
+        if(deport_cnt < 5 && !info->hot_vis[rand_index]){
+            memcpy(info->db_huge_page + (page_index - info->small_page_size) * DBServer.rowSize, info->db_small_page + rand_index * DBServer.rowSize, DBServer.rowSize);
+            memcpy(info->db_small_page + rand_index * DBServer.rowSize, info->cold_update[page_index], DBServer.rowSize);
+            deport_cnt++;
+        }else{
+            memcpy(info->db_huge_page + (page_index - info->small_page_size) * DBServer.rowSize, info->cold_update[page_index], DBServer.rowSize);
+        }
         free(info->cold_update[page_index]);
         info->cold_update[page_index] = NULL;
     }
