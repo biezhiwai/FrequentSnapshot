@@ -8,18 +8,18 @@ def myplot(column_names,file_name,ylabel,save_name,scale=1,yMax=0):
                "Fork":'^',
                "Zigzag":'D',
                "PingPong":'*',
-               "Fork-hot/cold":'x',
-               "Fork-hot/cold+cou":'+'}
+               "FHC":'x',
+               "FHCC":'+'}
     
     colors = {"Naive":'b',
                 "COU":'g',
                 "Fork":'r',
                 "Zigzag":'c',
                 "PingPong":'m',
-                "Fork-hot/cold":'y',
-                "Fork-hot/cold+cou":'k'}
+                "FHC":'y',
+                "FHCC":'k'}
 
-    df = pd.read_csv(file_name,names=['Naive',"COU","Fork","Zigzag","PingPong","Fork-hot/cold","Fork-hot/cold+cou"],header=None)
+    df = pd.read_csv(file_name,names=['Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"],header=None)
     df = df[column_names] / scale
     df = df[1000:]
 
@@ -37,7 +37,7 @@ def myplot(column_names,file_name,ylabel,save_name,scale=1,yMax=0):
     plt.ylabel(ylabel)
     plt.savefig(save_name)
 
-column_names = ['Naive',"COU","Fork","Zigzag","PingPong","Fork-hot/cold","Fork-hot/cold+cou"]
+column_names = ['Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"]
 file_name = '../result/tick_distribution.csv'
 ylable = 'Tick latency[us]'
 save_name = '../result/tick_distribution.png'

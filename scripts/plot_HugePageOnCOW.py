@@ -11,7 +11,7 @@ def myplot():
 
     df1 = pd.read_csv("../result/HugePageOnCOW.csv",header=None) / 1000
 
-    df1.columns = ["Size[MB]","2MB page","4KB page"]
+    df1.columns = ["uf[Count]","2MB page","4KB page"]
 
 
     plt.figure(figsize=(7, 4))
@@ -24,8 +24,8 @@ def myplot():
 
 
     # plt.ylim(bottom=0)
-    plt.xticks(df1.index,['64','128','256','512','1024'])
-    # plt.yscale('log')
+    plt.xticks(df1.index,['16','32','64','128','256'])
+    plt.yscale('log')
     plt.legend()
     plt.xlabel(df1.columns[0])
     plt.ylabel('COW time[us]')

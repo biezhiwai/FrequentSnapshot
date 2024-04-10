@@ -1,7 +1,7 @@
 #include "src/include/util.h"
 
 
-void ForkAndRecord(char* addr) {
+void ForkAndRecord(char* addr,int uf,int size) {
     integer timeStart, timeEnd;
 
     timeStart = get_ntime();
@@ -9,15 +9,13 @@ void ForkAndRecord(char* addr) {
     if (0 != pid) {
         timeEnd = get_ntime();
         printf("%lld\n",timeEnd - timeStart);
-        int cnt = 32;
 
         timeStart = get_ntime();
-        for(int i = 0; i < cnt; i++){
-            printf("%c\n",addr[i*1024*1024*2]);
-
+        for(int i = 0; i < uf; i++){
+            addr[i*size] = ',';
         }
         timeEnd = get_ntime();
-        printf("%lld\n",(timeEnd - timeStart)/cnt);
+        printf("%lld\n",timeEnd - timeStart);
         wait(NULL); // waiting for child process exit
     } else {  // a child checkpoint process
         sleep(1);
@@ -41,12 +39,15 @@ void generateRandomString(char *str, int length) {
 }
 
 int main(int argc, char *argv[]){
-    char *addr = (char*)malloc(1024*1024*atoi(argv[1]));
-    // char *addr = (char*)mmap(NULL, 1024*1024*atoi(argv[1]), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
-    generateRandomString(addr, 1024*1024*atoi(argv[1]));
-    ForkAndRecord(addr);
-    free(addr);
-    // munmap(addr, 1024*1024*atoi(argv[1]));
+    // char *addr = (char*)malloc(1024*1024*512);
+    // generateRandomString(addr, 1024*1024*512);
+    // ForkAndRecord(addr, atoi(argv[1]),1024*4);
+    // free(addr);
+    
+    char *addr = (char*)mmap(NULL, 1024*1024*512, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
+    generateRandomString(addr, 1024*1024*512);
+    ForkAndRecord(addr,atoi(argv[1]),1024*1024*2);
+    munmap(addr, 1024*1024*512);
     
     return 0;
 }

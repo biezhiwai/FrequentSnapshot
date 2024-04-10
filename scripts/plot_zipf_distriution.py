@@ -5,6 +5,7 @@ import numpy as np
 
 linestyles={'alpha=1.1':'-','alpha=1.3':'--','alpha=1.5':':','alpha=1.7':'-.','alpha=1.9':(0, (3, 1))}
 
+plt.rcParams.update({'font.size': 16})
 for alpha in [1.1,1.3,1.5,1.7,1.9]:
     name = "../build/zipf_"+str(alpha)+"_1000000.txt"
     # 读取zipf.txt文件中的数据
@@ -17,6 +18,6 @@ plt.legend()
 # 设置坐标轴标签
 plt.xlabel("Value")
 plt.ylabel("Frequency (log scale)")
-
+plt.tight_layout()
 # 保存直方图为PNG文件，文件名与原文件名相同，但扩展名为.png
 plt.savefig("../result/zipf_distribution.png")

@@ -8,21 +8,22 @@ def myplot(row_names,column_names,file_name,ylabel,save_name,scale=1,yMax=0):
                "Fork":'^',
                "Zigzag":'D',
                "PingPong":'*',
-               "Fork-hot/cold":'x',
-               "Fork-hot/cold+cou":'+'}
+               "FHC":'x',
+               "FHCC":'+'}
     
     colors = {"Naive":'b',
                 "COU":'g',
                 "Fork":'r',
                 "Zigzag":'c',
                 "PingPong":'m',
-                "Fork-hot/cold":'y',
-                "Fork-hot/cold+cou":'k'}
+                "FHC":'y',
+                "FHCC":'k'}
 
-    df = pd.read_csv(file_name,names=['Huge page ratio',"Fork","Fork-hot/cold","Fork-hot/cold+cou"],header=None)
+    df = pd.read_csv(file_name,names=['Huge page ratio',"Fork","FHC","FHCC"],header=None)
     df = df[column_names] / scale
 
-    plt.figure(figsize=(7, 4))
+    plt.figure(figsize=(8, 7))
+    plt.rcParams.update({'font.size': 23})
     plt.grid(True, linestyle='--')
 
     if yMax != 0:
@@ -36,17 +37,18 @@ def myplot(row_names,column_names,file_name,ylabel,save_name,scale=1,yMax=0):
     plt.legend()
     plt.xlabel(df.columns[0])
     plt.ylabel(ylabel)
+    plt.tight_layout()
     plt.savefig(save_name)
 
-column_names = ['Huge page ratio',"Fork","Fork-hot/cold","Fork-hot/cold+cou"]
+column_names = ['Huge page ratio',"Fork","FHC","FHCC"]
 row_names = ['0','0.3','0.5','0.7','0.9','0.95','0.99','1']
 file_name = '../result/run-hpr/avg_ckp_overhead.csv'
-ylable = 'Avg ckp overhead[ms]'
+ylable = 'Avg ckp overhead[s]'
 save_name = '../result/avg_ckp_overhead vs hpr.png'
 
-myplot(row_names,column_names,file_name,ylable,save_name)
+myplot(row_names,column_names,file_name,ylable,save_name,1000)
 
-column_names = ['Huge page ratio',"Fork","Fork-hot/cold","Fork-hot/cold+cou"]
+column_names = ['Huge page ratio',"Fork","FHC","FHCC"]
 row_names = ['0','0.3','0.5','0.7','0.9','0.95','0.99','1']
 file_name = '../result/run-hpr/avg_prepare.csv'
 ylable = 'Avg prepare[us]'
@@ -54,7 +56,7 @@ save_name = '../result/avg_prepare vs hpr.png'
 
 myplot(row_names,column_names,file_name,ylable,save_name,1000)
 
-column_names = ['Huge page ratio',"Fork","Fork-hot/cold","Fork-hot/cold+cou"]
+column_names = ['Huge page ratio',"Fork","FHC","FHCC"]
 row_names = ['0','0.3','0.5','0.7','0.9','0.95','0.99','1']
 file_name = '../result/run-hpr/avg_tick_latency.csv'
 ylable = 'Avg tick latency[us]'
@@ -62,10 +64,10 @@ save_name = '../result/avg_tick_latency vs hpr.png'
 
 myplot(row_names,column_names,file_name,ylable,save_name)
 
-column_names = ['Huge page ratio',"Fork","Fork-hot/cold","Fork-hot/cold+cou"]
+column_names = ['Huge page ratio',"Fork","FHC","FHCC"]
 row_names = ['0','0.3','0.5','0.7','0.9','0.95','0.99','1']
 file_name = '../result/run-hpr/max_tick_latency.csv'
-ylable = 'Max tick latency[us]'
+ylable = 'Max tick latency[ms]'
 save_name = '../result/max_tick_latency vs hpr.png'
 
-myplot(row_names,column_names,file_name,ylable,save_name)
+myplot(row_names,column_names,file_name,ylable,save_name,1000)
