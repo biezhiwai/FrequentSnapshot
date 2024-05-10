@@ -9,19 +9,19 @@ int generateRandomNumber(int min, int max) {
 
 int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
     db_myfork_lru_infomation *info;
-    info = myfork_lru_info;
+    info = (db_myfork_lru_infomation *)myfork_lru_info;
 
 
     info->cold_update = (void**)malloc(sizeof(void*) * db_size);
     memset(info->cold_update, 0, sizeof(void*) * db_size);
-    info->base = (integer*)malloc(sizeof(integer) * db_size);
+    info->base = (integer*)malloc(sizeof(integer) * 2000);
     info->size = 0;
 
     info->db_size = db_size;
     info->huge_page_size = (integer)(info->huge_page_ratio * db_size);
     info->small_page_size = db_size - info->huge_page_size;
-    info->hot_vis = (bool*)malloc(sizeof(bool) * info->small_page_size);
-    memset(info->hot_vis, 0, sizeof(bool) * info->small_page_size);
+    // info->hot_vis = (bool*)malloc(sizeof(bool) * info->small_page_size);
+    // memset(info->hot_vis, 0, sizeof(bool) * info->small_page_size);
 
     if(info->small_page_size > 0){
         info->db_small_page = (char*)malloc(info->small_page_size * DBServer.rowSize);
@@ -52,7 +52,7 @@ int db_myfork_lru_init(void *myfork_lru_info, size_t db_size) {
 
 void db_myfork_lru_destroy(void *myfork_lru_info) {
     db_myfork_lru_infomation *info;
-    info = myfork_lru_info;
+    info = (db_myfork_lru_infomation *)myfork_lru_info;
 
     free(info->db_small_page);
     munmap(info->db_huge_page, info->huge_page_size * DBServer.rowSize);
@@ -63,7 +63,7 @@ void db_myfork_lru_destroy(void *myfork_lru_info) {
     }
     free(info->cold_update);
     free(info->base);
-    free(info->hot_vis);
+    // free(info->hot_vis);
 }
 
 void *myfork_lru_read(size_t index) {
@@ -75,8 +75,8 @@ int myfork_lru_write(size_t page_index, void *value) {
     int rowSize = DBServer.rowSize;
 
     if(page_index < info->small_page_size){
-        memcpy(info->db_small_page + page_index * rowSize, value, FILED_SIZE);
-        info->hot_vis[page_index] = 1;
+        info->cold_update[page_index] = memcpy(info->db_small_page + page_index * rowSize, value, FILED_SIZE);
+        // info->hot_vis[page_index] = 1;
     }else{
         if(info->cold_update[page_index] == NULL){
             info->cold_update[page_index] = malloc(rowSize);
@@ -94,7 +94,7 @@ void ckp_myfork_lru(int ckp_order, void *myfork_lru_info) {
     char ckp_name[32];
     db_myfork_lru_infomation *info;
     integer timeStart, timeEnd;
-    info = myfork_lru_info;
+    info = (db_myfork_lru_infomation *)myfork_lru_info;
 
     sprintf(ckp_name, "./ckp_backup/dump_%d", ckp_order);
 
@@ -107,7 +107,7 @@ void ckp_myfork_lru(int ckp_order, void *myfork_lru_info) {
     while(info->size > 0){
         integer page_index = info->base[--info->size];
         int rand_index = generateRandomNumber(0, info->small_page_size - 1);
-        if(deport_cnt < 5 && !info->hot_vis[rand_index]){
+        if(deport_cnt < 5 && !info->cold_update[rand_index]){
             memcpy(info->db_huge_page + (page_index - info->small_page_size) * DBServer.rowSize, info->db_small_page + rand_index * DBServer.rowSize, DBServer.rowSize);
             memcpy(info->db_small_page + rand_index * DBServer.rowSize, info->cold_update[page_index], DBServer.rowSize);
             deport_cnt++;
@@ -116,6 +116,7 @@ void ckp_myfork_lru(int ckp_order, void *myfork_lru_info) {
         }
         free(info->cold_update[page_index]);
         info->cold_update[page_index] = NULL;
+        info->cold_update[rand_index] = NULL;
     }
 
     pid_t pid = fork();

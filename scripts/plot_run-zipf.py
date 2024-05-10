@@ -2,14 +2,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def myplot(row_names,column_names,file_name,ylabel,save_name,scale=1,yMax=0):
+def myplot(row_names,column_names,file_name,ylabel,save_name,scale=1,std_file_name=None,yMax=0):
     markers = {"Naive":'o',
                "COU":'s',
                "Fork":'^',
                "Zigzag":'D',
                "PingPong":'*',
                "FHC":'x',
-               "FHCC":'+'}
+               "FHCC":'v'}
     
     colors = {"Naive":'b',
                 "COU":'g',
@@ -18,18 +18,34 @@ def myplot(row_names,column_names,file_name,ylabel,save_name,scale=1,yMax=0):
                 "PingPong":'m',
                 "FHC":'y',
                 "FHCC":'k'}
+    capsizes = {
+        "Naive":0,
+        "COU":2,
+        "Fork":4,
+        "Zigzag":6,
+        "PingPong":8,
+        "FHC":10,
+        "FHCC":12
+    }
 
-    df = pd.read_csv(file_name,names=['alpha','Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"],header=None)
+    df = pd.read_csv(file_name,names=['数据冷热分布参数α','Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"],header=None)
     df = df[column_names] / scale
 
+    
+    if std_file_name is not None:
+        errorBars = pd.read_csv(std_file_name,names=['数据冷热分布参数α','Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"],header=None)
+        errorBars = errorBars[column_names] / scale
+
     plt.figure(figsize=(8, 7))
-    plt.rcParams.update({'font.size': 23})
+    plt.rcParams.update({'font.size': 23,'font.sans-serif':'Microsoft Yahei'})
     plt.grid(True, linestyle='--')
     if yMax != 0:
         plt.ylim(0, yMax)
 
     for column in df.columns[1:]: 
-        plt.plot(df.index, df[column], marker=markers[column], label=column,color=colors[column])
+        errorBar = errorBars[column] if 'errorBars' in locals() else None
+        plt.errorbar(df.index, df[column], marker=markers[column],markersize=12, label=column,color=colors[column],
+        yerr=errorBar,capsize=capsizes[column],capthick=2)
 
     plt.xticks(df.index,row_names)
     plt.legend()
@@ -39,34 +55,36 @@ def myplot(row_names,column_names,file_name,ylabel,save_name,scale=1,yMax=0):
     plt.savefig(save_name)
 
 
-column_names = ['alpha','Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"]
+column_names = ['数据冷热分布参数α','Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"]
 row_names = ['1.1','1.3','1.5','1.7','1.9']
 file_name = '../result/run-zipf/avg_ckp_overhead.csv'
-ylable = 'Avg ckp overhead[s]'
-save_name = '../result/avg_ckp_overhead vs alpha.png'
+std_file_name = '../result/run-zipf/std_ckp_overhead.csv'
+ylable = '平均快照存储时间[s]'
+save_name = '../result/avg_ckp_overhead vs 数据冷热分布参数α.png'
 
-myplot(row_names,column_names,file_name,ylable,save_name,1000)
+myplot(row_names,column_names,file_name,ylable,save_name,1000,std_file_name)
 
-column_names = ['alpha',"Fork","PingPong","FHC","FHCC"]
+column_names = ['数据冷热分布参数α',"Fork","PingPong","FHC","FHCC"]
 row_names = ['1.1','1.3','1.5','1.7','1.9']
 file_name = '../result/run-zipf/avg_prepare.csv'
-ylable = 'Avg prepare[us]'
-save_name = '../result/avg_prepare vs alpha.png'
+std_file_name = '../result/run-zipf/std_prepare.csv'
+ylable = '平均快照摄取时间[μs]'
+save_name = '../result/avg_prepare vs 数据冷热分布参数α.png'
 
-myplot(row_names,column_names,file_name,ylable,save_name,1000)
+myplot(row_names,column_names,file_name,ylable,save_name,1000,std_file_name)
 
-column_names = ['alpha','Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"]
+column_names = ['数据冷热分布参数α','Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"]
 row_names = ['1.1','1.3','1.5','1.7','1.9']
 file_name = '../result/run-zipf/avg_tick_latency.csv'
-ylable = 'Avg tick latency[us]'
-save_name = '../result/avg_tick_latency vs alpha.png'
+ylable = '平均Tick延迟[μs]'
+save_name = '../result/avg_tick_latency vs 数据冷热分布参数α.png'
 
 myplot(row_names,column_names,file_name,ylable,save_name,1)
 
-column_names = ['alpha',"Fork","PingPong","FHC","FHCC"]
+column_names = ['数据冷热分布参数α',"Fork","PingPong","FHC","FHCC"]
 row_names = ['1.1','1.3','1.5','1.7','1.9']
 file_name = '../result/run-zipf/max_tick_latency.csv'
-ylable = 'Max tick latency[ms]'
-save_name = '../result/max_tick_latency vs alpha.png'
+ylable = '最大Tick延迟[ms]'
+save_name = '../result/max_tick_latency vs 数据冷热分布参数α.png'
 
 myplot(row_names,column_names,file_name,ylable,save_name,1000)

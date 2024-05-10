@@ -9,7 +9,7 @@ def myplot(column_names,file_name,ylabel,save_name,scale=1,yMax=0):
                "Zigzag":'D',
                "PingPong":'*',
                "FHC":'x',
-               "FHCC":'+'}
+               "FHCC":'v'}
     
     colors = {"Naive":'b',
                 "COU":'g',
@@ -23,7 +23,8 @@ def myplot(column_names,file_name,ylabel,save_name,scale=1,yMax=0):
     df = df[column_names] / scale
     df = df[1000:]
 
-    plt.figure(figsize=(7, 4))
+    plt.figure(figsize=(8, 5))
+    plt.rcParams.update({'font.size': 16,'font.sans-serif':'Microsoft Yahei'})
     plt.grid(True, linestyle='--')
     if yMax != 0:
         plt.ylim(0, yMax)
@@ -33,13 +34,14 @@ def myplot(column_names,file_name,ylabel,save_name,scale=1,yMax=0):
 
     # plt.yscale('log')
     plt.legend()
-    plt.xlabel("Tick[10ms]")
+    plt.xlabel("Tick")
     plt.ylabel(ylabel)
+    plt.tight_layout()
     plt.savefig(save_name)
 
 column_names = ['Naive',"COU","Fork","Zigzag","PingPong","FHC","FHCC"]
 file_name = '../result/tick_distribution.csv'
-ylable = 'Tick latency[us]'
+ylable = 'Tick延迟[ms]'
 save_name = '../result/tick_distribution.png'
 
-myplot(column_names,file_name,ylable,save_name)
+myplot(column_names,file_name,ylable,save_name,1000)

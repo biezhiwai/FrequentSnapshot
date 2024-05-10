@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(FrequentSnapshot)
 
-set(CMAKE_C_STANDARD 99)
+# set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 set(ADDRESS_MODEL 64)
 set(NODE_TARGET x64)
 set(CMAKE_C_FLAGS "$ENV{CFLAGS} -m64  -O2 -fprefetch-loop-arrays -Wall")
